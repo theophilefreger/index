@@ -27,32 +27,33 @@
   }
 </script>
 
-<SettingAccordion title="Thème" subtitle="Modifier l'apparance de Mémoire Vive">
+<SettingAccordion key="appearance" title="Thème" subtitle="Modifier l'apparance de Mémoire Vive">
   <AppearanceSettings />
 </SettingAccordion>
 
-<SettingAccordion title="Compte" subtitle="Modifier vos paramètres de compte">
-  <UserProfileSettings user={$user} />
+<SettingAccordion key="account" title="Compte" subtitle="Modifier vos paramètres de compte">
+  <UserProfileSettings />
 </SettingAccordion>
 
-<SettingAccordion title="Clé API" subtitle="Paramètres des clés API">
+<SettingAccordion key="api-keys" title="Clé API" subtitle="Paramètres des clés API">
   <UserAPIKeyList bind:keys />
 </SettingAccordion>
 
-<SettingAccordion title="Appareils autorisés" subtitle="Modifier vos appareils enregistrés">
+<SettingAccordion key="authorized-devices" title="Appareils autorisés" subtitle="Modifier vos appareils enregistrés">
   <DeviceList bind:devices />
 </SettingAccordion>
 
-<SettingAccordion title="Bibliothèques" subtitle="Modifier les paramètres des ressources">
+<SettingAccordion key="libraries" title="Bibliothèques" subtitle="Modifier les paramètres des ressources">
   <LibraryList />
 </SettingAccordion>
 
-<SettingAccordion title="Memories" subtitle="Modifier ce que vous souhaitez voir">
+<SettingAccordion key="memories" title="Memories" subtitle="Modifier ce que vous souhaitez voir">
   <MemoriesSettings user={$user} />
 </SettingAccordion>
 
 {#if $featureFlags.loaded && $featureFlags.oauth}
   <SettingAccordion
+    key="oauth"
     title="OAuth"
     subtitle="Modifier votre connexion à OAuth"
     isOpen={oauthOpen ||
@@ -62,18 +63,18 @@
   </SettingAccordion>
 {/if}
 
-<SettingAccordion title="Mot de passe" subtitle="Modifier votre mot de passe">
+<SettingAccordion key="password" title="Mot de passe" subtitle="Modifier votre mot de passe">
   <ChangePasswordSettings />
 </SettingAccordion>
 
-<SettingAccordion title="Partage" subtitle="Modifier ce que peuvent voir vos partenaires">
+<SettingAccordion key="sharing" title="Partage" subtitle="Modifier ce que peuvent voir vos partenaires">
   <PartnerSettings user={$user} />
 </SettingAccordion>
 
-<SettingAccordion title="Sidebar" subtitle="Modifier les menus de la sidebar">
+<SettingAccordion key="sidebar" title="Sidebar" subtitle="Modifier les menus de la sidebar">
   <SidebarSettings />
 </SettingAccordion>
 
-<SettingAccordion title="Corbeille" subtitle="Modifier les paramètres de la corbeille">
+<SettingAccordion key="trash" title="Corbeille" subtitle="Modifier les paramètres de la corbeille">
   <TrashSettings />
 </SettingAccordion>

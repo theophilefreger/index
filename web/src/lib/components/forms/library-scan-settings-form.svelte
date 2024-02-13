@@ -48,13 +48,16 @@
     }
 
     try {
-      library.exclusionPatterns.push(exclusionPatternToAdd);
-      exclusionPatternToAdd = '';
-
-      exclusionPatterns = library.exclusionPatterns;
-      addExclusionPattern = false;
+      // Check so that exclusion pattern isn't duplicated
+      if (!library.exclusionPatterns.includes(exclusionPatternToAdd)) {
+        library.exclusionPatterns.push(exclusionPatternToAdd);
+        exclusionPatterns = library.exclusionPatterns;
+      }
     } catch (error) {
       handleError(error, "Impossible d'ajouter un motif d'exclusion");
+    } finally {
+      exclusionPatternToAdd = '';
+      addExclusionPattern = false;
     }
   };
 
@@ -102,6 +105,7 @@
   <LibraryExclusionPatternForm
     submitText="Ajouter"
     bind:exclusionPattern={exclusionPatternToAdd}
+    {exclusionPatterns}
     on:submit={handleAddExclusionPattern}
     on:cancel={() => {
       addExclusionPattern = false;
@@ -112,8 +116,9 @@
 {#if editExclusionPattern != undefined}
   <LibraryExclusionPatternForm
     submitText="Sauvegarder"
-    canDelete={true}
+    isEditing={true}
     bind:exclusionPattern={editedExclusionPattern}
+    {exclusionPatterns}
     on:submit={handleEditExclusionPattern}
     on:delete={handleDeleteExclusionPattern}
     on:cancel={() => {
