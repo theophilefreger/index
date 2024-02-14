@@ -1,24 +1,24 @@
 <script lang="ts">
-  import { api, type UserResponseDto } from '@api';
   import { createEventDispatcher } from 'svelte';
   import Button from '../elements/buttons/button.svelte';
+  import { updateUser, type UserResponseDto } from '@immich/sdk';
 
   export let user: UserResponseDto;
-  let error: string;
+  let errorMessage: string;
   let success: string;
 
   let password = '';
-  let confirmPassowrd = '';
+  let passwordConfirm = '';
 
-  let changeChagePassword = false;
+  let valid = false;
 
   $: {
-    if (password !== confirmPassowrd && confirmPassowrd.length > 0) {
-      error = 'Le mot de passe ne correspond pas';
-      changeChagePassword = false;
+    if (password !== passwordConfirm && passwordConfirm.length > 0) {
+      errorMessage = 'Le mot de passe ne correspond pas';
+      valid = false;
     } else {
-      error = '';
-      changeChagePassword = true;
+      errorMessage = '';
+      valid = true;
     }
   }
 
@@ -27,10 +27,10 @@
   }>();
 
   async function changePassword() {
-    if (changeChagePassword) {
-      error = '';
+    if (valid) {
+      errorMessage = '';
 
-      const { status } = await api.userApi.updateUser({
+      await updateUser({
         updateUserDto: {
           id: user.id,
           password: String(password),
@@ -38,12 +38,7 @@
         },
       });
 
-      if (status === 200) {
-        dispatch('success');
-        return;
-      } else {
-        console.error('Erreur lors du changement de mot de passe');
-      }
+      dispatch('success');
     }
   }
 </script>
@@ -71,12 +66,12 @@
       type="password"
       autocomplete="current-password"
       required
-      bind:value={confirmPassowrd}
+      bind:value={passwordConfirm}
     />
   </div>
 
-  {#if error}
-    <p class="text-sm text-red-400">{error}</p>
+  {#if errorMessage}
+    <p class="text-sm text-red-400">{errorMessage}</p>
   {/if}
 
   {#if success}

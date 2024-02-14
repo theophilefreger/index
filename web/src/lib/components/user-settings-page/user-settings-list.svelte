@@ -17,6 +17,7 @@
   import { OpenSettingQueryParameterValue, QueryParameter } from '$lib/constants';
   import AppearanceSettings from './appearance-settings.svelte';
   import TrashSettings from './trash-settings.svelte';
+  import QualitySettings from './quality-settings.svelte';
 
   export let keys: APIKeyResponseDto[] = [];
   export let devices: AuthDeviceResponseDto[] = [];
@@ -67,7 +68,11 @@
   <ChangePasswordSettings />
 </SettingAccordion>
 
-<SettingAccordion key="sharing" title="Partage" subtitle="Modifier ce que peuvent voir vos partenaires">
+<SettingAccordion key="quality" title="Quality" subtitle="Gérer votre expérience de visionnage">
+  <QualitySettings />
+</SettingAccordion>
+
+<SettingAccordion key="sharing" title="Sharing" subtitle="Gérer le partage avec les collaborateurs">
   <PartnerSettings user={$user} />
 </SettingAccordion>
 

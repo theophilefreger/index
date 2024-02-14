@@ -4,8 +4,8 @@
  * DO NOT MODIFY - This file has been generated using oazapfts.
  * See https://www.npmjs.com/package/oazapfts
  */
-import * as Oazapfts from "oazapfts/lib/runtime";
-import * as QS from "oazapfts/lib/runtime/query";
+import * as Oazapfts from "@oazapfts/runtime";
+import * as QS from "@oazapfts/runtime/query";
 export const defaults: Oazapfts.Defaults<Oazapfts.CustomHeaders> = {
     headers: {},
     baseUrl: "/api",
@@ -603,6 +603,7 @@ export type SearchExploreResponseDto = {
     fieldName: string;
     items: SearchExploreItem[];
 };
+export type SearchSuggestionType = "country" | "state" | "city" | "camera-make" | "camera-model";
 export type ServerInfoResponseDto = {
     diskAvailable: string;
     diskAvailableRaw: number;
@@ -2262,6 +2263,26 @@ export function searchSmart({ city, country, createdAfter, createdBefore, device
         withArchived,
         withDeleted,
         withExif
+    }))}`, {
+        ...opts
+    }));
+}
+export function getSearchSuggestions({ country, make, model, state, $type }: {
+    country?: string;
+    make?: string;
+    model?: string;
+    state?: string;
+    $type: SearchSuggestionType;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: string[];
+    }>(`/search/suggestions${QS.query(QS.explode({
+        country,
+        make,
+        model,
+        state,
+        "type": $type
     }))}`, {
         ...opts
     }));
