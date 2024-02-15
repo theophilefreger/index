@@ -1,10 +1,11 @@
 <script lang="ts">
+  import { api } from '$lib/api';
   import noThumbnailUrl from '$lib/assets/no-thumbnail.png';
   import Icon from '$lib/components/elements/icon.svelte';
   import { locale } from '$lib/stores/preferences.store';
   import { user } from '$lib/stores/user.store';
-  import { ThumbnailFormat, api, type AlbumResponseDto } from '@api';
-  import { getUserById } from '@immich/sdk';
+  import { getAssetThumbnailUrl } from '$lib/utils';
+  import { ThumbnailFormat, getUserById, type AlbumResponseDto } from '@immich/sdk';
   import { mdiDotsVertical } from '@mdi/js';
   import { createEventDispatcher, onMount } from 'svelte';
   import { getContextMenuPosition } from '../../utils/context-menu';
@@ -19,7 +20,7 @@
   let showVerticalDots = false;
 
   $: imageData = album.albumThumbnailAssetId
-    ? api.getAssetThumbnailUrl(album.albumThumbnailAssetId, ThumbnailFormat.Webp)
+    ? getAssetThumbnailUrl(album.albumThumbnailAssetId, ThumbnailFormat.Webp)
     : noThumbnailUrl;
 
   const dispatchClick = createEventDispatcher<OnClick>();

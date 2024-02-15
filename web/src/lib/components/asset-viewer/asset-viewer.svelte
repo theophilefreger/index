@@ -11,6 +11,7 @@
   import { SlideshowState, slideshowStore } from '$lib/stores/slideshow.store';
   import { stackAssetsStore } from '$lib/stores/stacked-asset.store';
   import { user } from '$lib/stores/user.store';
+  import { getAssetJobMessage, isSharedLink } from '$lib/utils';
   import { addAssetsToAlbum, downloadFile } from '$lib/utils/asset-utils';
   import { handleError } from '$lib/utils/handle-error';
   import { shouldIgnoreShortcut } from '$lib/utils/shortcut';
@@ -19,19 +20,20 @@
     AssetJobName,
     AssetTypeEnum,
     ReactionType,
-    api,
+    createActivity,
+    createAlbum,
+    deleteActivity,
+    deleteAssets,
+    getActivities,
+    getActivityStatistics,
+    getAllAlbums,
+    runAssetJobs,
+    updateAsset,
+    updateAssets,
     type ActivityResponseDto,
     type AlbumResponseDto,
     type AssetResponseDto,
     type SharedLinkResponseDto,
-  } from '@api';
-  import {
-    createActivity,
-    createAlbum,
-    deleteActivity,
-    getActivities,
-    getActivityStatistics,
-    getAllAlbums,
   } from '@immich/sdk';
   import { mdiChevronLeft, mdiChevronRight, mdiImageBrokenVariant } from '@mdi/js';
   import { createEventDispatcher, onDestroy, onMount } from 'svelte';
@@ -235,7 +237,7 @@
   $: asset.id && !sharedLink && handleGetAllAlbums(); // Update the album information when the asset ID changes
 
   const handleGetAllAlbums = async () => {
-    if (api.isSharedLink) {
+    if (isSharedLink()) {
       return;
     }
 
@@ -386,7 +388,7 @@
 
   const trashAsset = async () => {
     try {
-      await api.assetApi.deleteAssets({ assetBulkDeleteDto: { ids: [asset.id] } });
+      await deleteAssets({ assetBulkDeleteDto: { ids: [asset.id] } });
 
       dispatch('action', { type: AssetAction.TRASH, asset });
 
@@ -401,7 +403,7 @@
 
   const deleteAsset = async () => {
     try {
-      await api.assetApi.deleteAssets({ assetBulkDeleteDto: { ids: [asset.id], force: true } });
+      await deleteAssets({ assetBulkDeleteDto: { ids: [asset.id], force: true } });
 
       dispatch('action', { type: AssetAction.DELETE, asset });
 
@@ -418,7 +420,7 @@
 
   const toggleFavorite = async () => {
     try {
-      const { data } = await api.assetApi.updateAsset({
+      const data = await updateAsset({
         id: asset.id,
         updateAssetDto: {
           isFavorite: !asset.isFavorite,
@@ -470,7 +472,7 @@
 
   const toggleArchive = async () => {
     try {
-      const { data } = await api.assetApi.updateAsset({
+      const data = await updateAsset({
         id: asset.id,
         updateAssetDto: {
           isArchived: !asset.isArchived,
@@ -491,8 +493,8 @@
 
   const handleRunJob = async (name: AssetJobName) => {
     try {
-      await api.assetApi.runAssetJobs({ assetJobsDto: { assetIds: [asset.id], name } });
-      notificationController.show({ type: NotificationType.Info, message: api.getAssetJobMessage(name) });
+      await runAssetJobs({ assetJobsDto: { assetIds: [asset.id], name } });
+      notificationController.show({ type: NotificationType.Info, message: getAssetJobMessage(name) });
     } catch (error) {
       await handleError(error, `Impossible de soumettre la tâche`);
     }
@@ -552,7 +554,7 @@
   const handleUnstack = async () => {
     try {
       const ids = $stackAssetsStore.map(({ id }) => id);
-      await api.assetApi.updateAssets({ assetBulkUpdateDto: { ids, removeParent: true } });
+      await updateAssets({ assetBulkUpdateDto: { ids, removeParent: true } });
       for (const child of $stackAssetsStore) {
         child.stackParentId = null;
         child.stackCount = 0;
@@ -732,7 +734,7 @@
     >
       <DetailPanel
         {asset}
-        albumId={album?.id}
+        currentAlbum={album}
         albums={appearsInAlbums}
         on:close={() => ($isShowDetail = false)}
         on:closeViewer={handleCloseViewer}

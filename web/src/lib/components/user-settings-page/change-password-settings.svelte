@@ -3,11 +3,11 @@
     notificationController,
     NotificationType,
   } from '$lib/components/shared-components/notification/notification';
-  import { type ApiError } from '@api';
   import { changePassword } from '@immich/sdk';
   import { fade } from 'svelte/transition';
   import SettingInputField, { SettingInputFieldType } from '../admin-page/settings/setting-input-field.svelte';
   import Button from '../elements/buttons/button.svelte';
+  import type { HttpError } from '@sveltejs/kit';
 
   let password = '';
   let newPassword = '';
@@ -28,7 +28,7 @@
     } catch (error) {
       console.error('Error [user-profile] [changePassword]', error);
       notificationController.show({
-        message: (error as ApiError)?.response?.data?.message || 'Impossible de changer le mot de passe',
+        message: (error as HttpError)?.body?.message || 'Impossible de changer le mot de passe',
         type: NotificationType.Error,
       });
     }
