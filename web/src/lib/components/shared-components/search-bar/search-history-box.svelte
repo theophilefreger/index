@@ -16,15 +16,6 @@
   transition:fly={{ y: 25, duration: 250 }}
   class="absolute w-full rounded-b-3xl border border-gray-200 bg-white pb-5 shadow-2xl transition-all dark:border-gray-800 dark:bg-immich-dark-gray dark:text-gray-300"
 >
-  <div class="flex px-5 pt-5 text-left text-sm">
-    <p>
-      La recherche par IA est activée par défaut, pour rechercher dans le contexte du fichier, utilisez la syntaxe <span
-        class="rounded-lg bg-gray-100 p-2 font-mono font-semibold leading-7 text-immich-primary dark:bg-gray-900 dark:text-immich-dark-primary"
-        >m:nom-du-dossier</span
-      >
-    </p>
-  </div>
-
   {#if $savedSearchTerms.length > 0}
     <div class="flex items-center justify-between px-5 pt-5 text-xs">
       <p>RECHERCHES RÉCENTES</p>
