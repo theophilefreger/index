@@ -28,6 +28,7 @@
   <p>
     Le modèle de stockage est utilisé pour déterminer la structure des dossiers et le nom des fichiers de vos fichiers multimédias.
     Vous pouvez utiliser des variables pour personnaliser le modèle selon vos préférences.
+    <a class="underline" href="https://rfstudio.fr/documentation">documentation</a>.
   </p>
 
   {#if config && $user}

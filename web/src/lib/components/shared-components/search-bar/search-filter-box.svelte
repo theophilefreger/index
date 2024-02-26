@@ -16,8 +16,7 @@
   import { createEventDispatcher, onMount } from 'svelte';
   import { fly } from 'svelte/transition';
   import Combobox, { type ComboBoxOption } from '../combobox.svelte';
-  import { DateTime } from 'luxon';
-  import { searchQuery } from '$lib/stores/search.store';
+  import { parseUtcDate } from '$lib/utils/date-time';
 
   enum MediaType {
     All = 'all',
@@ -44,7 +43,7 @@
 
   type SearchFilter = {
     context?: string;
-    people: PersonResponseDto[];
+    people: (PersonResponseDto | Pick<PersonResponseDto, 'id'>)[];
 
     location: {
       country?: ComboBoxOption;
@@ -68,6 +67,8 @@
 
     mediaType: MediaType;
   };
+
+  export let searchQuery: MetadataSearchDto | SmartSearchDto;
 
   let suggestions: SearchSuggestion = {
     people: [],
@@ -102,26 +103,29 @@
 
   const dispatch = createEventDispatcher<{ search: SmartSearchDto | MetadataSearchDto }>();
   let showAllPeople = false;
-  $: peopleList = showAllPeople ? suggestions.people : suggestions.people.slice(0, 11);
+
+  let filterBoxWidth = 0;
+  $: numberOfPeople = (filterBoxWidth - 80) / 85;
+  $: peopleList = showAllPeople ? suggestions.people : suggestions.people.slice(0, numberOfPeople);
 
   onMount(() => {
     getPeople();
     populateExistingFilters();
   });
 
-  const showSelectedPeopleFirst = () => {
-    suggestions.people.sort((a, _) => {
+  function orderBySelectedPeopleFirst<T extends Pick<PersonResponseDto, 'id'>>(people: T[]) {
+    return people.sort((a, _) => {
       if (filter.people.some((p) => p.id === a.id)) {
         return -1;
       }
       return 1;
     });
-  };
+  }
 
   const getPeople = async () => {
     try {
       const { people } = await getAllPeople({ withHidden: false });
-      suggestions.people = people;
+      suggestions.people = orderBySelectedPeopleFirst(people);
     } catch (error) {
       handleError(error, 'Failed to get people');
     }
@@ -130,14 +134,12 @@
   const handlePeopleSelection = (id: string) => {
     if (filter.people.some((p) => p.id === id)) {
       filter.people = filter.people.filter((p) => p.id !== id);
-      showSelectedPeopleFirst();
       return;
     }
 
     const person = suggestions.people.find((p) => p.id === id);
     if (person) {
       filter.people = [...filter.people, person];
-      showSelectedPeopleFirst();
     }
   };
 
@@ -229,6 +231,9 @@
     };
   };
 
+  const parseOptionalDate = (dateString?: string) => (dateString ? parseUtcDate(dateString) : undefined);
+  const toStartOfDayDate = (dateString: string) => parseUtcDate(dateString)?.startOf('day').toISODate() || undefined;
+
   const search = async () => {
     let type: AssetTypeEnum | undefined = undefined;
 
@@ -244,16 +249,11 @@
       city: filter.location.city?.value,
       make: filter.camera.make?.value,
       model: filter.camera.model?.value,
-      takenAfter: filter.date.takenAfter
-        ? DateTime.fromFormat(filter.date.takenAfter, 'yyyy-MM-dd').toUTC().startOf('day').toString()
-        : undefined,
-      takenBefore: filter.date.takenBefore
-        ? DateTime.fromFormat(filter.date.takenBefore, 'yyyy-MM-dd').toUTC().endOf('day').toString()
-        : undefined,
-      /* eslint-disable unicorn/prefer-logical-operator-over-ternary */
-      isArchived: filter.isArchive ? filter.isArchive : undefined,
-      isFavorite: filter.isFavorite ? filter.isFavorite : undefined,
-      isNotInAlbum: filter.isNotInAlbum ? filter.isNotInAlbum : undefined,
+      takenAfter: parseOptionalDate(filter.date.takenAfter)?.startOf('day').toISO() || undefined,
+      takenBefore: parseOptionalDate(filter.date.takenBefore)?.endOf('day').toISO() || undefined,
+      isArchived: filter.isArchive || undefined,
+      isFavorite: filter.isFavorite || undefined,
+      isNotInAlbum: filter.isNotInAlbum || undefined,
       personIds: filter.people && filter.people.length > 0 ? filter.people.map((p) => p.id) : undefined,
       type,
     };
@@ -277,35 +277,32 @@
   };
 
   function populateExistingFilters() {
-    if ($searchQuery) {
+    if (searchQuery) {
+      const personIds = 'personIds' in searchQuery && searchQuery.personIds ? searchQuery.personIds : [];
+
       filter = {
-        context: 'query' in $searchQuery ? $searchQuery.query : '',
-        people:
-          'personIds' in $searchQuery ? ($searchQuery.personIds?.map((id) => ({ id })) as PersonResponseDto[]) : [],
+        context: 'query' in searchQuery ? searchQuery.query : '',
+        people: orderBySelectedPeopleFirst(personIds.map((id) => ({ id }))),
         location: {
-          country: $searchQuery.country ? { label: $searchQuery.country, value: $searchQuery.country } : undefined,
-          state: $searchQuery.state ? { label: $searchQuery.state, value: $searchQuery.state } : undefined,
-          city: $searchQuery.city ? { label: $searchQuery.city, value: $searchQuery.city } : undefined,
+          country: searchQuery.country ? { label: searchQuery.country, value: searchQuery.country } : undefined,
+          state: searchQuery.state ? { label: searchQuery.state, value: searchQuery.state } : undefined,
+          city: searchQuery.city ? { label: searchQuery.city, value: searchQuery.city } : undefined,
         },
         camera: {
-          make: $searchQuery.make ? { label: $searchQuery.make, value: $searchQuery.make } : undefined,
-          model: $searchQuery.model ? { label: $searchQuery.model, value: $searchQuery.model } : undefined,
+          make: searchQuery.make ? { label: searchQuery.make, value: searchQuery.make } : undefined,
+          model: searchQuery.model ? { label: searchQuery.model, value: searchQuery.model } : undefined,
         },
         date: {
-          takenAfter: $searchQuery.takenAfter
-            ? DateTime.fromISO($searchQuery.takenAfter).toUTC().toFormat('yyyy-MM-dd')
-            : undefined,
-          takenBefore: $searchQuery.takenBefore
-            ? DateTime.fromISO($searchQuery.takenBefore).toUTC().toFormat('yyyy-MM-dd')
-            : undefined,
+          takenAfter: searchQuery.takenAfter ? toStartOfDayDate(searchQuery.takenAfter) : undefined,
+          takenBefore: searchQuery.takenBefore ? toStartOfDayDate(searchQuery.takenBefore) : undefined,
         },
-        isArchive: $searchQuery.isArchived,
-        isFavorite: $searchQuery.isFavorite,
-        isNotInAlbum: 'isNotInAlbum' in $searchQuery ? $searchQuery.isNotInAlbum : undefined,
+        isArchive: searchQuery.isArchived,
+        isFavorite: searchQuery.isFavorite,
+        isNotInAlbum: 'isNotInAlbum' in searchQuery ? searchQuery.isNotInAlbum : undefined,
         mediaType:
-          $searchQuery.type === AssetTypeEnum.Image
+          searchQuery.type === AssetTypeEnum.Image
             ? MediaType.Image
-            : $searchQuery.type === AssetTypeEnum.Video
+            : searchQuery.type === AssetTypeEnum.Video
               ? MediaType.Video
               : MediaType.All,
       };
@@ -314,256 +311,260 @@
 </script>
 
 <div
+  bind:clientWidth={filterBoxWidth}
   transition:fly={{ y: 25, duration: 250 }}
-  class="absolute w-full rounded-b-3xl border border-gray-200 bg-white shadow-2xl transition-all dark:border-gray-800 dark:bg-immich-dark-gray dark:text-gray-300 px-6 pt-6 overflow-y-auto max-h-[90vh] immich-scrollbar"
+  class="absolute w-full rounded-b-3xl border border-t-0 border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-immich-dark-gray dark:text-gray-300"
 >
-  <p class="text-xs py-2">FILTRES</p>
-  <hr class="border-slate-300 dark:border-slate-700 py-2" />
-
-  <form id="search-filter-form relative" autocomplete="off" class="hover:cursor-auto">
-    <!-- PEOPLE -->
-    <div id="people-selection" class="my-4">
-      <div class="flex justify-between place-items-center gap-6">
-        <div class="flex-1">
-          <p class="immich-form-label">PERSONNES</p>
-        </div>
-      </div>
-
+  <form
+    id="search-filter-form"
+    autocomplete="off"
+    on:submit|preventDefault={search}
+    on:reset|preventDefault={resetForm}
+  >
+    <div class="px-4 sm:px-6 py-4 space-y-10 max-h-[calc(100dvh-12rem)] overflow-y-auto immich-scrollbar">
+      <!-- PEOPLE -->
       {#if suggestions.people.length > 0}
-        <div class="flex gap-1 mt-4 flex-wrap max-h-[300px] overflow-y-auto immich-scrollbar transition-all">
-          {#each peopleList as person (person.id)}
-            <button
-              type="button"
-              class="w-20 text-center rounded-3xl border-2 border-transparent hover:bg-immich-gray dark:hover:bg-immich-dark-primary/20 p-2 flex-col place-items-center transition-all {filter.people.some(
-                (p) => p.id === person.id,
-              )
-                ? 'dark:border-slate-500 border-slate-300 bg-slate-200 dark:bg-slate-800 dark:text-white'
-                : ''}"
-              on:click={() => handlePeopleSelection(person.id)}
-            >
-              <ImageThumbnail
-                circle
-                shadow
-                url={getPeopleThumbnailUrl(person.id)}
-                altText={person.name}
-                widthStyle="100px"
-              />
-              <p class="mt-2 text-ellipsis text-sm font-medium dark:text-white">{person.name}</p>
-            </button>
-          {/each}
-        </div>
+        <div id="people-selection" class="-mb-4">
+          <div class="flex items-center gap-6">
+            <p class="immich-form-label">PEOPLE</p>
+          </div>
 
-        <div class="flex justify-center mt-2">
-          <Button
-            shadow={false}
-            color="text-primary"
-            type="button"
-            class="flex gap-2 place-items-center place-content-center"
-            on:click={() => (showAllPeople = !showAllPeople)}
-          >
-            {#if showAllPeople}
-              <span><Icon path={mdiClose} /></span>
-              Dérouler
-            {:else}
-              <span><Icon path={mdiArrowRight} /></span>
-              Montrer toutes les personnes
-            {/if}
-          </Button>
+          <div class="flex -mx-1 max-h-64 gap-1 mt-2 flex-wrap overflow-y-auto immich-scrollbar">
+            {#each peopleList as person (person.id)}
+              <button
+                type="button"
+                class="w-20 text-center rounded-3xl border-2 border-transparent hover:bg-immich-gray dark:hover:bg-immich-dark-primary/20 p-2 transition-all {filter.people.some(
+                  (p) => p.id === person.id,
+                )
+                  ? 'dark:border-slate-500 border-slate-400 bg-slate-200 dark:bg-slate-800 dark:text-white'
+                  : ''}"
+                on:click={() => handlePeopleSelection(person.id)}
+              >
+                <ImageThumbnail
+                  circle
+                  shadow
+                  url={getPeopleThumbnailUrl(person.id)}
+                  altText={person.name}
+                  widthStyle="100%"
+                />
+                <p class="mt-2 line-clamp-2 text-sm font-medium dark:text-white">{person.name}</p>
+              </button>
+            {/each}
+          </div>
+
+          {#if showAllPeople || suggestions.people.length > peopleList.length}
+            <div class="flex justify-center mt-2">
+              <Button
+                shadow={false}
+                color="text-primary"
+                class="flex gap-2 place-items-center"
+                on:click={() => (showAllPeople = !showAllPeople)}
+              >
+                {#if showAllPeople}
+                  <span><Icon path={mdiClose} /></span>
+                  Dérouler
+                {:else}
+                  <span><Icon path={mdiArrowRight} /></span>
+                  Voir tout le monde
+                {/if}
+              </Button>
+            </div>
+          {/if}
         </div>
       {/if}
-    </div>
 
-    <hr class="border-slate-300 dark:border-slate-700" />
-    <!-- CONTEXT -->
-    <div class="my-4">
-      <label class="immich-form-label" for="context">CONTEXTE</label>
-      <input
-        class="immich-form-input hover:cursor-text w-full mt-3"
-        type="text"
-        id="context"
-        name="context"
-        placeholder="Par exemple : Cravan"
-        bind:value={filter.context}
-      />
-    </div>
-
-    <hr class="border-slate-300 dark:border-slate-700" />
-    <!-- LOCATION -->
-    <div id="location-selection" class="my-4">
-      <p class="immich-form-label">LIEU</p>
-
-      <div class="flex justify-between gap-5 mt-3">
-        <div class="w-full">
-          <p class="text-sm text-black dark:text-white">Pays</p>
-          <Combobox
-            options={suggestions.country}
-            bind:selectedOption={filter.location.country}
-            placeholder="Rechercher par pays..."
-            on:click={() => updateSuggestion(SearchSuggestionType.Country, {})}
+      <!-- CONTEXT -->
+      <div>
+        <label class="immich-form-label" for="context">
+          <span>CONTEXTE</span>
+          <input
+            class="immich-form-input hover:cursor-text w-full mt-1"
+            type="text"
+            id="context"
+            name="context"
+            placeholder="Utiliser au moins 3 mots dans une phrase."
+            bind:value={filter.context}
           />
-        </div>
-
-        <div class="w-full">
-          <p class="text-sm text-black dark:text-white">Région</p>
-          <Combobox
-            options={suggestions.state}
-            bind:selectedOption={filter.location.state}
-            placeholder="Rechercher une région..."
-            on:click={() => updateSuggestion(SearchSuggestionType.State, { country: filter.location.country?.value })}
-          />
-        </div>
-
-        <div class="w-full">
-          <p class="text-sm text-black dark:text-white">Ville</p>
-          <Combobox
-            options={suggestions.city}
-            bind:selectedOption={filter.location.city}
-            placeholder="Rechercher une ville..."
-            on:click={() =>
-              updateSuggestion(SearchSuggestionType.City, {
-                country: filter.location.country?.value,
-                state: filter.location.state?.value,
-              })}
-          />
-        </div>
-      </div>
-    </div>
-
-    <hr class="border-slate-300 dark:border-slate-700" />
-    <!-- CAMERA MODEL -->
-    <div id="camera-selection" class="my-4">
-      <p class="immich-form-label">CAMERA</p>
-
-      <div class="flex justify-between gap-5 mt-3">
-        <div class="w-full">
-          <p class="text-sm text-black dark:text-white">Marque</p>
-          <Combobox
-            options={suggestions.make}
-            bind:selectedOption={filter.camera.make}
-            placeholder="Rechercher une marque..."
-            on:click={() =>
-              updateSuggestion(SearchSuggestionType.CameraMake, { cameraModel: filter.camera.model?.value })}
-          />
-        </div>
-
-        <div class="w-full">
-          <p class="text-sm text-black dark:text-white">Modèle</p>
-          <Combobox
-            options={suggestions.model}
-            bind:selectedOption={filter.camera.model}
-            placeholder="Rechercher un modèle..."
-            on:click={() =>
-              updateSuggestion(SearchSuggestionType.CameraModel, { cameraMake: filter.camera.make?.value })}
-          />
-        </div>
-      </div>
-    </div>
-
-    <hr class="border-slate-300 dark:border-slate-700" />
-
-    <!-- DATE RANGE -->
-    <div id="date-range-selection" class="my-4 flex justify-between gap-5">
-      <div class="mb-3 flex-1 mt">
-        <label class="immich-form-label" for="start-date">Date de début</label>
-        <input
-          class="immich-form-input w-full mt-3 hover:cursor-pointer"
-          type="date"
-          id="start-date"
-          name="start-date"
-          bind:value={filter.date.takenAfter}
-        />
+        </label>
       </div>
 
-      <div class="mb-3 flex-1">
-        <label class="immich-form-label" for="end-date">Date de fin</label>
-        <input
-          class="immich-form-input w-full mt-3 hover:cursor-pointer"
-          type="date"
-          id="end-date"
-          name="end-date"
-          placeholder=""
-          bind:value={filter.date.takenBefore}
-        />
-      </div>
-    </div>
+      <!-- LOCATION -->
+      <div id="location-selection">
+        <p class="immich-form-label">LIEUX</p>
 
-    <hr class="border-slate-300 dark:border-slate-700" />
-    <div class="py-3 grid grid-cols-2">
-      <!-- MEDIA TYPE -->
-      <div id="media-type-selection">
-        <p class="immich-form-label">TYPE DE MEDIA</p>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5 mt-1">
+          <div class="w-full">
+            <label class="text-sm text-black dark:text-white" for="search-place-country">Pays</label>
+            <Combobox
+              id="search-place-country"
+              options={suggestions.country}
+              bind:selectedOption={filter.location.country}
+              placeholder="Rechercher..."
+              on:click={() => updateSuggestion(SearchSuggestionType.Country, {})}
+            />
+          </div>
 
-        <div class="flex gap-5 mt-3">
-          <label
-            for="type-all"
-            class="text-base flex place-items-center gap-1 hover:cursor-pointer text-black dark:text-white"
-          >
-            <input
-              bind:group={filter.mediaType}
-              value={MediaType.All}
-              type="radio"
-              name="radio-type"
-              id="type-all"
-            />TOUS</label
-          >
+          <div class="w-full">
+            <label class="text-sm text-black dark:text-white" for="search-place-state">Région</label>
+            <Combobox
+              id="search-place-state"
+              options={suggestions.state}
+              bind:selectedOption={filter.location.state}
+              placeholder="Rechercher..."
+              on:click={() => updateSuggestion(SearchSuggestionType.State, { country: filter.location.country?.value })}
+            />
+          </div>
 
-          <label
-            for="type-image"
-            class="text-base flex place-items-center gap-1 hover:cursor-pointer text-black dark:text-white"
-          >
-            <input
-              bind:group={filter.mediaType}
-              value={MediaType.Image}
-              type="radio"
-              name="media-type"
-              id="type-image"
-            />Image</label
-          >
-
-          <label
-            for="type-video"
-            class="text-base flex place-items-center gap-1 hover:cursor-pointer text-black dark:text-white"
-          >
-            <input
-              bind:group={filter.mediaType}
-              value={MediaType.Video}
-              type="radio"
-              name="radio-type"
-              id="type-video"
-            />Vidéo</label
-          >
+          <div class="w-full">
+            <label class="text-sm text-black dark:text-white" for="search-place-city">Ville</label>
+            <Combobox
+              id="search-place-city"
+              options={suggestions.city}
+              bind:selectedOption={filter.location.city}
+              placeholder="Rechercher..."
+              on:click={() =>
+                updateSuggestion(SearchSuggestionType.City, {
+                  country: filter.location.country?.value,
+                  state: filter.location.state?.value,
+                })}
+            />
+          </div>
         </div>
       </div>
 
-      <!-- DISPLAY OPTIONS -->
-      <div id="display-options-selection">
-        <p class="immich-form-label">OPTIONS D'AFFICHAGE</p>
+      <!-- CAMERA MODEL -->
+      <div id="camera-selection">
+        <p class="immich-form-label">CAMERA</p>
 
-        <div class="flex gap-5 mt-3">
-          <label class="flex items-center mb-2">
-            <input type="checkbox" class="form-checkbox h-5 w-5 color" bind:checked={filter.isNotInAlbum} />
-            <span class="ml-2 text-sm text-black dark:text-white pt-1">Dans aucun album</span>
-          </label>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5 mt-1">
+          <div class="w-full">
+            <label class="text-sm text-black dark:text-white" for="search-camera-make">Marque</label>
+            <Combobox
+              id="search-camera-make"
+              options={suggestions.make}
+              bind:selectedOption={filter.camera.make}
+              placeholder="Rechercher..."
+              on:click={() =>
+                updateSuggestion(SearchSuggestionType.CameraMake, { cameraModel: filter.camera.model?.value })}
+            />
+          </div>
 
-          <label class="flex items-center mb-2">
-            <input type="checkbox" class="form-checkbox h-5 w-5 color" bind:checked={filter.isArchive} />
-            <span class="ml-2 text-sm text-black dark:text-white pt-1">Archive</span>
-          </label>
+          <div class="w-full">
+            <label class="text-sm text-black dark:text-white" for="search-camera-model">Modèle</label>
+            <Combobox
+              id="search-camera-model"
+              options={suggestions.model}
+              bind:selectedOption={filter.camera.model}
+              placeholder="Rechercher..."
+              on:click={() =>
+                updateSuggestion(SearchSuggestionType.CameraModel, { cameraMake: filter.camera.make?.value })}
+            />
+          </div>
+        </div>
+      </div>
 
-          <label class="flex items-center mb-2">
-            <input type="checkbox" class="form-checkbox h-5 w-5 color" bind:checked={filter.isFavorite} />
-            <span class="ml-2 text-sm text-black dark:text-white pt-1">Favoris</span>
-          </label>
+      <!-- DATE RANGE -->
+      <div id="date-range-selection" class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5">
+        <label class="immich-form-label" for="start-date">
+          <span>DATE DE DÉBUT</span>
+          <input
+            class="immich-form-input w-full mt-1 hover:cursor-pointer"
+            type="date"
+            id="start-date"
+            name="start-date"
+            max={filter.date.takenBefore}
+            bind:value={filter.date.takenAfter}
+          />
+        </label>
+
+        <label class="immich-form-label" for="end-date">
+          <span>DATE DE FIN</span>
+          <input
+            class="immich-form-input w-full mt-1 hover:cursor-pointer"
+            type="date"
+            id="end-date"
+            name="end-date"
+            placeholder=""
+            min={filter.date.takenAfter}
+            bind:value={filter.date.takenBefore}
+          />
+        </label>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-x-5 gap-y-8">
+        <!-- MEDIA TYPE -->
+        <div id="media-type-selection">
+          <p class="immich-form-label">TYPE DE MÉDIA</p>
+
+          <div class="flex gap-5 mt-1 text-base">
+            <label for="type-all" class="flex items-center gap-1">
+              <input
+                bind:group={filter.mediaType}
+                value={MediaType.All}
+                type="radio"
+                name="radio-type"
+                id="type-all"
+                class="size-4"
+              />
+              <span class="pt-0.5">Tout</span>
+            </label>
+
+            <label for="type-image" class="flex items-center gap-1">
+              <input
+                bind:group={filter.mediaType}
+                value={MediaType.Image}
+                type="radio"
+                name="media-type"
+                id="type-image"
+                class="size-4"
+              />
+              <span class="pt-0.5">Image</span>
+            </label>
+
+            <label for="type-video" class="flex items-center gap-1">
+              <input
+                bind:group={filter.mediaType}
+                value={MediaType.Video}
+                type="radio"
+                name="radio-type"
+                id="type-video"
+                class="size-4"
+              />
+              <span class="pt-0.5">Vidéo</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- DISPLAY OPTIONS -->
+        <div id="display-options-selection" class="text-sm">
+          <p class="immich-form-label">Options d'affichage</p>
+
+          <div class="flex flex-wrap gap-x-5 gap-y-2 mt-1">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="size-5 flex-shrink-0" bind:checked={filter.isNotInAlbum} />
+              <span class="pt-1">Dans aucun album</span>
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="size-5 flex-shrink-0" bind:checked={filter.isArchive} />
+              <span class="pt-1">Archives</span>
+            </label>
+
+            <label class="flex items-center gap-2">
+              <input type="checkbox" class="size-5 flex-shrink-0" bind:checked={filter.isFavorite} />
+              <span class="pt-1">Favoris</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
 
     <div
       id="button-row"
-      class="flex justify-end gap-4 py-4 sticky bottom-0 dark:border-gray-800 dark:bg-immich-dark-gray"
+      class="flex justify-end gap-4 border-t dark:border-gray-800 dark:bg-immich-dark-gray px-4 sm:py-6 py-4 mt-2 rounded-b-3xl"
     >
-      <Button color="gray" on:click={resetForm}>TOUT EFFACER</Button>
-      <Button type="button" on:click={search}>RECHERCHER</Button>
+      <Button type="reset" color="gray">TOUT EFFACER</Button>
+      <Button type="submit">RECHERCHER</Button>
     </div>
   </form>
 </div>

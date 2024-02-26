@@ -6,12 +6,13 @@
   import { createEventDispatcher } from 'svelte';
   import Button from '../elements/buttons/button.svelte';
   import ImmichLogo from '../shared-components/immich-logo.svelte';
+  import PasswordField from '../shared-components/password-field.svelte';
 
   let error: string;
   let success: string;
 
   let password = '';
-  let confirmPassowrd = '';
+  let confirmPassword = '';
 
   let canCreateUser = false;
   let quotaSize: number | undefined;
@@ -20,7 +21,7 @@
   $: quotaSizeWarning = quotaSize && convertToBytes(Number(quotaSize), 'GiB') > $serverInfo.diskSizeRaw;
 
   $: {
-    if (password !== confirmPassowrd && confirmPassowrd.length > 0) {
+    if (password !== confirmPassword && confirmPassword.length > 0) {
       error = 'Le mot de passe ne correspond pas';
       canCreateUser = false;
     } else {
@@ -73,7 +74,7 @@
 </script>
 
 <div
-  class="max-h-screen w-[500px] max-w-[95vw] overflow-y-scroll rounded-3xl border bg-immich-bg p-4 py-8 shadow-sm dark:border-immich-dark-gray dark:bg-immich-dark-gray dark:text-immich-dark-fg"
+  class="max-h-screen w-[500px] max-w-[95vw] overflow-y-auto immich-scrollbar rounded-3xl border bg-immich-bg p-4 py-8 shadow-sm dark:border-immich-dark-gray dark:bg-immich-dark-gray dark:text-immich-dark-fg"
 >
   <div class="flex flex-col place-content-center place-items-center gap-4 px-4">
     <ImmichLogo class="text-center" height="100" width="100" />
@@ -91,19 +92,12 @@
 
     <div class="m-4 flex flex-col gap-2">
       <label class="immich-form-label" for="password">Mot de passe</label>
-      <input class="immich-form-input" id="password" name="password" type="password" required bind:value={password} />
+      <PasswordField id="password" name="password" bind:password autocomplete="new-password" />
     </div>
 
     <div class="m-4 flex flex-col gap-2">
       <label class="immich-form-label" for="confirmPassword">Confirmer le mot de passe</label>
-      <input
-        class="immich-form-input"
-        id="confirmPassword"
-        name="password"
-        type="password"
-        required
-        bind:value={confirmPassowrd}
-      />
+      <PasswordField id="confirmPassword" bind:password={confirmPassword} autocomplete="new-password" />
     </div>
 
     <div class="m-4 flex flex-col gap-2">
@@ -114,7 +108,7 @@
     <div class="m-4 flex flex-col gap-2">
       <label class="flex items-center gap-2 immich-form-label" for="quotaSize"
         >Quota Size (GiB) {#if quotaSizeWarning}
-          <p class="text-red-400 text-sm">You set a quota higher than the disk size</p>
+          <p class="text-red-400 text-sm">Votre quota est plus grand que la taille du disque</p>
         {/if}</label
       >
       <input class="immich-form-input" id="quotaSize" name="quotaSize" type="number" min="0" bind:value={quotaSize} />

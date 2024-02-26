@@ -444,9 +444,9 @@
         <AddToAlbum shared />
       </AssetSelectContextMenu>
       <DeleteAssets onAssetDelete={(assetId) => $assetStore.removeAsset(assetId)} />
-      <AssetSelectContextMenu icon={mdiDotsVertical} title="ajouter">
+      <AssetSelectContextMenu icon={mdiDotsVertical} title="Ajouter">
         <DownloadAction menuItem filename="{data.person.name || 'memoire_vive'}.zip" />
-        <FavoriteAction menuItem removeFavorite={isAllFavorite} />
+        <FavoriteAction menuItem removeFavorite={isAllFavorite} onFavorite={() => assetStore.triggerUpdate()} />
         <ArchiveAction menuItem unarchive={isAllArchive} onArchive={(ids) => $assetStore.removeAssets(ids)} />
         <MenuOption text="Corriger la correspondance incorrecte" on:click={handleReassignAssets} />
         <ChangeDate menuItem />
