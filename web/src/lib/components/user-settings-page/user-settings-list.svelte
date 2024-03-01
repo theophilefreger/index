@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { browser } from '$app/environment';
   import { page } from '$app/stores';
   import { OpenSettingQueryParameterValue, QueryParameter } from '$lib/constants';
   import { featureFlags } from '$lib/stores/server-config.store';
@@ -10,67 +9,58 @@
   import AppearanceSettings from './appearance-settings.svelte';
   import ChangePasswordSettings from './change-password-settings.svelte';
   import DeviceList from './device-list.svelte';
-  import LibraryList from './library-list.svelte';
   import MemoriesSettings from './memories-settings.svelte';
   import OAuthSettings from './oauth-settings.svelte';
   import PartnerSettings from './partner-settings.svelte';
   import TrashSettings from './trash-settings.svelte';
   import UserAPIKeyList from './user-api-key-list.svelte';
   import UserProfileSettings from './user-profile-settings.svelte';
+  import SettingAccordionState from '../shared-components/settings/setting-accordion-state.svelte';
 
   export let keys: ApiKeyResponseDto[] = [];
   export let devices: AuthDeviceResponseDto[] = [];
 
-  let oauthOpen = false;
-  if (browser) {
-    oauthOpen = oauth.isCallback(window.location);
-  }
+  let oauthOpen =
+    oauth.isCallback(window.location) ||
+    $page.url.searchParams.get(QueryParameter.OPEN_SETTING) === OpenSettingQueryParameterValue.OAUTH;
 </script>
 
-<SettingAccordion key="appearance" title="Thème" subtitle="Modifier l'apparance de Mémoire Vive">
-  <AppearanceSettings />
-</SettingAccordion>
-
-<SettingAccordion key="account" title="Compte" subtitle="Modifier vos paramètres de compte">
-  <UserProfileSettings />
-</SettingAccordion>
-
-<SettingAccordion key="api-keys" title="Clé API" subtitle="Paramètres des clés API">
-  <UserAPIKeyList bind:keys />
-</SettingAccordion>
-
-<SettingAccordion key="authorized-devices" title="Appareils autorisés" subtitle="Modifier vos appareils enregistrés">
-  <DeviceList bind:devices />
-</SettingAccordion>
-
-<SettingAccordion key="libraries" title="Bibliothèques" subtitle="Modifier les paramètres des ressources">
-  <LibraryList />
-</SettingAccordion>
-
-<SettingAccordion key="memories" title="Memories" subtitle="Modifier ce que vous souhaitez voir">
-  <MemoriesSettings user={$user} />
-</SettingAccordion>
-
-{#if $featureFlags.loaded && $featureFlags.oauth}
-  <SettingAccordion
-    key="oauth"
-    title="OAuth"
-    subtitle="Modifier votre connexion à OAuth"
-    isOpen={oauthOpen ||
-      $page.url.searchParams.get(QueryParameter.OPEN_SETTING) === OpenSettingQueryParameterValue.OAUTH}
-  >
-    <OAuthSettings user={$user} />
+<SettingAccordionState queryParam={QueryParameter.IS_OPEN}>
+  <SettingAccordion key="appearance" title="Apparance" subtitle="Changer l'apparance des applications">
+    <AppearanceSettings />
   </SettingAccordion>
-{/if}
 
-<SettingAccordion key="password" title="Mot de passe" subtitle="Modifier votre mot de passe">
-  <ChangePasswordSettings />
-</SettingAccordion>
+  <SettingAccordion key="account" title="Compte" subtitle="Changer les paramètres du compte">
+    <UserProfileSettings />
+  </SettingAccordion>
 
-<SettingAccordion key="sharing" title="Partage" subtitle="Gérer le partage avec les collaborateurs">
-  <PartnerSettings user={$user} />
-</SettingAccordion>
+  <SettingAccordion key="api-keys" title="Clés API" subtitle="Paramètres des clés API">
+    <UserAPIKeyList bind:keys />
+  </SettingAccordion>
 
-<SettingAccordion key="trash" title="Corbeille" subtitle="Modifier les paramètres de la corbeille">
-  <TrashSettings />
-</SettingAccordion>
+  <SettingAccordion key="authorized-devices" title="Appareils autorisés" subtitle="Voir les appareils utilisés">
+    <DeviceList bind:devices />
+  </SettingAccordion>
+
+  <SettingAccordion key="memories" title="Retour dans le temps" subtitle="Paramètres des images du même jour il y a quelques années.">
+    <MemoriesSettings user={$user} />
+  </SettingAccordion>
+
+  {#if $featureFlags.loaded && $featureFlags.oauth}
+    <SettingAccordion key="oauth" title="OAuth" subtitle="Paramètres de connexion OAuth" isOpen={oauthOpen || undefined}>
+      <OAuthSettings user={$user} />
+    </SettingAccordion>
+  {/if}
+
+  <SettingAccordion key="password" title="Mot de passe" subtitle="Changer le mot de passe">
+    <ChangePasswordSettings />
+  </SettingAccordion>
+
+  <SettingAccordion key="sharing" title="Partage" subtitle="Réglage des paramètres du partage">
+    <PartnerSettings user={$user} />
+  </SettingAccordion>
+
+  <SettingAccordion key="trash" title="Corbeille" subtitle="Paramètres de la corbeille">
+    <TrashSettings />
+  </SettingAccordion>
+</SettingAccordionState>

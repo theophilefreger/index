@@ -66,14 +66,6 @@
           required={false}
         />
 
-        <SettingInputField
-          inputType={SettingInputFieldType.TEXT}
-          label="CHEMIN EXTERNE"
-          disabled={true}
-          value={editedUser.externalPath || ''}
-          required={false}
-        />
-
         <div class="flex justify-end">
           <Button type="submit" size="sm" on:click={() => handleSaveProfile()}>Enregistrer</Button>
         </div>

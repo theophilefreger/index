@@ -1,4 +1,4 @@
-import { AssetResponseDto, LoginResponseDto } from '@immich/sdk';
+import { AssetFileUploadResponseDto, LoginResponseDto } from '@immich/sdk';
 import { errorDto } from 'src/responses';
 import { apiUtils, app, dbUtils } from 'src/utils';
 import request from 'supertest';
@@ -6,7 +6,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 
 describe('/download', () => {
   let admin: LoginResponseDto;
-  let asset1: AssetResponseDto;
+  let asset1: AssetFileUploadResponseDto;
 
   beforeAll(async () => {
     apiUtils.setup();
@@ -35,16 +35,14 @@ describe('/download', () => {
       expect(body).toEqual(
         expect.objectContaining({
           archives: [expect.objectContaining({ assetIds: [asset1.id] })],
-        })
+        }),
       );
     });
   });
 
   describe('POST /download/asset/:id', () => {
     it('should require authentication', async () => {
-      const { status, body } = await request(app).post(
-        `/download/asset/${asset1.id}`
-      );
+      const { status, body } = await request(app).post(`/download/asset/${asset1.id}`);
 
       expect(status).toBe(401);
       expect(body).toEqual(errorDto.unauthorized);
@@ -56,7 +54,7 @@ describe('/download', () => {
         .set('Authorization', `Bearer ${admin.accessToken}`);
 
       expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toEqual('image/jpeg');
+      expect(response.headers['content-type']).toEqual('image/png');
     });
   });
 });

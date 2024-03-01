@@ -59,8 +59,12 @@ class VideoViewerPage extends HookWidget {
               return Stack(
                 children: [
                   if (placeholder != null) placeholder!,
-                  const DelayedLoadingIndicator(
-                    fadeInDuration: Duration(milliseconds: 500),
+                  const Positioned.fill(
+                    child: Center(
+                      child: DelayedLoadingIndicator(
+                        fadeInDuration: Duration(milliseconds: 500),
+                      ),
+                    ),
                   ),
                 ],
               );

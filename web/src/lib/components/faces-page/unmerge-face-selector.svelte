@@ -132,9 +132,7 @@
         title={'Attribuer les ressources sélectionnées à une nouvelle personne'}
           size={'sm'}
           disabled={disableButtons || hasSelection}
-          on:click={() => {
-            handleCreate();
-          }}
+          on:click={handleCreate}
         >
           {#if !showLoadingSpinnerCreate}
             <Icon path={mdiPlus} size={18} />
@@ -147,9 +145,7 @@
           size={'sm'}
           title={'Attribuer les ressources sélectionnées à une personne existante'}
           disabled={disableButtons || !hasSelection}
-          on:click={() => {
-            handleReassign();
-          }}
+          on:click={handleReassign}
         >
           {#if !showLoadingSpinnerReassign}
             <div>

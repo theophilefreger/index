@@ -1,8 +1,7 @@
 import { isHttpError } from '@immich/sdk';
 import type { HandleClientError } from '@sveltejs/kit';
 
-const LOG_PREFIX = '[hooks.client.ts]';
-const DEFAULT_MESSAGE = "Hmm, pas sûr de ça. Vérifiez les journaux ou ouvrez un ticket ?";
+const DEFAULT_MESSAGE = 'Hmm, pas sûr de ça. Vérifiez les journaux ou ouvrez un ticket ?';
 
 const parseError = (error: unknown) => {
   const httpError = isHttpError(error) ? error : undefined;
@@ -23,6 +22,6 @@ const parseError = (error: unknown) => {
 
 export const handleError: HandleClientError = ({ error }) => {
   const result = parseError(error);
-  console.error(`${LOG_PREFIX}:handleError ${result.message}`);
+  console.error(`[hooks.client.ts]:handleError ${result.message}`);
   return result;
 };

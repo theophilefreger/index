@@ -35,7 +35,7 @@
         return;
       } catch (error) {
         console.error('Error [login-form] [oauth.callback]', error);
-        oauthError = (await getServerErrorMessage(error)) || 'Impossible de terminer la connexion OAuth';
+        oauthError = getServerErrorMessage(error) || 'Impossible de terminer la connexion OAuth';
         oauthLoading = false;
       }
     }
@@ -47,7 +47,7 @@
         return;
       }
     } catch (error) {
-      await handleError(error, 'Impossible de se connecter !');
+      handleError(error, 'Impossible de se connecter !');
     }
 
     oauthLoading = false;
@@ -73,7 +73,7 @@
       await onSuccess();
       return;
     } catch (error) {
-      errorMessage = (await getServerErrorMessage(error)) || 'Email ou mot de passe incorrect';
+      errorMessage = getServerErrorMessage(error) || 'Email ou mot de passe incorrect';
       loading = false;
       return;
     }

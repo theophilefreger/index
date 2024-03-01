@@ -1,5 +1,5 @@
 # dev build
-FROM ghcr.io/immich-app/base-server-dev:20240222@sha256:2ff467d6ae5c00a2317eb7b13cb40ba5be0fd33c160175dba621b1bf72bc1cd1 as dev
+FROM ghcr.io/immich-app/base-server-dev:20240227@sha256:b1e212c106ce2318a587e0b2ef377215c958e877f61993ed9310534e4589cce4 as dev
 
 RUN apt-get install --no-install-recommends -yqq tini
 WORKDIR /usr/src/app
@@ -24,7 +24,7 @@ RUN npm prune --omit=dev --omit=optional
 COPY --from=dev /usr/src/app/node_modules/@img ./node_modules/@img
 
 # web build
-FROM node:iron-alpine3.18@sha256:f3299f16246c71ab8b304d6745bb4059fa9283e8d025972e28436a9f9b36ed24 as web
+FROM node:iron-alpine3.18@sha256:a02826c7340c37a29179152723190bcc3044f933c925f3c2d78abb20f794de3f as web
 
 WORKDIR /usr/src/open-api/typescript-sdk
 COPY open-api/typescript-sdk/package*.json open-api/typescript-sdk/tsconfig*.json ./
@@ -40,7 +40,7 @@ RUN npm run build
 
 
 # prod build
-FROM ghcr.io/immich-app/base-server-prod:20240222@sha256:9ae5eebf95cf7759eec9dcfbd9e48a722701075ac855209f2e0b01c631b76f5c
+FROM ghcr.io/immich-app/base-server-prod:20240227@sha256:d47f5f7f2b6c53957c6353352b2fa24f2845da50e6491a7c74eb779ace10628c
 
 WORKDIR /usr/src/app
 ENV NODE_ENV=production \
