@@ -26,7 +26,7 @@
       const res = await getAllPeople({ withHidden: false });
       return orderBySelectedPeopleFirst(res.people);
     } catch (error) {
-      handleError(error, 'Failed to get people');
+      handleError(error, "Impossible d'afficher les personnes");
     }
   }
 
@@ -82,10 +82,10 @@
           >
             {#if showAllPeople}
               <span><Icon path={mdiClose} /></span>
-              Collapse
+              Dérouler
             {:else}
               <span><Icon path={mdiArrowRight} /></span>
-              See all people
+              Voir tout
             {/if}
           </Button>
         </div>

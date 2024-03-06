@@ -5,7 +5,7 @@
 </script>
 
 <div id="media-type-selection">
-  <p class="immich-form-label">MEDIA TYPE</p>
+  <p class="immich-form-label">TYPE DE MEDIA</p>
 
   <div class="flex gap-5 mt-1 text-base">
     <label for="type-all" class="flex items-center gap-1">
@@ -17,7 +17,7 @@
         id="type-all"
         class="size-4"
       />
-      <span class="pt-0.5">All</span>
+      <span class="pt-0.5">Tout</span>
     </label>
 
     <label for="type-image" class="flex items-center gap-1">
@@ -41,7 +41,7 @@
         id="type-video"
         class="size-4"
       />
-      <span class="pt-0.5">Video</span>
+      <span class="pt-0.5">Vidéo</span>
     </label>
   </div>
 </div>

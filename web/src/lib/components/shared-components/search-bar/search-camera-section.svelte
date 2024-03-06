@@ -40,24 +40,24 @@
 
   <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5 mt-1">
     <div class="w-full">
-      <label class="text-sm text-black dark:text-white" for="search-camera-make">Make</label>
+      <label class="text-sm text-black dark:text-white" for="search-camera-make">Marque</label>
       <Combobox
         id="search-camera-make"
         options={toComboBoxOptions(makes)}
         selectedOption={makeFilter ? { label: makeFilter, value: makeFilter } : undefined}
         on:select={({ detail }) => (filters.make = detail?.value)}
-        placeholder="Search camera make..."
+        placeholder="Recherche d'une marque..."
       />
     </div>
 
     <div class="w-full">
-      <label class="text-sm text-black dark:text-white" for="search-camera-model">Model</label>
+      <label class="text-sm text-black dark:text-white" for="search-camera-model">Modèle</label>
       <Combobox
         id="search-camera-model"
         options={toComboBoxOptions(models)}
         selectedOption={modelFilter ? { label: modelFilter, value: modelFilter } : undefined}
         on:select={({ detail }) => (filters.model = detail?.value)}
-        placeholder="Search camera model..."
+        placeholder="Recherche d'un modèle..."
       />
     </div>
   </div>
