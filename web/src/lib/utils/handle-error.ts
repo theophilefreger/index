@@ -17,7 +17,7 @@ export function handleError(error: unknown, message: string) {
   try {
     let serverMessage = getServerErrorMessage(error);
     if (serverMessage) {
-      serverMessage = `${String(serverMessage).slice(0, 75)}\n(Immich Server Error)`;
+      serverMessage = `${String(serverMessage).slice(0, 75)}\n(Memoire Vive Server Error)`;
     }
 
     notificationController.show({

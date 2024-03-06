@@ -21,7 +21,7 @@
 <div class="flex gap-5">
   <label class="immich-form-label" for="context">
     <input type="radio" name="context" id="context" bind:group={selectedOption} value={TextSearchOptions.Context} />
-    <span>RECHERCHE</span>
+    <span>RECHERCHE PAR IA</span>
   </label>
 
   <label class="immich-form-label" for="file-name">
