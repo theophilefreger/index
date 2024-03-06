@@ -260,9 +260,12 @@ export type AssetJobsDto = {
     name: AssetJobName;
 };
 export type MapMarkerResponseDto = {
+    city: string | null;
+    country: string | null;
     id: string;
     lat: number;
     lon: number;
+    state: string | null;
 };
 export type MemoryLaneResponseDto = {
     assets: AssetResponseDto[];
@@ -702,6 +705,7 @@ export type ServerConfigDto = {
     loginPageMessage: string;
     oauthButtonText: string;
     trashDays: number;
+    userDeleteDelay: number;
 };
 export type ServerFeaturesDto = {
     configFile: boolean;
@@ -877,6 +881,7 @@ export type SystemConfigOAuthDto = {
     buttonText: string;
     clientId: string;
     clientSecret: string;
+    defaultStorageQuota: number;
     enabled: boolean;
     issuerUrl: string;
     mobileOverrideEnabled: boolean;
@@ -884,6 +889,7 @@ export type SystemConfigOAuthDto = {
     scope: string;
     signingAlgorithm: string;
     storageLabelClaim: string;
+    storageQuotaClaim: string;
 };
 export type SystemConfigPasswordLoginDto = {
     enabled: boolean;
@@ -913,6 +919,9 @@ export type SystemConfigTrashDto = {
     days: number;
     enabled: boolean;
 };
+export type SystemConfigUserDto = {
+    deleteDelay: number;
+};
 export type SystemConfigDto = {
     ffmpeg: SystemConfigFFmpegDto;
     job: SystemConfigJobDto;
@@ -929,6 +938,7 @@ export type SystemConfigDto = {
     theme: SystemConfigThemeDto;
     thumbnail: SystemConfigThumbnailDto;
     trash: SystemConfigTrashDto;
+    user: SystemConfigUserDto;
 };
 export type SystemConfigTemplateStorageOptionDto = {
     dayOptions: string[];
@@ -953,6 +963,7 @@ export type CreateUserDto = {
     name: string;
     password: string;
     quotaSizeInBytes?: number | null;
+    shouldChangePassword?: boolean;
     storageLabel?: string | null;
 };
 export type UpdateUserDto = {
