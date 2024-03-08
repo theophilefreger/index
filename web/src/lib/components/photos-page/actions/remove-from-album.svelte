@@ -59,8 +59,8 @@
   <ConfirmDialogue
     title="Retirer de {album.albumName}"
     confirmText="Retirer"
-    on:confirm={removeFromAlbum}
-    on:cancel={() => (isShowConfirmation = false)}
+    onConfirm={removeFromAlbum}
+    onClose={() => (isShowConfirmation = false)}
   >
     <svelte:fragment slot="prompt">
       <p>

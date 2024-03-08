@@ -105,8 +105,8 @@
 {#if deleteKey}
   <ConfirmDialogue
     prompt="Voulez-vous créer une clé API?"
-    on:confirm={() => handleDelete()}
-    on:cancel={() => (deleteKey = null)}
+    onConfirm={() => handleDelete()}
+    onClose={() => (deleteKey = null)}
   />
 {/if}
 

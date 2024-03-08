@@ -105,8 +105,8 @@
   <ConfirmDialogue
     title="Vider la corbeille"
     confirmText="Vider"
-    on:confirm={handleEmptyTrash}
-    on:cancel={() => (isShowEmptyConfirmation = false)}
+    onConfirm={handleEmptyTrash}
+    onClose={() => (isShowEmptyConfirmation = false)}
   >
     <svelte:fragment slot="prompt">
       <p>Êtes-vous sûr de vouloir vider la poubelle ? Cela supprimera définitivement tous les actifs dans la corbeille de la Mémoire Vive.</p>

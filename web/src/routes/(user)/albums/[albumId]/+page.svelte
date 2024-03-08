@@ -692,8 +692,8 @@
   <ConfirmDialogue
     title="Supprimer l'album"
     confirmText="Supprimer"
-    on:confirm={handleRemoveAlbum}
-    on:cancel={() => (viewMode = ViewMode.VIEW)}
+    onConfirm={handleRemoveAlbum}
+    onClose={() => (viewMode = ViewMode.VIEW)}
   >
     <svelte:fragment slot="prompt">
       <p>Êtes-vous sûr de vouloir supprimer l'album <b>{album.albumName}</b>?</p>

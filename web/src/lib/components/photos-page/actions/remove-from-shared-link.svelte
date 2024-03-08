@@ -53,7 +53,7 @@
     title="Retirer les ressources?"
     prompt="Êtes-vous sûr de vouloir retirer {getAssets().size} ressource(s) de ce lien partagé ?"
     confirmText="Retirer"
-    on:confirm={() => handleRemove()}
-    on:cancel={() => (removing = false)}
+    onConfirm={() => handleRemove()}
+    onClose={() => (removing = false)}
   />
 {/if}

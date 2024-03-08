@@ -50,16 +50,16 @@
 {#if deleteDevice}
   <ConfirmDialogue
     prompt="Êtes-vous sûr de vouloir vous déconnecter de cet appareil ?"
-    on:confirm={() => handleDelete()}
-    on:cancel={() => (deleteDevice = null)}
+    onConfirm={() => handleDelete()}
+    onClose={() => (deleteDevice = null)}
   />
 {/if}
 
 {#if deleteAll}
   <ConfirmDialogue
     prompt="Êtes-vous sûr de vouloir vous déconnecter de tous les appareils ?"
-    on:confirm={() => handleDeleteAll()}
-    on:cancel={() => (deleteAll = false)}
+    onConfirm={() => handleDeleteAll()}
+    onClose={() => (deleteAll = false)}
   />
 {/if}
 
