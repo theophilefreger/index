@@ -66,92 +66,92 @@
   }> = [
     {
       item: JobSettings,
-      title: 'Job Settings',
-      subtitle: 'Manage job concurrency',
+      title: 'Paramètres de travail',
+      subtitle: 'Gérer la concurrence des travaux',
       key: 'job',
     },
     {
       item: LibrarySettings,
-      title: 'External Library',
-      subtitle: 'Manage external library settings',
+      title: 'Bibliothèque Externe',
+      subtitle: 'Gérer les paramètres de la bibliothèque externe',
       key: 'external-library',
     },
     {
       item: LoggingSettings,
-      title: 'Logging',
-      subtitle: 'Manage log settings',
+      title: 'Journalisation',
+      subtitle: 'Gérer les paramètres des journaux',
       key: 'logging',
     },
     {
       item: MachineLearningSettings,
-      title: 'Machine Learning Settings',
-      subtitle: 'Manage machine learning features and settings',
+      title: 'Paramètres d\'Apprentissage Automatique',
+      subtitle: 'Gérer les fonctionnalités et les paramètres d\'apprentissage automatique',
       key: 'machine-learning',
     },
     {
       item: MapSettings,
-      title: 'Map & GPS Settings',
-      subtitle: 'Manage map related features and setting',
+      title: 'Paramètres de Carte & GPS',
+      subtitle: 'Gérer les fonctionnalités et les paramètres liés à la carte',
       key: 'location',
     },
     {
       item: OAuthSettings,
-      title: 'OAuth Authentication',
-      subtitle: 'Manage the login with OAuth settings',
+      title: 'Authentification OAuth',
+      subtitle: 'Gérer les paramètres de connexion avec OAuth',
       key: 'oauth',
     },
     {
       item: PasswordLoginSettings,
-      title: 'Password Authentication',
-      subtitle: 'Manage the login with password settings',
+      title: 'Authentification par Mot de Passe',
+      subtitle: 'Gérer les paramètres de connexion avec mot de passe',
       key: 'password',
     },
     {
       item: ServerSettings,
-      title: 'Server Settings',
-      subtitle: 'Manage server settings',
+      title: 'Paramètres du Serveur',
+      subtitle: 'Gérer les paramètres du serveur',
       key: 'server',
     },
     {
       item: StorageTemplateSettings,
-      title: 'Storage Template',
-      subtitle: 'Manage the folder structure and file name of the upload asset',
+      title: 'Modèle de Stockage',
+      subtitle: 'Gérer la structure des dossiers et le nom des fichiers des actifs téléchargés',
       key: 'storage-template',
     },
     {
       item: ThemeSettings,
-      title: 'Theme Settings',
-      subtitle: 'Manage customization of the Immich web interface',
+      title: 'Paramètres de Thème',
+      subtitle: 'Gérer la personnalisation de l\'interface web Immich',
       key: 'theme',
     },
     {
       item: ThumbnailSettings,
-      title: 'Thumbnail Settings',
-      subtitle: 'Manage the resolution of thumbnail sizes',
+      title: 'Paramètres de Miniature',
+      subtitle: 'Gérer la résolution des tailles de miniatures',
       key: 'thumbnail',
     },
     {
       item: TrashSettings,
-      title: 'Trash Settings',
-      subtitle: 'Manage trash settings',
+      title: 'Paramètres de la Corbeille',
+      subtitle: 'Gérer les paramètres de la corbeille',
       key: 'trash',
     },
     {
       item: UserSettings,
-      title: 'User Settings',
-      subtitle: 'Manage user settings',
+      title: 'Paramètres Utilisateur',
+      subtitle: 'Gérer les paramètres utilisateur',
       key: 'user-settings',
     },
     {
       item: NewVersionCheckSettings,
-      title: 'Version Check',
-      subtitle: 'Enable/disable the new version notification',
+      title: 'Vérification de Version',
+      subtitle: 'Activer/désactiver la notification de nouvelle version',
       key: 'version-check',
     },
     {
       item: FFmpegSettings,
-      title: 'Video Transcoding Settings',
-      subtitle: 'Manage the resolution and encoding information of the video files',
+      title: 'Paramètres de Transcodage Vidéo',
+      subtitle: 'Gérer la résolution et les informations d\'encodage des fichiers vidéo',
       key: 'video-transcoding',
     },
   ];
@@ -162,7 +162,7 @@
     <div class="flex flex-row items-center gap-2 bg-gray-100 p-3 dark:bg-gray-800">
       <Icon path={mdiAlert} class="text-yellow-400" size={18} />
       <h2 class="text-md text-immich-primary dark:text-immich-dark-primary">
-        Config is currently set by a config file
+        La configuration est gérée par un fichier JSON
       </h2>
     </div>
   {/if}
@@ -172,13 +172,13 @@
       <LinkButton on:click={() => copyToClipboard(JSON.stringify(config, null, 2))}>
         <div class="flex place-items-center gap-2 text-sm">
           <Icon path={mdiContentCopy} size="18" />
-          Copy to Clipboard
+          Placer dans le presse papier
         </div>
       </LinkButton>
       <LinkButton on:click={() => downloadConfig()}>
         <div class="flex place-items-center gap-2 text-sm">
           <Icon path={mdiDownload} size="18" />
-          Export as JSON
+          Exporter en JSON
         </div>
       </LinkButton>
     </div>
