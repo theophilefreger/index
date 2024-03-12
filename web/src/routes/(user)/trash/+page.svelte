@@ -91,12 +91,7 @@
       <p class="font-medium text-gray-500/60 dark:text-gray-300/60 p-4">
         Les éléments mis dans la corbeille seront définitivement supprimés après {$serverConfig.trashDays} jours.
       </p>
-      <EmptyPlaceholder
-        text="Les photos et vidéos supprimées s'afficheront ici."
-        alt="Vider la corbeille"
-        slot="empty"
-        src={empty3Url}
-      />
+      <EmptyPlaceholder text="Les photos et vidéos supprimées s'afficheront ici." src={empty3Url} slot="empty" />
     </AssetGrid>
   </UserPageLayout>
 {/if}

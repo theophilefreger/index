@@ -92,7 +92,6 @@
         {#if data.sharedAlbums.length === 0}
           <EmptyPlaceholder
             text="Créez un album partagé pour partager des photos et des vidéos avec les personnes de votre réseau."
-            alt="Liste d'albums vide"
             src={empty2Url}
           />
         {/if}

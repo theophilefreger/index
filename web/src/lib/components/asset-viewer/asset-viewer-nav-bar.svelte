@@ -187,7 +187,9 @@
                 on:click={() => dispatch('toggleArchive')}
                 text={asset.isArchived ? 'Unarchiver' : 'Archiver'}
               />
-              <MenuOption on:click={() => onMenuClick('asProfileImage')} text="Photo de profil" />
+              {#if asset.type === AssetTypeEnum.Image}
+                <MenuOption on:click={() => onMenuClick('asProfileImage')} text="Photo de profil" />
+              {/if}
 
               {#if hasStackChildren}
                 <MenuOption on:click={() => onMenuClick('unstack')} text="Dépiler" />

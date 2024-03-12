@@ -375,11 +375,7 @@
 
     <!-- Empty Message -->
   {:else}
-    <EmptyPlaceholder
-      text="Créer un album pour organiser les photos et les vidéos"
-      actionHandler={handleCreateAlbum}
-      alt="Empty albums"
-    />
+    <EmptyPlaceholder text="Créer un album pour organiser les photos et les vidéos" onClick={handleCreateAlbum} />
   {/if}
 </UserPageLayout>
 

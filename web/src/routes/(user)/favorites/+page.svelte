@@ -50,10 +50,6 @@
 
 <UserPageLayout hideNavbar={$isMultiSelectState} title={data.meta.title} scrollbar={false}>
   <AssetGrid {assetStore} {assetInteractionStore} removeAction={AssetAction.UNFAVORITE}>
-    <EmptyPlaceholder
-      text="Ajoutez des favoris pour trouver rapidement vos meilleures photos et vidéos"
-      alt="Favoris vide"
-      slot="empty"
-    />
+    <EmptyPlaceholder text="Ajoutez des favoris pour trouver rapidement vos meilleures photos et vidéos" slot="empty" />
   </AssetGrid>
 </UserPageLayout>

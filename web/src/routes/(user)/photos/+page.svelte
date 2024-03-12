@@ -88,10 +88,6 @@
     {#if $user.memoriesEnabled}
       <MemoryLane />
     {/if}
-    <EmptyPlaceholder
-      text="CLIQUEZ POUR DÉPOSER VOTRE PREMIÈRE PHOTO"
-      actionHandler={() => openFileUploadDialog()}
-      slot="empty"
-    />
+    <EmptyPlaceholder text="CLIQUEZ POUR DÉPOSER VOTRE PREMIÈRE PHOTO" onClick={() => openFileUploadDialog()} slot="empty" />
   </AssetGrid>
 </UserPageLayout>

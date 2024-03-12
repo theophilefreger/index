@@ -6,13 +6,12 @@
   import { oauth } from '$lib/utils';
   import { type ApiKeyResponseDto, type AuthDeviceResponseDto } from '@immich/sdk';
   import SettingAccordion from '../shared-components/settings/setting-accordion.svelte';
-  import AppearanceSettings from './appearance-settings.svelte';
+  import AppSettings from './app-settings.svelte';
   import ChangePasswordSettings from './change-password-settings.svelte';
   import DeviceList from './device-list.svelte';
   import MemoriesSettings from './memories-settings.svelte';
   import OAuthSettings from './oauth-settings.svelte';
   import PartnerSettings from './partner-settings.svelte';
-  import TrashSettings from './trash-settings.svelte';
   import UserAPIKeyList from './user-api-key-list.svelte';
   import UserProfileSettings from './user-profile-settings.svelte';
   import SettingAccordionState from '../shared-components/settings/setting-accordion-state.svelte';
@@ -26,8 +25,8 @@
 </script>
 
 <SettingAccordionState queryParam={QueryParameter.IS_OPEN}>
-  <SettingAccordion key="appearance" title="Apparance" subtitle="Changer l'apparance des applications">
-    <AppearanceSettings />
+  <SettingAccordion key="app-settings" title="Paramètres de l'app" subtitle="Configuration de l'app">
+    <AppSettings />
   </SettingAccordion>
 
   <SettingAccordion key="account" title="Compte" subtitle="Changer les paramètres du compte">
@@ -58,9 +57,5 @@
 
   <SettingAccordion key="sharing" title="Partage" subtitle="Réglage des paramètres du partage">
     <PartnerSettings user={$user} />
-  </SettingAccordion>
-
-  <SettingAccordion key="trash" title="Corbeille" subtitle="Paramètres de la corbeille">
-    <TrashSettings />
   </SettingAccordion>
 </SettingAccordionState>
