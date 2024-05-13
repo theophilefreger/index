@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Icon from '$lib/components/elements/icon.svelte';
   import { locale } from '$lib/stores/preferences.store';
   import { createApiKey, deleteApiKey, getApiKeys, updateApiKey, type ApiKeyResponseDto } from '@immich/sdk';
   import { mdiPencilOutline, mdiTrashCanOutline } from '@mdi/js';
@@ -10,6 +9,7 @@
   import APIKeySecret from '../forms/api-key-secret.svelte';
   import ConfirmDialogue from '../shared-components/confirm-dialogue.svelte';
   import { NotificationType, notificationController } from '../shared-components/notification/notification';
+  import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
 
   export let keys: ApiKeyResponseDto[];
 
@@ -95,6 +95,7 @@
 
 {#if editKey}
   <APIKeyForm
+    title="API key"
     submitText="Enregistrer"
     apiKey={editKey}
     on:submit={({ detail }) => handleUpdate(detail)}
@@ -104,6 +105,7 @@
 
 {#if deleteKey}
   <ConfirmDialogue
+    id="confirm-api-key-delete-modal"
     prompt="Voulez-vous créer une clé API?"
     onConfirm={() => handleDelete()}
     onClose={() => (deleteKey = null)}
@@ -113,7 +115,7 @@
 <section class="my-4">
   <div class="flex flex-col gap-2" in:fade={{ duration: 500 }}>
     <div class="mb-2 flex justify-end">
-      <Button size="sm" on:click={() => (newKey = { name: 'API Key' })}>New API Key</Button>
+      <Button size="sm" on:click={() => (newKey = { name: 'API Key' })}>Nouvelle clée API</Button>
     </div>
 
     {#if keys.length > 0}
@@ -122,8 +124,8 @@
           class="mb-4 flex h-12 w-full rounded-md border bg-gray-50 text-immich-primary dark:border-immich-dark-gray dark:bg-immich-dark-gray dark:text-immich-dark-primary"
         >
           <tr class="flex w-full place-items-center">
-            <th class="w-1/3 text-center text-sm font-medium">Name</th>
-            <th class="w-1/3 text-center text-sm font-medium">Created</th>
+            <th class="w-1/3 text-center text-sm font-medium">Nom</th>
+            <th class="w-1/3 text-center text-sm font-medium">Créer</th>
             <th class="w-1/3 text-center text-sm font-medium">Action</th>
           </tr>
         </thead>
@@ -141,19 +143,21 @@
                 <td class="w-1/3 text-ellipsis px-4 text-sm"
                   >{new Date(key.createdAt).toLocaleDateString($locale, format)}
                 </td>
-                <td class="w-1/3 text-ellipsis px-4 text-sm">
-                  <button
+                <td class="flex flex-row flex-wrap justify-center gap-x-2 gap-y-1 w-1/3">
+                  <CircleIconButton
+                    color="primary"
+                    icon={mdiPencilOutline}
+                    title="Editer la clé"
+                    size="16"
                     on:click={() => (editKey = key)}
-                    class="rounded-full bg-immich-primary p-3 text-gray-100 transition-all duration-150 hover:bg-immich-primary/75 dark:bg-immich-dark-primary dark:text-gray-700"
-                  >
-                    <Icon path={mdiPencilOutline} size="16" />
-                  </button>
-                  <button
+                  />
+                  <CircleIconButton
+                    color="primary"
+                    icon={mdiTrashCanOutline}
+                    title="Supprimer la clé"
+                    size="16"
                     on:click={() => (deleteKey = key)}
-                    class="rounded-full bg-immich-primary p-3 text-gray-100 transition-all duration-150 hover:bg-immich-primary/75 dark:bg-immich-dark-primary dark:text-gray-700"
-                  >
-                    <Icon path={mdiTrashCanOutline} size="16" />
-                  </button>
+                  />
                 </td>
               </tr>
             {/key}

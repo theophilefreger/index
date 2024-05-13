@@ -34,21 +34,23 @@
     in:fade={{ duration: 250 }}
     out:fade={{ duration: 250 }}
     on:outroend={() => {
-      notificationController.show({
-        message:
-          ($errorCounter > 0
-            ? `Téléchargement terminé avec ${$errorCounter} erreur${$errorCounter > 1 ? 's' : ''}`
-            : 'Téléchargement réussi') + ', rafraîchissez la page pour voir les nouvelles ressources téléchargées.',
-        type: $errorCounter > 0 ? NotificationType.Warning : NotificationType.Info,
-      });
-
+      if ($errorCounter > 0) {
+        notificationController.show({
+          message: `Téléchargement terminé avec ${$errorCounter} error${$errorCounter > 1 ? 's' : ''}, rafraîchissez la page pour voir les nouvelles ressources téléchargées.`,
+          type: NotificationType.Warning,
+        });
+      } else if ($successCounter > 0) {
+        notificationController.show({
+          message: 'Téléchargement réussi, rafraîchissez la page pour voir les nouvelles ressources téléchargées.',
+          type: NotificationType.Info,
+        });
+      }
       if ($duplicateCounter > 0) {
         notificationController.show({
-          message: `Skipped ${$duplicateCounter} duplicate asset${$duplicateCounter > 1 ? 's' : ''}`,
+          message: `Éléments en double ${$duplicateCounter} ignorés${$duplicateCounter > 1 ? 's' : ''}`,
           type: NotificationType.Warning,
         });
       }
-
       uploadAssetsStore.resetStore();
     }}
     class="absolute bottom-6 right-6 z-[10000]"
@@ -72,7 +74,7 @@
           <div class="flex flex-col items-end">
             <div class="flex flex-row">
               <CircleIconButton
-                title="Toggle settings"
+                title="Basculer les paramètres"
                 icon={mdiCog}
                 size="14"
                 padding="1"

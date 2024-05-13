@@ -21,98 +21,92 @@
   const handleClose = () => dispatch('close');
 </script>
 
-<FullScreenModal onClose={handleClose}>
-  <div
-    class="flex w-96 max-w-lg flex-col gap-8 rounded-3xl border bg-white p-8 shadow-sm dark:border-immich-dark-gray dark:bg-immich-dark-gray"
+<FullScreenModal id="map-settings-modal" title="Map settings" onClose={handleClose}>
+  <form
+    on:submit|preventDefault={() => dispatch('save', settings)}
+    class="flex flex-col gap-4 text-immich-primary dark:text-immich-dark-primary"
+    id="map-settings-form"
   >
-    <h1 class="self-center text-2xl font-medium text-immich-primary dark:text-immich-dark-primary">Réglage de la carte</h1>
-
-    <form
-      on:submit|preventDefault={() => dispatch('save', settings)}
-      class="flex flex-col gap-4 text-immich-primary dark:text-immich-dark-primary"
-    >
-      <SettingSwitch title="Allow dark mode" bind:checked={settings.allowDarkMode} />
-      <SettingSwitch title="Only favorites" bind:checked={settings.onlyFavorites} />
-      <SettingSwitch title="Include archived" bind:checked={settings.includeArchived} />
-      <SettingSwitch title="Include shared with me" bind:checked={settings.withPartners} />
-      {#if customDateRange}
-        <div in:fly={{ y: 10, duration: 200 }} class="flex flex-col gap-4">
-          <div class="flex items-center justify-between gap-8">
-            <label class="immich-form-label shrink-0 text-sm" for="date-after">Date après</label>
-            <DateInput
-              class="immich-form-input w-40"
-              type="date"
-              id="date-after"
-              max={settings.dateBefore}
-              bind:value={settings.dateAfter}
-            />
-          </div>
-          <div class="flex items-center justify-between gap-8">
-            <label class="immich-form-label shrink-0 text-sm" for="date-before">Date avant</label>
-            <DateInput class="immich-form-input w-40" type="date" id="date-before" bind:value={settings.dateBefore} />
-          </div>
-          <div class="flex justify-center text-xs">
-            <LinkButton
-              on:click={() => {
-                customDateRange = false;
-                settings.dateAfter = '';
-                settings.dateBefore = '';
-              }}
-            >
-              Supprimer la plage de dates personnalisée
-            </LinkButton>
-          </div>
-        </div>
-      {:else}
-        <div in:fly={{ y: -10, duration: 200 }} class="flex flex-col gap-1">
-          <SettingSelect
-            label="Plage de date"
-            name="date-range"
-            bind:value={settings.relativeDate}
-            options={[
-              {
-                value: '',
-                text: 'Tout',
-              },
-              {
-                value: Duration.fromObject({ hours: 24 }).toISO() || '',
-                text: 'Dernières 24 heures',
-              },
-              {
-                value: Duration.fromObject({ days: 7 }).toISO() || '',
-                text: 'Dernière semaine',
-              },
-              {
-                value: Duration.fromObject({ days: 30 }).toISO() || '',
-                text: 'Dernier mois',
-              },
-              {
-                value: Duration.fromObject({ years: 1 }).toISO() || '',
-                text: 'Dernière année',
-              },
-              {
-                value: Duration.fromObject({ years: 3 }).toISO() || '',
-                text: 'Dernières 3 années',
-              },
-            ]}
+    <SettingSwitch id="allow-dark-mode" title="Autoriser le mode sombre" bind:checked={settings.allowDarkMode} />
+    <SettingSwitch id="only-favorites" title="Seulement les favoris" bind:checked={settings.onlyFavorites} />
+    <SettingSwitch id="include-archived" title="Inclure les archivés" bind:checked={settings.includeArchived} />
+    <SettingSwitch id="include-shared-with-me" title="Inclure les partagés" bind:checked={settings.withPartners} />
+    {#if customDateRange}
+      <div in:fly={{ y: 10, duration: 200 }} class="flex flex-col gap-4">
+        <div class="flex items-center justify-between gap-8">
+          <label class="immich-form-label shrink-0 text-sm" for="date-after">Date après</label>
+          <DateInput
+            class="immich-form-input w-40"
+            type="date"
+            id="date-after"
+            max={settings.dateBefore}
+            bind:value={settings.dateAfter}
           />
-          <div class="text-xs">
-            <LinkButton
-              on:click={() => {
-                customDateRange = true;
-                settings.relativeDate = '';
-              }}
-            >
-              Utilisez plutôt une plage de dates personnalisée.
-            </LinkButton>
-          </div>
         </div>
-      {/if}
-
-      <div class="mt-4 flex w-full gap-4">
-        <Button color="gray" size="sm" fullwidth on:click={handleClose}>Annuler</Button>
-        <Button type="submit" size="sm" fullwidth>Sauvegarder</Button>
+        <div class="flex items-center justify-between gap-8">
+          <label class="immich-form-label shrink-0 text-sm" for="date-before">Date avant</label>
+          <DateInput class="immich-form-input w-40" type="date" id="date-before" bind:value={settings.dateBefore} />
+        </div>
+        <div class="flex justify-center text-xs">
+          <LinkButton
+            on:click={() => {
+              customDateRange = false;
+              settings.dateAfter = '';
+              settings.dateBefore = '';
+            }}
+          >
+            Ne pas utiliser une plage de dates personnalisée.
+          </LinkButton>
+        </div>
       </div>
-    </form>
-  </div>
+    {:else}
+      <div in:fly={{ y: -10, duration: 200 }} class="flex flex-col gap-1">
+        <SettingSelect
+          label="Plage de dates"
+          name="date-range"
+          bind:value={settings.relativeDate}
+          options={[
+            {
+              value: '',
+              text: 'Tout',
+            },
+            {
+              value: Duration.fromObject({ hours: 24 }).toISO() || '',
+              text: 'Dernières 24 heures',
+            },
+            {
+              value: Duration.fromObject({ days: 7 }).toISO() || '',
+              text: 'Dernière semaine',
+            },
+            {
+              value: Duration.fromObject({ days: 30 }).toISO() || '',
+              text: 'Dernier mois',
+            },
+            {
+              value: Duration.fromObject({ years: 1 }).toISO() || '',
+              text: 'Dernière année',
+            },
+            {
+              value: Duration.fromObject({ years: 3 }).toISO() || '',
+              text: 'Dernières 3 années',
+            },
+          ]}
+        />
+        <div class="text-xs">
+          <LinkButton
+            on:click={() => {
+              customDateRange = true;
+              settings.relativeDate = '';
+            }}
+          >
+            Utiliser plutôt une plage de date
+          </LinkButton>
+        </div>
+      </div>
+    {/if}
+  </form>
+  <svelte:fragment slot="sticky-bottom">
+    <Button color="gray" size="sm" fullwidth on:click={handleClose}>Annuler</Button>
+    <Button type="submit" size="sm" fullwidth form="map-settings-form">Sauvegarder</Button>
+  </svelte:fragment>
 </FullScreenModal>

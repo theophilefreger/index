@@ -5,9 +5,12 @@
   import { createUser } from '@immich/sdk';
   import { createEventDispatcher } from 'svelte';
   import Button from '../elements/buttons/button.svelte';
-  import ImmichLogo from '../shared-components/immich-logo.svelte';
   import PasswordField from '../shared-components/password-field.svelte';
   import Slider from '../elements/slider.svelte';
+  import FullScreenModal from '$lib/components/shared-components/full-screen-modal.svelte';
+  import { featureFlags } from '$lib/stores/server-config.store';
+
+  export let onClose: () => void;
 
   let error: string;
   let success: string;
@@ -17,6 +20,7 @@
   let confirmPassword = '';
   let name = '';
   let shouldChangePassword = true;
+  let notify = true;
 
   let canCreateUser = false;
   let quotaSize: number | undefined;
@@ -52,6 +56,7 @@
             shouldChangePassword,
             name,
             quotaSizeInBytes,
+            notify,
           },
         });
 
@@ -69,43 +74,43 @@
   }
 </script>
 
-<div
-  class="max-h-screen w-[500px] max-w-[95vw] overflow-y-auto immich-scrollbar rounded-3xl border bg-immich-bg p-4 py-8 shadow-sm dark:border-immich-dark-gray dark:bg-immich-dark-gray dark:text-immich-dark-fg"
->
-  <div class="flex flex-col place-content-center place-items-center gap-4 px-4">
-    <ImmichLogo class="text-center" height="100" width="100" />
-    <h1 class="text-2xl font-medium text-immich-primary dark:text-immich-dark-primary">Créer nouvel utilisateur</h1>
-  </div>
-
-  <form on:submit|preventDefault={registerUser} autocomplete="off">
-    <div class="m-4 flex flex-col gap-2">
+<FullScreenModal id="create-new-user-modal" title="Créer un nouvel utilisateur" showLogo {onClose}>
+  <form on:submit|preventDefault={registerUser} autocomplete="off" id="create-new-user-form">
+    <div class="my-4 flex flex-col gap-2">
       <label class="immich-form-label" for="email">Email</label>
       <input class="immich-form-input" id="email" bind:value={email} type="email" required />
     </div>
 
-    <div class="m-4 flex flex-col gap-2">
+    {#if $featureFlags.email}
+      <div class="my-4 flex place-items-center justify-between gap-2">
+        <label class="text-sm dark:text-immich-dark-fg" for="send-welcome-email"> Envoyer un email de bienvenu </label>
+        <Slider id="send-welcome-email" bind:checked={notify} />
+      </div>
+    {/if}
+
+    <div class="my-4 flex flex-col gap-2">
       <label class="immich-form-label" for="password">Mot de passe</label>
       <PasswordField id="password" bind:password autocomplete="new-password" />
     </div>
 
-    <div class="m-4 flex flex-col gap-2">
+    <div class="my-4 flex flex-col gap-2">
       <label class="immich-form-label" for="confirmPassword">Confirmer le mot de passe</label>
       <PasswordField id="confirmPassword" bind:password={confirmPassword} autocomplete="new-password" />
     </div>
 
-    <div class="m-4 flex place-items-center justify-between gap-2">
-      <label class="text-sm dark:text-immich-dark-fg" for="Require user to change password on first login">
-        Require user to change password on first login
+    <div class="my-4 flex place-items-center justify-between gap-2">
+      <label class="text-sm dark:text-immich-dark-fg" for="require-password-change">
+        Demander à l'utilisateur de changer son mot de passe
       </label>
-      <Slider bind:checked={shouldChangePassword} />
+      <Slider id="require-password-change" bind:checked={shouldChangePassword} />
     </div>
 
-    <div class="m-4 flex flex-col gap-2">
+    <div class="my-4 flex flex-col gap-2">
       <label class="immich-form-label" for="name">Nom</label>
       <input class="immich-form-input" id="name" bind:value={name} type="text" required />
     </div>
 
-    <div class="m-4 flex flex-col gap-2">
+    <div class="my-4 flex flex-col gap-2">
       <label class="flex items-center gap-2 immich-form-label" for="quotaSize">
         Quota Size (GiB)
         {#if quotaSizeWarning}
@@ -116,15 +121,15 @@
     </div>
 
     {#if error}
-      <p class="ml-4 text-sm text-red-400">{error}</p>
+      <p class="text-sm text-red-400">{error}</p>
     {/if}
 
     {#if success}
-      <p class="ml-4 text-sm text-immich-primary">{success}</p>
+      <p class="text-sm text-immich-primary">{success}</p>
     {/if}
-    <div class="flex w-full gap-4 p-4">
-      <Button color="gray" fullwidth on:click={() => dispatch('cancel')}>Annuler</Button>
-      <Button type="submit" disabled={isCreatingUser} fullwidth>Créer</Button>
-    </div>
   </form>
-</div>
+  <svelte:fragment slot="sticky-bottom">
+    <Button color="gray" fullwidth on:click={() => dispatch('cancel')}>Annuler</Button>
+    <Button type="submit" disabled={isCreatingUser} fullwidth form="create-new-user-form">Créer</Button>
+  </svelte:fragment>
+</FullScreenModal>

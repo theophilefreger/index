@@ -62,35 +62,35 @@
 
   <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5 mt-1">
     <div class="w-full">
-      <label class="text-sm text-black dark:text-white" for="search-place-country">Pays</label>
       <Combobox
-        id="search-place-country"
-        options={toComboBoxOptions(countries)}
-        selectedOption={filters.country ? { label: filters.country, value: filters.country } : undefined}
+        id="location-country"
+        label="Pays"
         on:select={({ detail }) => (filters.country = detail?.value)}
+        options={toComboBoxOptions(countries)}
         placeholder="Rechercher un pays..."
+        selectedOption={filters.country ? { label: filters.country, value: filters.country } : undefined}
       />
     </div>
 
     <div class="w-full">
-      <label class="text-sm text-black dark:text-white" for="search-place-state">Région</label>
       <Combobox
-        id="search-place-state"
-        options={toComboBoxOptions(states)}
-        selectedOption={filters.state ? { label: filters.state, value: filters.state } : undefined}
+        id="location-state"
+        label="Région"
         on:select={({ detail }) => (filters.state = detail?.value)}
+        options={toComboBoxOptions(states)}
         placeholder="Rechercher une région..."
+        selectedOption={filters.state ? { label: filters.state, value: filters.state } : undefined}
       />
     </div>
 
     <div class="w-full">
-      <label class="text-sm text-black dark:text-white" for="search-place-city">Ville</label>
       <Combobox
-        id="search-place-city"
-        options={toComboBoxOptions(cities)}
-        selectedOption={filters.city ? { label: filters.city, value: filters.city } : undefined}
+        id="location-city"
+        label="Ville"
         on:select={({ detail }) => (filters.city = detail?.value)}
+        options={toComboBoxOptions(cities)}
         placeholder="Rechercher une ville..."
+        selectedOption={filters.city ? { label: filters.city, value: filters.city } : undefined}
       />
     </div>
   </div>

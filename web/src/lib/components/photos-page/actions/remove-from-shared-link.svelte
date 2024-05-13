@@ -50,6 +50,7 @@
 
 {#if removing}
   <ConfirmDialogue
+    id="remove-assets-modal"
     title="Retirer les ressources?"
     prompt="Êtes-vous sûr de vouloir retirer {getAssets().size} ressource(s) de ce lien partagé ?"
     confirmText="Retirer"

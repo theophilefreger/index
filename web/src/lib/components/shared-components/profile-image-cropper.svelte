@@ -3,17 +3,15 @@
   import { handleError } from '$lib/utils/handle-error';
   import { createProfileImage, type AssetResponseDto } from '@immich/sdk';
   import domtoimage from 'dom-to-image';
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import PhotoViewer from '../asset-viewer/photo-viewer.svelte';
   import Button from '../elements/buttons/button.svelte';
-  import BaseModal from './base-modal.svelte';
   import { NotificationType, notificationController } from './notification/notification';
+  import FullScreenModal from '$lib/components/shared-components/full-screen-modal.svelte';
 
   export let asset: AssetResponseDto;
+  export let onClose: () => void;
 
-  const dispatch = createEventDispatcher<{
-    close: void;
-  }>();
   let imgElement: HTMLDivElement;
 
   onMount(() => {
@@ -51,7 +49,8 @@
       if (await hasTransparentPixels(blob)) {
         notificationController.show({
           type: NotificationType.Error,
-          message: "Les photos de profil ne peuvent pas contenir de pixels transparents. Veuillez zoomer et/ou déplacer l'image.",
+          message:
+            "Les photos de profil ne peuvent pas contenir de pixels transparents. Veuillez zoomer et/ou déplacer l'image.",
           timeout: 3000,
         });
         return;
@@ -60,34 +59,26 @@
       const { profileImagePath } = await createProfileImage({ createProfileImageDto: { file } });
       notificationController.show({
         type: NotificationType.Info,
-        message: "Photo de profil définie.",
+        message: 'Photo de profil définie.',
         timeout: 3000,
       });
       $user.profileImagePath = profileImagePath;
     } catch (error) {
-      handleError(error, "Erreur lors de la définition de la photo de profil.");
+      handleError(error, 'Erreur lors de la définition de la photo de profil.');
     }
-    dispatch('close');
+    onClose();
   };
 </script>
 
-<BaseModal on:close>
-  <svelte:fragment slot="title">
-    <span class="flex place-items-center gap-2">
-      <p class="font-medium">Définir la photo de profil</p>
-    </span>
-  </svelte:fragment>
+<FullScreenModal id="profile-image-cropper" title="Définir la photo de profil" width="auto" {onClose}>
   <div class="flex place-items-center items-center justify-center">
     <div
-      class="relative flex aspect-square w-1/2 overflow-hidden rounded-full border-4 border-immich-primary bg-immich-dark-primary dark:border-immich-dark-primary dark:bg-immich-primary"
+      class="relative flex aspect-square w-[250px] overflow-hidden rounded-full border-4 border-immich-primary bg-immich-dark-primary dark:border-immich-dark-primary dark:bg-immich-primary"
     >
       <PhotoViewer bind:element={imgElement} {asset} />
     </div>
   </div>
-  <span class="flex justify-end p-4">
-    <Button on:click={handleSetProfilePicture}>
-      <p>Définir comme photo de profil</p>
-    </Button>
-  </span>
-  <div class="mb-2 flex max-h-[400px] flex-col" />
-</BaseModal>
+  <svelte:fragment slot="sticky-bottom">
+    <Button fullwidth on:click={handleSetProfilePicture}>Définir comme photo de profil</Button>
+  </svelte:fragment>
+</FullScreenModal>

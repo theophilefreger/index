@@ -21,6 +21,11 @@ void main() {
       // TODO
     });
 
+    // SystemConfigImageDto image
+    test('to test the property `image`', () async {
+      // TODO
+    });
+
     // SystemConfigJobDto job
     test('to test the property `job`', () async {
       // TODO
@@ -51,6 +56,11 @@ void main() {
       // TODO
     });
 
+    // SystemConfigNotificationsDto notifications
+    test('to test the property `notifications`', () async {
+      // TODO
+    });
+
     // SystemConfigOAuthDto oauth
     test('to test the property `oauth`', () async {
       // TODO
@@ -78,11 +88,6 @@ void main() {
 
     // SystemConfigThemeDto theme
     test('to test the property `theme`', () async {
-      // TODO
-    });
-
-    // SystemConfigThumbnailDto thumbnail
-    test('to test the property `thumbnail`', () async {
       // TODO
     });
 

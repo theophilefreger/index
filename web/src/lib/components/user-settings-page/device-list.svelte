@@ -1,16 +1,16 @@
 <script lang="ts">
-  import { getAuthDevices, logoutAuthDevice, logoutAuthDevices, type AuthDeviceResponseDto } from '@immich/sdk';
+  import { deleteAllSessions, deleteSession, getSessions, type SessionResponseDto } from '@immich/sdk';
   import { handleError } from '../../utils/handle-error';
   import Button from '../elements/buttons/button.svelte';
   import ConfirmDialogue from '../shared-components/confirm-dialogue.svelte';
-  import { NotificationType, notificationController } from '../shared-components/notification/notification';
+  import { notificationController, NotificationType } from '../shared-components/notification/notification';
   import DeviceCard from './device-card.svelte';
 
-  export let devices: AuthDeviceResponseDto[];
-  let deleteDevice: AuthDeviceResponseDto | null = null;
+  export let devices: SessionResponseDto[];
+  let deleteDevice: SessionResponseDto | null = null;
   let deleteAll = false;
 
-  const refresh = () => getAuthDevices().then((_devices) => (devices = _devices));
+  const refresh = () => getSessions().then((_devices) => (devices = _devices));
 
   $: currentDevice = devices.find((device) => device.current);
   $: otherDevices = devices.filter((device) => !device.current);
@@ -21,7 +21,7 @@
     }
 
     try {
-      await logoutAuthDevice({ id: deleteDevice.id });
+      await deleteSession({ id: deleteDevice.id });
       notificationController.show({ message: `Appareil déconnecté`, type: NotificationType.Info });
     } catch (error) {
       handleError(error, "Impossible de déconnecter l'appareil");
@@ -33,7 +33,7 @@
 
   const handleDeleteAll = async () => {
     try {
-      await logoutAuthDevices();
+      await deleteAllSessions();
       notificationController.show({
         message: `Déconnecté de tos les appareils`,
         type: NotificationType.Info,
@@ -49,6 +49,7 @@
 
 {#if deleteDevice}
   <ConfirmDialogue
+    id="log-out-device-modal"
     prompt="Êtes-vous sûr de vouloir vous déconnecter de cet appareil ?"
     onConfirm={() => handleDelete()}
     onClose={() => (deleteDevice = null)}
@@ -57,6 +58,7 @@
 
 {#if deleteAll}
   <ConfirmDialogue
+    id="log-out-all-modal"
     prompt="Êtes-vous sûr de vouloir vous déconnecter de tous les appareils ?"
     onConfirm={() => handleDeleteAll()}
     onClose={() => (deleteAll = false)}
@@ -80,7 +82,9 @@
         {/if}
       {/each}
     </div>
-    <h3 class="mb-2 text-xs font-medium text-immich-primary dark:text-immich-dark-primary">DÉCONNECTER TOUS LES APPAREILS</h3>
+    <h3 class="mb-2 text-xs font-medium text-immich-primary dark:text-immich-dark-primary">
+      DÉCONNECTER TOUS LES APPAREILS
+    </h3>
     <div class="flex justify-end">
       <Button color="red" size="sm" on:click={() => (deleteAll = true)}>Déconnecter tous les appareils</Button>
     </div>

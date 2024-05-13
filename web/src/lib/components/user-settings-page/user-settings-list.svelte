@@ -4,7 +4,8 @@
   import { featureFlags } from '$lib/stores/server-config.store';
   import { user } from '$lib/stores/user.store';
   import { oauth } from '$lib/utils';
-  import { type ApiKeyResponseDto, type AuthDeviceResponseDto } from '@immich/sdk';
+  import { type ApiKeyResponseDto, type SessionResponseDto } from '@immich/sdk';
+  import SettingAccordionState from '../shared-components/settings/setting-accordion-state.svelte';
   import SettingAccordion from '../shared-components/settings/setting-accordion.svelte';
   import AppSettings from './app-settings.svelte';
   import ChangePasswordSettings from './change-password-settings.svelte';
@@ -14,10 +15,9 @@
   import PartnerSettings from './partner-settings.svelte';
   import UserAPIKeyList from './user-api-key-list.svelte';
   import UserProfileSettings from './user-profile-settings.svelte';
-  import SettingAccordionState from '../shared-components/settings/setting-accordion-state.svelte';
 
   export let keys: ApiKeyResponseDto[] = [];
-  export let devices: AuthDeviceResponseDto[] = [];
+  export let sessions: SessionResponseDto[] = [];
 
   let oauthOpen =
     oauth.isCallback(window.location) ||
@@ -38,15 +38,24 @@
   </SettingAccordion>
 
   <SettingAccordion key="authorized-devices" title="Appareils autorisés" subtitle="Voir les appareils utilisés">
-    <DeviceList bind:devices />
+    <DeviceList bind:devices={sessions} />
   </SettingAccordion>
 
-  <SettingAccordion key="memories" title="Retour dans le temps" subtitle="Paramètres des images du même jour il y a quelques années.">
+  <SettingAccordion
+    key="memories"
+    title="Retour dans le temps"
+    subtitle="Paramètres des images du même jour il y a quelques années."
+  >
     <MemoriesSettings user={$user} />
   </SettingAccordion>
 
   {#if $featureFlags.loaded && $featureFlags.oauth}
-    <SettingAccordion key="oauth" title="OAuth" subtitle="Paramètres de connexion OAuth" isOpen={oauthOpen || undefined}>
+    <SettingAccordion
+      key="oauth"
+      title="OAuth"
+      subtitle="Paramètres de connexion OAuth"
+      isOpen={oauthOpen || undefined}
+    >
       <OAuthSettings user={$user} />
     </SettingAccordion>
   {/if}
@@ -55,7 +64,7 @@
     <ChangePasswordSettings />
   </SettingAccordion>
 
-  <SettingAccordion key="sharing" title="Partage" subtitle="Réglage des paramètres du partage">
+  <SettingAccordion key="partner-sharing" title="Partage" subtitle="Réglage des paramètres du partage">
     <PartnerSettings user={$user} />
   </SettingAccordion>
 </SettingAccordionState>

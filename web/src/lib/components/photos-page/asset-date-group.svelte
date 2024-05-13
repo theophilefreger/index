@@ -80,17 +80,13 @@
     });
   }
 
-  const assetClickHandler = async (
-    asset: AssetResponseDto,
-    assetsInDateGroup: AssetResponseDto[],
-    groupTitle: string,
-  ) => {
+  const assetClickHandler = (asset: AssetResponseDto, assetsInDateGroup: AssetResponseDto[], groupTitle: string) => {
     if (isSelectionMode || $isMultiSelectState) {
       assetSelectHandler(asset, assetsInDateGroup, groupTitle);
       return;
     }
 
-    await assetViewingStore.setAssetId(asset.id);
+    assetViewingStore.setAsset(asset);
   };
 
   const handleSelectGroup = (title: string, assets: AssetResponseDto[]) => dispatch('select', { title, assets });
@@ -178,7 +174,7 @@
               {showArchiveIcon}
               {asset}
               {groupIndex}
-              on:click={() => assetClickHandler(asset, groupAssets, groupTitle)}
+              onClick={() => assetClickHandler(asset, groupAssets, groupTitle)}
               on:select={() => assetSelectHandler(asset, groupAssets, groupTitle)}
               on:mouse-event={() => assetMouseEventHandler(groupTitle, asset)}
               selected={$selectedAssets.has(asset) || $assetStore.albumAssets.has(asset.id)}

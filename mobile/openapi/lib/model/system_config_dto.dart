@@ -14,24 +14,27 @@ class SystemConfigDto {
   /// Returns a new [SystemConfigDto] instance.
   SystemConfigDto({
     required this.ffmpeg,
+    required this.image,
     required this.job,
     required this.library_,
     required this.logging,
     required this.machineLearning,
     required this.map,
     required this.newVersionCheck,
+    required this.notifications,
     required this.oauth,
     required this.passwordLogin,
     required this.reverseGeocoding,
     required this.server,
     required this.storageTemplate,
     required this.theme,
-    required this.thumbnail,
     required this.trash,
     required this.user,
   });
 
   SystemConfigFFmpegDto ffmpeg;
+
+  SystemConfigImageDto image;
 
   SystemConfigJobDto job;
 
@@ -45,6 +48,8 @@ class SystemConfigDto {
 
   SystemConfigNewVersionCheckDto newVersionCheck;
 
+  SystemConfigNotificationsDto notifications;
+
   SystemConfigOAuthDto oauth;
 
   SystemConfigPasswordLoginDto passwordLogin;
@@ -57,8 +62,6 @@ class SystemConfigDto {
 
   SystemConfigThemeDto theme;
 
-  SystemConfigThumbnailDto thumbnail;
-
   SystemConfigTrashDto trash;
 
   SystemConfigUserDto user;
@@ -66,19 +69,20 @@ class SystemConfigDto {
   @override
   bool operator ==(Object other) => identical(this, other) || other is SystemConfigDto &&
     other.ffmpeg == ffmpeg &&
+    other.image == image &&
     other.job == job &&
     other.library_ == library_ &&
     other.logging == logging &&
     other.machineLearning == machineLearning &&
     other.map == map &&
     other.newVersionCheck == newVersionCheck &&
+    other.notifications == notifications &&
     other.oauth == oauth &&
     other.passwordLogin == passwordLogin &&
     other.reverseGeocoding == reverseGeocoding &&
     other.server == server &&
     other.storageTemplate == storageTemplate &&
     other.theme == theme &&
-    other.thumbnail == thumbnail &&
     other.trash == trash &&
     other.user == user;
 
@@ -86,41 +90,43 @@ class SystemConfigDto {
   int get hashCode =>
     // ignore: unnecessary_parenthesis
     (ffmpeg.hashCode) +
+    (image.hashCode) +
     (job.hashCode) +
     (library_.hashCode) +
     (logging.hashCode) +
     (machineLearning.hashCode) +
     (map.hashCode) +
     (newVersionCheck.hashCode) +
+    (notifications.hashCode) +
     (oauth.hashCode) +
     (passwordLogin.hashCode) +
     (reverseGeocoding.hashCode) +
     (server.hashCode) +
     (storageTemplate.hashCode) +
     (theme.hashCode) +
-    (thumbnail.hashCode) +
     (trash.hashCode) +
     (user.hashCode);
 
   @override
-  String toString() => 'SystemConfigDto[ffmpeg=$ffmpeg, job=$job, library_=$library_, logging=$logging, machineLearning=$machineLearning, map=$map, newVersionCheck=$newVersionCheck, oauth=$oauth, passwordLogin=$passwordLogin, reverseGeocoding=$reverseGeocoding, server=$server, storageTemplate=$storageTemplate, theme=$theme, thumbnail=$thumbnail, trash=$trash, user=$user]';
+  String toString() => 'SystemConfigDto[ffmpeg=$ffmpeg, image=$image, job=$job, library_=$library_, logging=$logging, machineLearning=$machineLearning, map=$map, newVersionCheck=$newVersionCheck, notifications=$notifications, oauth=$oauth, passwordLogin=$passwordLogin, reverseGeocoding=$reverseGeocoding, server=$server, storageTemplate=$storageTemplate, theme=$theme, trash=$trash, user=$user]';
 
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{};
       json[r'ffmpeg'] = this.ffmpeg;
+      json[r'image'] = this.image;
       json[r'job'] = this.job;
       json[r'library'] = this.library_;
       json[r'logging'] = this.logging;
       json[r'machineLearning'] = this.machineLearning;
       json[r'map'] = this.map;
       json[r'newVersionCheck'] = this.newVersionCheck;
+      json[r'notifications'] = this.notifications;
       json[r'oauth'] = this.oauth;
       json[r'passwordLogin'] = this.passwordLogin;
       json[r'reverseGeocoding'] = this.reverseGeocoding;
       json[r'server'] = this.server;
       json[r'storageTemplate'] = this.storageTemplate;
       json[r'theme'] = this.theme;
-      json[r'thumbnail'] = this.thumbnail;
       json[r'trash'] = this.trash;
       json[r'user'] = this.user;
     return json;
@@ -135,19 +141,20 @@ class SystemConfigDto {
 
       return SystemConfigDto(
         ffmpeg: SystemConfigFFmpegDto.fromJson(json[r'ffmpeg'])!,
+        image: SystemConfigImageDto.fromJson(json[r'image'])!,
         job: SystemConfigJobDto.fromJson(json[r'job'])!,
         library_: SystemConfigLibraryDto.fromJson(json[r'library'])!,
         logging: SystemConfigLoggingDto.fromJson(json[r'logging'])!,
         machineLearning: SystemConfigMachineLearningDto.fromJson(json[r'machineLearning'])!,
         map: SystemConfigMapDto.fromJson(json[r'map'])!,
         newVersionCheck: SystemConfigNewVersionCheckDto.fromJson(json[r'newVersionCheck'])!,
+        notifications: SystemConfigNotificationsDto.fromJson(json[r'notifications'])!,
         oauth: SystemConfigOAuthDto.fromJson(json[r'oauth'])!,
         passwordLogin: SystemConfigPasswordLoginDto.fromJson(json[r'passwordLogin'])!,
         reverseGeocoding: SystemConfigReverseGeocodingDto.fromJson(json[r'reverseGeocoding'])!,
         server: SystemConfigServerDto.fromJson(json[r'server'])!,
         storageTemplate: SystemConfigStorageTemplateDto.fromJson(json[r'storageTemplate'])!,
         theme: SystemConfigThemeDto.fromJson(json[r'theme'])!,
-        thumbnail: SystemConfigThumbnailDto.fromJson(json[r'thumbnail'])!,
         trash: SystemConfigTrashDto.fromJson(json[r'trash'])!,
         user: SystemConfigUserDto.fromJson(json[r'user'])!,
       );
@@ -198,19 +205,20 @@ class SystemConfigDto {
   /// The list of required keys that must be present in a JSON.
   static const requiredKeys = <String>{
     'ffmpeg',
+    'image',
     'job',
     'library',
     'logging',
     'machineLearning',
     'map',
     'newVersionCheck',
+    'notifications',
     'oauth',
     'passwordLogin',
     'reverseGeocoding',
     'server',
     'storageTemplate',
     'theme',
-    'thumbnail',
     'trash',
     'user',
   };

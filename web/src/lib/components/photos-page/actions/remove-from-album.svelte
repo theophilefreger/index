@@ -6,7 +6,7 @@
     notificationController,
   } from '$lib/components/shared-components/notification/notification';
   import { getAlbumInfo, removeAssetFromAlbum, type AlbumResponseDto } from '@immich/sdk';
-  import { mdiDeleteOutline } from '@mdi/js';
+  import { mdiDeleteOutline, mdiImageRemoveOutline } from '@mdi/js';
   import MenuOption from '../../shared-components/context-menu/menu-option.svelte';
   import { getAssetControlContext } from '../asset-select-control-bar.svelte';
 
@@ -50,13 +50,14 @@
 </script>
 
 {#if menuItem}
-  <MenuOption text="Retirer de l'album" on:click={() => (isShowConfirmation = true)} />
+  <MenuOption text="Retirer de l'album" icon={mdiImageRemoveOutline} on:click={() => (isShowConfirmation = true)} />
 {:else}
   <CircleIconButton title="Retirer de l'album" icon={mdiDeleteOutline} on:click={() => (isShowConfirmation = true)} />
 {/if}
 
 {#if isShowConfirmation}
   <ConfirmDialogue
+    id="remove-from-album-modal"
     title="Retirer de {album.albumName}"
     confirmText="Retirer"
     onConfirm={removeFromAlbum}
@@ -66,7 +67,7 @@
       <p>
         Êtes-vous sûr de vouloir retirer
         {#if getAssets().size > 1}
-          ces  <b>{getAssets().size}</b> ressources
+          ces <b>{getAssets().size}</b> ressources
         {:else}
           cette ressource
         {/if}

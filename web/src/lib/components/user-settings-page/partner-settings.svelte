@@ -149,7 +149,8 @@
             <p class="text-md">{partner.user.name} peut accéder</p>
             <ul class="text-sm">
               <li class="flex gap-2 place-items-center py-1 mt-2">
-                <Icon path={mdiCheck} /> Toutes vos photos et vidéos, à l'exception de celles dans les archives et les éléments supprimés.
+                <Icon path={mdiCheck} /> Toutes vos photos et vidéos, à l'exception de celles dans les archives et les éléments
+                supprimés.
               </li>
               <li class="flex gap-2 place-items-center py-1">
                 <Icon path={mdiCheck} /> La localisation de vos photos
@@ -162,6 +163,7 @@
             <hr class="my-4 border border-gray-200 dark:border-gray-700" />
             <p class="text-xs font-medium my-4">PHOTOS DE {partner.user.name.toUpperCase()}</p>
             <SettingSwitch
+              id="show-in-timeline"
               title="Visible dans la Timeline"
               subtitle="Afficher les photos et vidéos de cet utilisateur dans la Timeline."
               bind:checked={partner.inTimeline}
@@ -181,13 +183,14 @@
 {#if createPartnerFlag}
   <PartnerSelectionModal
     {user}
-    on:close={() => (createPartnerFlag = false)}
+    onClose={() => (createPartnerFlag = false)}
     on:add-users={(event) => handleCreatePartners(event.detail)}
   />
 {/if}
 
 {#if removePartnerDto}
   <ConfirmDialogue
+    id="stop-sharing-photos-modal"
     title="Arrêter de partager vos photos ?"
     prompt="{removePartnerDto.name} ne pourra plus accéder à vos photos."
     onClose={() => (removePartnerDto = null)}

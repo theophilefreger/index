@@ -1,6 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
-  import SideBarButton from '$lib/components/shared-components/side-bar/side-bar-button.svelte';
+  import SideBarLink from '$lib/components/shared-components/side-bar/side-bar-link.svelte';
   import SideBarSection from '$lib/components/shared-components/side-bar/side-bar-section.svelte';
   import StatusBox from '$lib/components/shared-components/status-box.svelte';
   import { AppRoute } from '$lib/constants';
@@ -8,32 +7,15 @@
 </script>
 
 <SideBarSection>
-  <a data-sveltekit-preload-data="hover" href={AppRoute.ADMIN_USER_MANAGEMENT} draggable="false">
-    <SideBarButton
-      title="Utilisateurs"
-      icon={mdiAccountMultipleOutline}
-      isSelected={$page.route.id === AppRoute.ADMIN_USER_MANAGEMENT}
-    />
-  </a>
-  <a data-sveltekit-preload-data="hover" href={AppRoute.ADMIN_JOBS} draggable="false">
-    <SideBarButton title="Jobs" icon={mdiSync} isSelected={$page.route.id === AppRoute.ADMIN_JOBS} />
-  </a>
-  <a data-sveltekit-preload-data="hover" href={AppRoute.ADMIN_SETTINGS} draggable="false">
-    <SideBarButton title="Réglages" icon={mdiCog} isSelected={$page.route.id === AppRoute.ADMIN_SETTINGS} />
-  </a>
-  <a data-sveltekit-preload-data="hover" href={AppRoute.ADMIN_LIBRARY_MANAGEMENT} draggable="false">
-    <SideBarButton
-      title="External Libraries"
-      icon={mdiBookshelf}
-      isSelected={$page.route.id === AppRoute.ADMIN_LIBRARY_MANAGEMENT}
-    />
-  </a>
-  <a data-sveltekit-preload-data="hover" href={AppRoute.ADMIN_STATS} draggable="false">
-    <SideBarButton title="Statistiques du serveur" icon={mdiServer} isSelected={$page.route.id === AppRoute.ADMIN_STATS} />
-  </a>
-  <a data-sveltekit-preload-data="off" href={AppRoute.ADMIN_REPAIR} draggable="false">
-    <SideBarButton title="Réparations" icon={mdiTools} isSelected={$page.route.id === AppRoute.ADMIN_REPAIR} />
-  </a>
+  <nav aria-label="Primary">
+    <SideBarLink title="Utilisateurs" routeId={AppRoute.ADMIN_USER_MANAGEMENT} icon={mdiAccountMultipleOutline} />
+    <SideBarLink title="Jobs" routeId={AppRoute.ADMIN_JOBS} icon={mdiSync} />
+    <SideBarLink title="Réglages" routeId={AppRoute.ADMIN_SETTINGS} icon={mdiCog} />
+    <SideBarLink title="Bibliothèques extérieures" routeId={AppRoute.ADMIN_LIBRARY_MANAGEMENT} icon={mdiBookshelf} />
+    <SideBarLink title="Statistiques" routeId={AppRoute.ADMIN_STATS} icon={mdiServer} />
+    <SideBarLink title="Réparations" routeId={AppRoute.ADMIN_REPAIR} icon={mdiTools} preloadData={false} />
+  </nav>
+
   <div class="mb-6 mt-auto">
     <StatusBox />
   </div>

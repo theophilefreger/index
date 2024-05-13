@@ -8,13 +8,14 @@
   import { SharedLinkType, createSharedLink, updateSharedLink, type SharedLinkResponseDto } from '@immich/sdk';
   import { mdiContentCopy, mdiLink } from '@mdi/js';
   import { createEventDispatcher } from 'svelte';
-  import BaseModal from '../base-modal.svelte';
   import type { ImmichDropDownOption } from '../dropdown-button.svelte';
   import DropdownButton from '../dropdown-button.svelte';
   import { NotificationType, notificationController } from '../notification/notification';
   import SettingInputField, { SettingInputFieldType } from '../settings/setting-input-field.svelte';
   import SettingSwitch from '../settings/setting-switch.svelte';
+  import FullScreenModal from '$lib/components/shared-components/full-screen-modal.svelte';
 
+  export let onClose: () => void;
   export let albumId: string | undefined = undefined;
   export let assetIds: string[] = [];
   export let editingLink: SharedLinkResponseDto | undefined = undefined;
@@ -30,13 +31,12 @@
   let enablePassword = false;
 
   const dispatch = createEventDispatcher<{
-    close: void;
-    escape: void;
+    created: void;
   }>();
 
   const expiredDateOption: ImmichDropDownOption = {
     default: 'Jamais',
-    options: ['Jamais', '30 minutes', '1 heure', '6 heures', '1 jour', '7 jours', '30 jours'],
+    options: ['Jamais', '30 minutes', '1 heure', '6 heures', '1 jour', '7 jours', '30 jours' '3 mois', '1 an'],
   };
 
   $: shareType = albumId ? SharedLinkType.Album : SharedLinkType.Individual;
@@ -78,6 +78,7 @@
         },
       });
       sharedLink = makeSharedLinkUrl($serverConfig.externalDomain, data.key);
+      dispatch('created');
     } catch (error) {
       handleError(error, 'Impossible de créer le lien partagé');
     }
@@ -102,6 +103,12 @@
       }
       case '30 jours': {
         return 30 * 24 * 60 * 60 * 1000;
+      }
+      case '3 mois': {
+        return 30 * 24 * 60 * 60 * 3 * 1000;
+      }
+      case '1 an': {
+        return 30 * 24 * 60 * 60 * 12 * 1000;
       }
       default: {
         return 0;
@@ -138,26 +145,22 @@
         message: 'Edité',
       });
 
-      dispatch('close');
+      onClose();
     } catch (error) {
       handleError(error, "Impossible d'éditer le lien partagé");
     }
   };
+
+  const getTitle = () => {
+    if (editingLink) {
+      return 'Editer le lien';
+    }
+    return 'Créer un lien de partage';
+  };
 </script>
 
-<BaseModal on:close={() => dispatch('close')} on:escape={() => dispatch('escape')}>
-  <svelte:fragment slot="title">
-    <span class="flex place-items-center gap-2">
-      <Icon path={mdiLink} size={24} />
-      {#if editingLink}
-        <p class="font-medium text-immich-fg dark:text-immich-dark-fg">Éditer le lien</p>
-      {:else}
-        <p class="font-medium text-immich-fg dark:text-immich-dark-fg">Créer un lien de partage</p>
-      {/if}
-    </span>
-  </svelte:fragment>
-
-  <section class="mx-6 mb-6">
+<FullScreenModal id="create-shared-link-modal" title={getTitle()} icon={mdiLink} {onClose}>
+  <section>
     {#if shareType === SharedLinkType.Album}
       {#if !editingLink}
         <div>Permettez à quiconque disposant du lien de voir les photos et les personnes de cet album</div>
@@ -201,25 +204,37 @@
         </div>
 
         <div class="my-3">
-          <SettingSwitch bind:checked={enablePassword} title={'Nécessite un mot de passe'} />
+          <SettingSwitch id="require-password" bind:checked={enablePassword} title={'Nécessiter un mot de passe'} />
         </div>
 
         <div class="my-3">
-          <SettingSwitch bind:checked={showMetadata} title={'Métadonnées visibles'} />
+          <SettingSwitch id="show-metadata" bind:checked={showMetadata} title={'Métadonnées visibles'} />
         </div>
 
         <div class="my-3">
-          <SettingSwitch bind:checked={allowDownload} title={'Autoriser les utilisateurs publics à télécharger'} />
+          <SettingSwitch
+            id="allow-public-download"
+            bind:checked={allowDownload}
+            title={'Autoriser les utilisateurs publics à télécharger'}
+          />
         </div>
 
         <div class="my-3">
-          <SettingSwitch bind:checked={allowUpload} title={'Autoriser les utilisateurs publics à uploader'} />
+          <SettingSwitch
+            id="allow-public-upload"
+            bind:checked={allowUpload}
+            title={'Autoriser les utilisateurs publics à uploader'}
+          />
         </div>
 
         <div class="text-sm">
           {#if editingLink}
             <p class="immich-form-label my-2">
-              <SettingSwitch bind:checked={shouldChangeExpirationTime} title={"Changer l'expiration"} />
+              <SettingSwitch
+                id="change-expiration-time"
+                bind:checked={shouldChangeExpirationTime}
+                title={'Change expiration time'}
+              />
             </p>
           {:else}
             <p class="immich-form-label my-2">Expire après</p>
@@ -235,29 +250,22 @@
     </div>
   </section>
 
-  <hr />
-
-  <section slot="sticky-bottom">
+  <svelte:fragment slot="sticky-bottom">
     {#if !sharedLink}
       {#if editingLink}
-        <div class="flex justify-end">
-          <Button size="sm" rounded="lg" on:click={handleEditLink}>Confirmer</Button>
-        </div>
+        <Button size="sm" fullwidth on:click={handleEditLink}>Confirm</Button>
       {:else}
-        <div class="flex justify-end">
-          <Button size="sm" rounded="lg" on:click={handleCreateSharedLink}>Créer le lien</Button>
-        </div>
+        <Button size="sm" fullwidth on:click={handleCreateSharedLink}>Create link</Button>
       {/if}
     {:else}
-      <div class="flex w-full gap-4">
+      <div class="flex w-full gap-2">
         <input class="immich-form-input w-full" bind:value={sharedLink} disabled />
-
         <LinkButton on:click={() => (sharedLink ? copyToClipboard(sharedLink) : '')}>
           <div class="flex place-items-center gap-2 text-sm">
-            <Icon path={mdiContentCopy} size="18" />
+            <Icon path={mdiContentCopy} ariaLabel="Copier le lien" size="18" />
           </div>
         </LinkButton>
       </div>
     {/if}
-  </section>
-</BaseModal>
+  </svelte:fragment>
+</FullScreenModal>

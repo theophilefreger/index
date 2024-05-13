@@ -2,6 +2,7 @@
   import { createEventDispatcher } from 'svelte';
   import ConfirmDialogue from '../shared-components/confirm-dialogue.svelte';
   import { showDeleteModal } from '$lib/stores/preferences.store';
+  import Checkbox from '$lib/components/elements/checkbox.svelte';
 
   export let size: number;
 
@@ -12,10 +13,6 @@
     cancel: void;
   }>();
 
-  const onToggle = () => {
-    checked = !checked;
-  };
-
   const handleConfirm = () => {
     if (checked) {
       $showDeleteModal = false;
@@ -25,6 +22,7 @@
 </script>
 
 <ConfirmDialogue
+  id="permanently-delete-asset-modal"
   title="Supprimer Définitivement l'Actif{size > 1 ? 's' : ''}"
   confirmText="Supprimer"
   onConfirm={handleConfirm}
@@ -34,23 +32,15 @@
     <p>
       Êtes-vous sûr de vouloir supprimer définitivement
       {#if size > 1}
-      ces <b>{size}</b> actifs ?  Cela les supprimera également de leurs albums.
+        ces <b>{size}</b> actifs ? Cela les supprimera également de leurs albums.
       {:else}
-      cet actif ? Cela le supprimera également de ses albums.
+        cet actif ? Cela le supprimera également de ses albums.
       {/if}
     </p>
     <p><b>Vous ne pouvez pas annuler cette action !</b></p>
 
-    <div class="flex gap-2 items-center justify-center pt-4">
-      <label id="confirm-label" for="confirm-input">Ne plus afficher ce message</label>
-      <input
-        id="confirm-input"
-        aria-labelledby="confirm-input"
-        class="disabled::cursor-not-allowed h-3 w-3 opacity-1"
-        type="checkbox"
-        bind:checked
-        on:click={onToggle}
-      />
+    <div class="pt-4 flex justify-center items-center">
+      <Checkbox id="confirm-deletion-input" label="Ne plus afficher ce message" bind:checked />
     </div>
   </svelte:fragment>
 </ConfirmDialogue>

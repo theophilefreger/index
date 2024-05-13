@@ -5,7 +5,6 @@ import {
   LibraryResponseDto,
   LoginResponseDto,
   SharedLinkType,
-  TimeBucketSize,
   getAllLibraries,
   getAssetInfo,
   updateAssets,
@@ -103,7 +102,6 @@ describe('/asset', () => {
       utils.createAsset(user1.accessToken),
       utils.createAsset(user1.accessToken, {
         isFavorite: true,
-        isReadOnly: true,
         fileCreatedAt: yesterday.toISO(),
         fileModifiedAt: yesterday.toISO(),
         assetData: { filename: 'example.mp4' },
@@ -112,7 +110,7 @@ describe('/asset', () => {
       utils.createAsset(user1.accessToken),
     ]);
 
-    user2Assets = await Promise.all([utils.createAsset(user2.accessToken)]);
+    user2Assets = [await utils.createAsset(user2.accessToken)];
 
     await Promise.all([
       utils.createAsset(timeBucketUser.accessToken, { fileCreatedAt: new Date('1970-01-01').toISOString() }),
@@ -574,6 +572,22 @@ describe('/asset', () => {
 
     const tests = [
       {
+        input: 'formats/avif/8bit-sRGB.avif',
+        expected: {
+          type: AssetTypeEnum.Image,
+          originalFileName: '8bit-sRGB.avif',
+          resized: true,
+          exifInfo: {
+            description: '',
+            exifImageHeight: 1080,
+            exifImageWidth: 1617,
+            fileSizeInByte: 862_424,
+            latitude: null,
+            longitude: null,
+          },
+        },
+      },
+      {
         input: 'formats/jpg/el_torcal_rocks.jpg',
         expected: {
           type: AssetTypeEnum.Image,
@@ -594,6 +608,22 @@ describe('/asset', () => {
             model: 'DSLR-A550',
             orientation: null,
             description: 'SONY DSC',
+          },
+        },
+      },
+      {
+        input: 'formats/jxl/8bit-sRGB.jxl',
+        expected: {
+          type: AssetTypeEnum.Image,
+          originalFileName: '8bit-sRGB.jxl',
+          resized: true,
+          exifInfo: {
+            description: '',
+            exifImageHeight: 1080,
+            exifImageWidth: 1440,
+            fileSizeInByte: 1_780_777,
+            latitude: null,
+            longitude: null,
           },
         },
       },
@@ -679,6 +709,80 @@ describe('/asset', () => {
             longitude: null,
             orientation: '1',
             timeZone: 'UTC-5',
+          },
+        },
+      },
+      {
+        input: 'formats/raw/Panasonic/DMC-GH4/4_3.rw2',
+        expected: {
+          type: AssetTypeEnum.Image,
+          originalFileName: '4_3.rw2',
+          resized: true,
+          fileCreatedAt: '2018-05-10T08:42:37.842Z',
+          exifInfo: {
+            make: 'Panasonic',
+            model: 'DMC-GH4',
+            exifImageHeight: 3456,
+            exifImageWidth: 4608,
+            exposureTime: '1/100',
+            fNumber: 3.2,
+            focalLength: 35,
+            iso: 400,
+            fileSizeInByte: 19_587_072,
+            dateTimeOriginal: '2018-05-10T08:42:37.842Z',
+            latitude: null,
+            longitude: null,
+            orientation: '1',
+          },
+        },
+      },
+      {
+        input: 'formats/raw/Sony/ILCE-6300/12bit-compressed-(3_2).arw',
+        expected: {
+          type: AssetTypeEnum.Image,
+          originalFileName: '12bit-compressed-(3_2).arw',
+          resized: true,
+          fileCreatedAt: '2016-09-27T10:51:44.000Z',
+          exifInfo: {
+            make: 'SONY',
+            model: 'ILCE-6300',
+            exifImageHeight: 4024,
+            exifImageWidth: 6048,
+            exposureTime: '1/320',
+            fNumber: 8,
+            focalLength: 97,
+            iso: 100,
+            lensModel: 'E PZ 18-105mm F4 G OSS',
+            fileSizeInByte: 25_001_984,
+            dateTimeOriginal: '2016-09-27T10:51:44.000Z',
+            latitude: null,
+            longitude: null,
+            orientation: '1',
+          },
+        },
+      },
+      {
+        input: 'formats/raw/Sony/ILCE-7M2/14bit-uncompressed-(3_2).arw',
+        expected: {
+          type: AssetTypeEnum.Image,
+          originalFileName: '14bit-uncompressed-(3_2).arw',
+          resized: true,
+          fileCreatedAt: '2016-01-08T15:08:01.000Z',
+          exifInfo: {
+            make: 'SONY',
+            model: 'ILCE-7M2',
+            exifImageHeight: 4024,
+            exifImageWidth: 6048,
+            exposureTime: '1.3',
+            fNumber: 22,
+            focalLength: 25,
+            iso: 100,
+            lensModel: 'E 25mm F2',
+            fileSizeInByte: 49_512_448,
+            dateTimeOriginal: '2016-01-08T15:08:01.000Z',
+            latitude: null,
+            longitude: null,
+            orientation: '1',
           },
         },
       },
@@ -817,14 +921,14 @@ describe('/asset', () => {
     });
 
     it('should not include gps data for webp thumbnails', async () => {
-      const { status, body, type } = await request(app)
-        .get(`/asset/thumbnail/${locationAsset.id}?format=WEBP`)
-        .set('Authorization', `Bearer ${admin.accessToken}`);
-
       await utils.waitForWebsocketEvent({
         event: 'assetUpload',
         id: locationAsset.id,
       });
+
+      const { status, body, type } = await request(app)
+        .get(`/asset/thumbnail/${locationAsset.id}?format=WEBP`)
+        .set('Authorization', `Bearer ${admin.accessToken}`);
 
       expect(status).toBe(200);
       expect(body).toBeDefined();
@@ -901,7 +1005,7 @@ describe('/asset', () => {
           id: expect.any(String),
           lat: expect.closeTo(39.115),
           lon: expect.closeTo(-108.400_968),
-          state: 'Mesa County, Colorado',
+          state: 'Colorado',
         },
         {
           city: 'Ralston',
@@ -909,7 +1013,7 @@ describe('/asset', () => {
           id: expect.any(String),
           lat: expect.closeTo(41.2203),
           lon: expect.closeTo(-96.071_625),
-          state: 'Douglas County, Nebraska',
+          state: 'Nebraska',
         },
       ]);
     });
@@ -928,7 +1032,7 @@ describe('/asset', () => {
           id: expect.any(String),
           lat: expect.closeTo(39.115),
           lon: expect.closeTo(-108.400_968),
-          state: 'Mesa County, Colorado',
+          state: 'Colorado',
         },
         {
           city: 'Ralston',
@@ -936,149 +1040,9 @@ describe('/asset', () => {
           id: expect.any(String),
           lat: expect.closeTo(41.2203),
           lon: expect.closeTo(-96.071_625),
-          state: 'Douglas County, Nebraska',
+          state: 'Nebraska',
         },
       ]);
-    });
-  });
-
-  describe('GET /asset/time-buckets', () => {
-    it('should require authentication', async () => {
-      const { status, body } = await request(app).get('/asset/time-buckets').query({ size: TimeBucketSize.Month });
-      expect(status).toBe(401);
-      expect(body).toEqual(errorDto.unauthorized);
-    });
-
-    it('should get time buckets by month', async () => {
-      const { status, body } = await request(app)
-        .get('/asset/time-buckets')
-        .set('Authorization', `Bearer ${timeBucketUser.accessToken}`)
-        .query({ size: TimeBucketSize.Month });
-
-      expect(status).toBe(200);
-      expect(body).toEqual(
-        expect.arrayContaining([
-          { count: 3, timeBucket: '1970-02-01T00:00:00.000Z' },
-          { count: 1, timeBucket: '1970-01-01T00:00:00.000Z' },
-        ]),
-      );
-    });
-
-    it('should not allow access for unrelated shared links', async () => {
-      const sharedLink = await utils.createSharedLink(user1.accessToken, {
-        type: SharedLinkType.Individual,
-        assetIds: user1Assets.map(({ id }) => id),
-      });
-
-      const { status, body } = await request(app)
-        .get('/asset/time-buckets')
-        .query({ key: sharedLink.key, size: TimeBucketSize.Month });
-
-      expect(status).toBe(400);
-      expect(body).toEqual(errorDto.noPermission);
-    });
-
-    it('should get time buckets by day', async () => {
-      const { status, body } = await request(app)
-        .get('/asset/time-buckets')
-        .set('Authorization', `Bearer ${timeBucketUser.accessToken}`)
-        .query({ size: TimeBucketSize.Day });
-
-      expect(status).toBe(200);
-      expect(body).toEqual([
-        { count: 2, timeBucket: '1970-02-11T00:00:00.000Z' },
-        { count: 1, timeBucket: '1970-02-10T00:00:00.000Z' },
-        { count: 1, timeBucket: '1970-01-01T00:00:00.000Z' },
-      ]);
-    });
-  });
-
-  describe('GET /asset/time-bucket', () => {
-    it('should require authentication', async () => {
-      const { status, body } = await request(app).get('/asset/time-bucket').query({
-        size: TimeBucketSize.Month,
-        timeBucket: '1900-01-01T00:00:00.000Z',
-      });
-
-      expect(status).toBe(401);
-      expect(body).toEqual(errorDto.unauthorized);
-    });
-
-    it('should handle 5 digit years', async () => {
-      const { status, body } = await request(app)
-        .get('/asset/time-bucket')
-        .query({ size: TimeBucketSize.Month, timeBucket: '+012345-01-01T00:00:00.000Z' })
-        .set('Authorization', `Bearer ${timeBucketUser.accessToken}`);
-
-      expect(status).toBe(200);
-      expect(body).toEqual([]);
-    });
-
-    // TODO enable date string validation while still accepting 5 digit years
-    // it('should fail if time bucket is invalid', async () => {
-    //   const { status, body } = await request(app)
-    //     .get('/asset/time-bucket')
-    //     .set('Authorization', `Bearer ${user1.accessToken}`)
-    //     .query({ size: TimeBucketSize.Month, timeBucket: 'foo' });
-
-    //   expect(status).toBe(400);
-    //   expect(body).toEqual(errorDto.badRequest);
-    // });
-
-    it('should return time bucket', async () => {
-      const { status, body } = await request(app)
-        .get('/asset/time-bucket')
-        .set('Authorization', `Bearer ${timeBucketUser.accessToken}`)
-        .query({ size: TimeBucketSize.Month, timeBucket: '1970-02-10T00:00:00.000Z' });
-
-      expect(status).toBe(200);
-      expect(body).toEqual([]);
-    });
-
-    it('should return error if time bucket is requested with partners asset and archived', async () => {
-      const req1 = await request(app)
-        .get('/asset/time-buckets')
-        .set('Authorization', `Bearer ${timeBucketUser.accessToken}`)
-        .query({ size: TimeBucketSize.Month, withPartners: true, isArchived: true });
-
-      expect(req1.status).toBe(400);
-      expect(req1.body).toEqual(errorDto.badRequest());
-
-      const req2 = await request(app)
-        .get('/asset/time-buckets')
-        .set('Authorization', `Bearer ${user1.accessToken}`)
-        .query({ size: TimeBucketSize.Month, withPartners: true, isArchived: undefined });
-
-      expect(req2.status).toBe(400);
-      expect(req2.body).toEqual(errorDto.badRequest());
-    });
-
-    it('should return error if time bucket is requested with partners asset and favorite', async () => {
-      const req1 = await request(app)
-        .get('/asset/time-buckets')
-        .set('Authorization', `Bearer ${timeBucketUser.accessToken}`)
-        .query({ size: TimeBucketSize.Month, withPartners: true, isFavorite: true });
-
-      expect(req1.status).toBe(400);
-      expect(req1.body).toEqual(errorDto.badRequest());
-
-      const req2 = await request(app)
-        .get('/asset/time-buckets')
-        .set('Authorization', `Bearer ${timeBucketUser.accessToken}`)
-        .query({ size: TimeBucketSize.Month, withPartners: true, isFavorite: false });
-
-      expect(req2.status).toBe(400);
-      expect(req2.body).toEqual(errorDto.badRequest());
-    });
-
-    it('should return error if time bucket is requested with partners asset and trash', async () => {
-      const req = await request(app)
-        .get('/asset/time-buckets')
-        .set('Authorization', `Bearer ${user1.accessToken}`)
-        .query({ size: TimeBucketSize.Month, withPartners: true, isTrashed: true });
-
-      expect(req.status).toBe(400);
-      expect(req.body).toEqual(errorDto.badRequest());
     });
   });
 

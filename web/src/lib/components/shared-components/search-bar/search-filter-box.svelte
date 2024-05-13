@@ -124,7 +124,7 @@
     on:submit|preventDefault={search}
     on:reset|preventDefault={resetForm}
   >
-    <div class="px-4 sm:px-6 py-4 space-y-10 max-h-[calc(100dvh-12rem)] overflow-y-auto immich-scrollbar">
+    <div class="px-4 sm:px-6 py-4 space-y-10 max-h-[calc(100dvh-12rem)] overflow-y-auto immich-scrollbar" tabindex="-1">
       <!-- PEOPLE -->
       <SearchPeopleSection width={filterBoxWidth} bind:selectedPeople={filter.personIds} />
 

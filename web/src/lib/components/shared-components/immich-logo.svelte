@@ -1,13 +1,32 @@
 <script lang="ts">
-  import immichLogoUrl from '$lib/assets/rfstudio_noir.svg';
-  import immichLogoWhiteUrl from '$lib/assets/rfstudio_blanc.svg'; // Le chemin du nouveau SVG blanc
-  import { colorTheme } from '$lib/stores/preferences.store'; // Importez le store du thème
+  import logoDarkUrl from '$lib/assets/immich-logo-inline-dark.svg';
+  import logoLightUrl from '$lib/assets/immich-logo-inline-light.svg';
+  import logoNoText from '$lib/assets/immich-logo.svg';
+  import { content as alternativeLogo } from '$lib/assets/immich-logo.json';
+  import { Theme } from '$lib/constants';
+  import { colorTheme } from '$lib/stores/preferences.store';
+  import { DateTime } from 'luxon';
+  import type { HTMLImgAttributes } from 'svelte/elements';
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface $$Props extends HTMLImgAttributes {
+    noText?: boolean;
+    draggable?: boolean;
+  }
+
+  export let noText = false;
   export let draggable = false;
+
+  const today = DateTime.now().toLocal();
 </script>
 
-{#if $colorTheme.value === 'dark'}
-  <img src={immichLogoWhiteUrl} alt="RF STUDIO Logo" {draggable} {...$$restProps} />
+{#if today.month === 4 && today.day === 1}
+  <img src="data:image/png;base64, {alternativeLogo}" alt="RF STUDIO Logo" class="h-20" {draggable} />
 {:else}
-  <img src={immichLogoUrl} alt="RF STUDIO Logo" {draggable} {...$$restProps} />
+  <img
+    src={noText ? logoNoText : $colorTheme.value == Theme.LIGHT ? logoLightUrl : logoDarkUrl}
+    alt="RF STUDIO Logo"
+    {draggable}
+    {...$$restProps}
+  />
 {/if}
