@@ -29,8 +29,17 @@
   >
     <SettingSwitch id="allow-dark-mode" title="Autoriser le mode sombre" bind:checked={settings.allowDarkMode} />
     <SettingSwitch id="only-favorites" title="Seulement les favoris" bind:checked={settings.onlyFavorites} />
-    <SettingSwitch id="include-archived" title="Inclure les archivés" bind:checked={settings.includeArchived} />
-    <SettingSwitch id="include-shared-with-me" title="Inclure les partagés" bind:checked={settings.withPartners} />
+    <SettingSwitch id="include-archived" title="Inclure les archives" bind:checked={settings.includeArchived} />
+    <SettingSwitch
+      id="include-shared-partner-assets"
+      title="Inclure les partages"
+      bind:checked={settings.withPartners}
+    />
+    <SettingSwitch
+      id="include-shared-albums"
+      title="Inclure les albums partagés"
+      bind:checked={settings.withSharedAlbums}
+    />
     {#if customDateRange}
       <div in:fly={{ y: 10, duration: 200 }} class="flex flex-col gap-4">
         <div class="flex items-center justify-between gap-8">
