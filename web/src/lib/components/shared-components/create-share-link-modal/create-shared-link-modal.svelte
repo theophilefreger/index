@@ -36,7 +36,7 @@
 
   const expiredDateOption: ImmichDropDownOption = {
     default: 'Jamais',
-    options: ['Jamais', '30 minutes', '1 heure', '6 heures', '1 jour', '7 jours', '30 jours' '3 mois', '1 an'],
+    options: ['Jamais', '30 minutes', '1 heure', '6 heures', '1 jour', '7 jours', '30 jours', '3 mois', '1 an'],
   };
 
   $: shareType = albumId ? SharedLinkType.Album : SharedLinkType.Individual;
