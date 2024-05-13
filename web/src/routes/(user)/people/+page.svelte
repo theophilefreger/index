@@ -73,7 +73,7 @@
       showPeople = searchedPeopleLocal;
       countVisiblePeople = searchedPeopleLocal.length;
     } else {
-      showPeople = people.filter((person) => !person.isHidden);
+      showPeople = people.filter((person: Person) => !person.isHidden);
       countVisiblePeople = countTotalPeople - countHiddenPeople;
     }
   }

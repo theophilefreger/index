@@ -45,7 +45,7 @@
         label="Make"
         on:select={({ detail }) => (filters.make = detail?.value)}
         options={toComboBoxOptions(makes)}
-        placeholder="Recherche d'une marque...
+        placeholder="Recherche d'une marque..."
         selectedOption={makeFilter ? { label: makeFilter, value: makeFilter } : undefined}
       />
     </div>
