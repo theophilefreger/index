@@ -606,7 +606,7 @@
     {/if}
 
     {#if $slideshowState === SlideshowState.None && showNavigation}
-      <div class="z-[1001] column-span-1 col-start-1 row-span-1 row-start-2 justify-self-start">
+      <div class="z-[1001] my-auto column-span-1 col-start-1 row-span-full row-start-1 justify-self-start">
         <NavigationArea onClick={(e) => navigateAsset('previous', e)} label="View previous asset">
           <Icon path={mdiChevronLeft} size="36" ariaHidden />
         </NavigationArea>
@@ -640,6 +640,7 @@
             <VideoViewer
               assetId={previewStackedAsset.id}
               projectionType={previewStackedAsset.exifInfo?.projectionType}
+              loopVideo={true}
               on:close={closeViewer}
               on:onVideoEnded={() => navigateAsset()}
               on:onVideoStarted={handleVideoStarted}
@@ -661,6 +662,7 @@
               <VideoViewer
                 assetId={asset.livePhotoVideoId}
                 projectionType={asset.exifInfo?.projectionType}
+                loopVideo={$slideshowState !== SlideshowState.PlaySlideshow}
                 on:close={closeViewer}
                 on:onVideoEnded={() => (shouldPlayMotionPhoto = false)}
               />
@@ -675,6 +677,7 @@
             <VideoViewer
               assetId={asset.id}
               projectionType={asset.exifInfo?.projectionType}
+              loopVideo={$slideshowState !== SlideshowState.PlaySlideshow}
               on:close={closeViewer}
               on:onVideoEnded={() => navigateAsset()}
               on:onVideoStarted={handleVideoStarted}
@@ -697,7 +700,7 @@
     </div>
 
     {#if $slideshowState === SlideshowState.None && showNavigation}
-      <div class="z-[1001] col-span-1 col-start-4 row-span-1 row-start-2 justify-self-end">
+      <div class="z-[1001] my-auto col-span-1 col-start-4 row-span-full row-start-1 justify-self-end">
         <NavigationArea onClick={(e) => navigateAsset('next', e)} label="View next asset">
           <Icon path={mdiChevronRight} size="36" ariaHidden />
         </NavigationArea>
