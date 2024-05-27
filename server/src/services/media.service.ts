@@ -31,14 +31,17 @@ import { AudioStreamInfo, IMediaRepository, VideoCodecHWConfig, VideoStreamInfo 
 import { IMoveRepository } from 'src/interfaces/move.interface';
 import { IPersonRepository } from 'src/interfaces/person.interface';
 import { IStorageRepository } from 'src/interfaces/storage.interface';
-import { ISystemConfigRepository } from 'src/interfaces/system-config.interface';
+import { ISystemMetadataRepository } from 'src/interfaces/system-metadata.interface';
 import {
   AV1Config,
   H264Config,
   HEVCConfig,
-  NVENCConfig,
-  QSVConfig,
-  RKMPPConfig,
+  NvencHwDecodeConfig,
+  NvencSwDecodeConfig,
+  QsvHwDecodeConfig,
+  QsvSwDecodeConfig,
+  RkmppHwDecodeConfig,
+  RkmppSwDecodeConfig,
   ThumbnailConfig,
   VAAPIConfig,
   VP9Config,
@@ -59,20 +62,20 @@ export class MediaService {
     @Inject(IJobRepository) private jobRepository: IJobRepository,
     @Inject(IMediaRepository) private mediaRepository: IMediaRepository,
     @Inject(IStorageRepository) private storageRepository: IStorageRepository,
-    @Inject(ISystemConfigRepository) configRepository: ISystemConfigRepository,
+    @Inject(ISystemMetadataRepository) systemMetadataRepository: ISystemMetadataRepository,
     @Inject(IMoveRepository) moveRepository: IMoveRepository,
     @Inject(ICryptoRepository) cryptoRepository: ICryptoRepository,
     @Inject(ILoggerRepository) private logger: ILoggerRepository,
   ) {
     this.logger.setContext(MediaService.name);
-    this.configCore = SystemConfigCore.create(configRepository, this.logger);
+    this.configCore = SystemConfigCore.create(systemMetadataRepository, this.logger);
     this.storageCore = StorageCore.create(
       assetRepository,
       cryptoRepository,
       moveRepository,
       personRepository,
       storageRepository,
-      configRepository,
+      systemMetadataRepository,
       this.logger,
     );
   }
@@ -329,7 +332,6 @@ export class MediaService {
     }
 
     const { ffmpeg: config } = await this.configCore.getConfig();
-
     const target = this.getTranscodeTarget(config, mainVideoStream, mainAudioStream);
     if (target === TranscodeTarget.NONE) {
       if (asset.encodedVideoPath) {
@@ -361,8 +363,7 @@ export class MediaService {
           `Error occurred during transcoding. Retrying with ${config.accel.toUpperCase()} acceleration disabled.`,
         );
       }
-      config.accel = TranscodeHWAccel.DISABLED;
-      transcodeOptions = await this.getCodecConfig(config).then((c) =>
+      transcodeOptions = await this.getCodecConfig({ ...config, accel: TranscodeHWAccel.DISABLED }).then((c) =>
         c.getOptions(target, mainVideoStream, mainAudioStream),
       );
       await this.mediaRepository.transcode(input, output, transcodeOptions);
@@ -495,11 +496,13 @@ export class MediaService {
     let handler: VideoCodecHWConfig;
     switch (config.accel) {
       case TranscodeHWAccel.NVENC: {
-        handler = new NVENCConfig(config);
+        handler = config.accelDecode ? new NvencHwDecodeConfig(config) : new NvencSwDecodeConfig(config);
         break;
       }
       case TranscodeHWAccel.QSV: {
-        handler = new QSVConfig(config, await this.getDevices());
+        handler = config.accelDecode
+          ? new QsvHwDecodeConfig(config, await this.getDevices())
+          : new QsvSwDecodeConfig(config, await this.getDevices());
         break;
       }
       case TranscodeHWAccel.VAAPI: {
@@ -507,7 +510,10 @@ export class MediaService {
         break;
       }
       case TranscodeHWAccel.RKMPP: {
-        handler = new RKMPPConfig(config, await this.getDevices(), await this.hasOpenCL());
+        handler =
+          config.accelDecode && (await this.hasOpenCL())
+            ? new RkmppHwDecodeConfig(config, await this.getDevices())
+            : new RkmppSwDecodeConfig(config, await this.getDevices());
         break;
       }
       default: {

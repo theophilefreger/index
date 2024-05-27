@@ -3,6 +3,7 @@
   import ConfirmDialogue from '../shared-components/confirm-dialogue.svelte';
   import { showDeleteModal } from '$lib/stores/preferences.store';
   import Checkbox from '$lib/components/elements/checkbox.svelte';
+  import { s } from '$lib/utils';
 
   export let size: number;
 
@@ -23,7 +24,7 @@
 
 <ConfirmDialogue
   id="permanently-delete-asset-modal"
-  title="Supprimer Définitivement l'Actif{size > 1 ? 's' : ''}"
+  title="Supprimer Définitivement l'Actif{s(size)}"
   confirmText="Supprimer"
   onConfirm={handleConfirm}
   onClose={() => dispatch('cancel')}

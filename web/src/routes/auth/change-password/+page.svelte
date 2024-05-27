@@ -25,5 +25,5 @@
     Veuillez entrer le nouveau mot de passe ci-dessous.
   </p>
 
-  <ChangePasswordForm user={$user} on:success={onSuccess} />
+  <ChangePasswordForm on:success={onSuccess} />
 </FullscreenContainer>

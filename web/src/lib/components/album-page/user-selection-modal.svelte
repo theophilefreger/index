@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
   import Dropdown from '$lib/components/elements/dropdown.svelte';
   import Icon from '$lib/components/elements/icon.svelte';
   import FullScreenModal from '$lib/components/shared-components/full-screen-modal.svelte';
@@ -7,7 +6,7 @@
   import {
     AlbumUserRole,
     getAllSharedLinks,
-    getAllUsers,
+    searchUsers,
     type AlbumResponseDto,
     type AlbumUserAddDto,
     type SharedLinkResponseDto,
@@ -36,14 +35,14 @@
   let sharedLinks: SharedLinkResponseDto[] = [];
   onMount(async () => {
     await getSharedLinks();
-    const data = await getAllUsers({ isAll: false });
+    const data = await searchUsers();
 
-    // remove invalid users
-    users = data.filter((user) => !(user.deletedAt || user.id === album.ownerId));
+    // remove album owner
+    users = data.filter((user) => user.id !== album.ownerId);
 
     // Remove the existed shared users from the album
-    for (const sharedUser of album.sharedUsers) {
-      users = users.filter((user) => user.id !== sharedUser.id);
+    for (const sharedUser of album.albumUsers) {
+      users = users.filter((user) => user.id !== sharedUser.user.id);
     }
   });
 
@@ -110,7 +109,7 @@
 
   {#if users.length + Object.keys(selectedUsers).length === 0}
     <p class="p-5 text-sm">
-      Looks like you have shared this album with all users or you don't have any user to share with.
+      Votre album a été partagé avec tout les utilisateurs
     </p>
   {/if}
 
@@ -122,7 +121,11 @@
         {#each users as user}
           {#if !Object.keys(selectedUsers).includes(user.id)}
             <div class="flex place-items-center transition-all hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl">
-              <button on:click={() => handleToggle(user)} class="flex w-full place-items-center gap-4 p-4">
+              <button
+                type="button"
+                on:click={() => handleToggle(user)}
+                class="flex w-full place-items-center gap-4 p-4"
+              >
                 <UserAvatar {user} size="md" />
                 <div class="text-left flex-grow">
                   <p class="text-immich-fg dark:text-immich-dark-fg">
@@ -151,7 +154,7 @@
           dispatch(
             'select',
             Object.values(selectedUsers).map(({ user, ...rest }) => ({ userId: user.id, ...rest })),
-          )}>Add</Button
+          )}>Ajouter</Button
       >
     </div>
   {/if}
@@ -160,6 +163,7 @@
 
   <div id="shared-buttons" class="mt-4 flex place-content-center place-items-center justify-around">
     <button
+      type="button"
       class="flex flex-col place-content-center place-items-center gap-2 hover:cursor-pointer"
       on:click={() => dispatch('share')}
     >
@@ -168,13 +172,13 @@
     </button>
 
     {#if sharedLinks.length}
-      <button
+      <a
+        href={AppRoute.SHARED_LINKS}
         class="flex flex-col place-content-center place-items-center gap-2 hover:cursor-pointer"
-        on:click={() => goto(AppRoute.SHARED_LINKS)}
       >
         <Icon path={mdiShareCircle} size={24} />
         <p class="text-sm">Afficher les liens</p>
-      </button>
+      </a>
     {/if}
   </div>
 </FullScreenModal>

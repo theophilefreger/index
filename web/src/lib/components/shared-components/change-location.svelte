@@ -4,13 +4,13 @@
   import { timeDebounceOnSearch } from '$lib/constants';
   import { handleError } from '$lib/utils/handle-error';
 
-  import { clickOutside } from '$lib/utils/click-outside';
+  import { clickOutside } from '$lib/actions/click-outside';
   import LoadingSpinner from './loading-spinner.svelte';
   import { delay } from '$lib/utils/asset-utils';
   import { timeToLoadTheMap } from '$lib/constants';
   import { searchPlaces, type AssetResponseDto, type PlacesResponseDto } from '@immich/sdk';
   import SearchBar from '../elements/search-bar.svelte';
-  import { listNavigation } from '$lib/utils/list-navigation';
+  import { listNavigation } from '$lib/actions/list-navigation';
 
   export let asset: AssetResponseDto | undefined = undefined;
 
@@ -117,7 +117,7 @@
       use:clickOutside={{ onOutclick: () => (hideSuggestion = true) }}
       use:listNavigation={suggestionContainer}
     >
-      <button class="w-full" on:click={() => (hideSuggestion = false)}>
+      <button type="button" class="w-full" on:click={() => (hideSuggestion = false)}>
         <SearchBar
           placeholder="Rechercher un lieu"
           bind:name={searchWord}
@@ -133,6 +133,7 @@
         {#if !hideSuggestion}
           {#each suggestedPlaces as place, index}
             <button
+              type="button"
               class=" flex w-full border-t border-gray-400 dark:border-immich-dark-gray h-14 place-items-center bg-gray-200 p-2 dark:bg-gray-700 hover:bg-gray-300 hover:dark:bg-[#232932] focus:bg-gray-300 focus:dark:bg-[#232932] {index ===
               suggestedPlaces.length - 1
                 ? 'rounded-b-lg border-b'

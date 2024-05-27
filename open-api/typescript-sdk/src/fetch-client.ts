@@ -14,7 +14,7 @@ const oazapfts = Oazapfts.runtime(defaults);
 export const servers = {
     server1: "/api"
 };
-export type UserDto = {
+export type UserResponseDto = {
     avatarColor: UserAvatarColor;
     email: string;
     id: string;
@@ -27,7 +27,7 @@ export type ActivityResponseDto = {
     createdAt: string;
     id: string;
     "type": Type;
-    user: UserDto;
+    user: UserResponseDto;
 };
 export type ActivityCreateDto = {
     albumId: string;
@@ -38,7 +38,7 @@ export type ActivityCreateDto = {
 export type ActivityStatisticsResponseDto = {
     comments: number;
 };
-export type UserResponseDto = {
+export type UserAdminResponseDto = {
     avatarColor: UserAvatarColor;
     createdAt: string;
     deletedAt: string | null;
@@ -55,6 +55,29 @@ export type UserResponseDto = {
     status: UserStatus;
     storageLabel: string | null;
     updatedAt: string;
+};
+export type UserAdminCreateDto = {
+    email: string;
+    memoriesEnabled?: boolean;
+    name: string;
+    notify?: boolean;
+    password: string;
+    quotaSizeInBytes?: number | null;
+    shouldChangePassword?: boolean;
+    storageLabel?: string | null;
+};
+export type UserAdminDeleteDto = {
+    force?: boolean;
+};
+export type UserAdminUpdateDto = {
+    avatarColor?: UserAvatarColor;
+    email?: string;
+    memoriesEnabled?: boolean;
+    name?: string;
+    password?: string;
+    quotaSizeInBytes?: number | null;
+    shouldChangePassword?: boolean;
+    storageLabel?: string | null;
 };
 export type AlbumUserResponseDto = {
     role: AlbumUserRole;
@@ -115,6 +138,7 @@ export type AssetResponseDto = {
     checksum: string;
     deviceAssetId: string;
     deviceId: string;
+    duplicateId?: string | null;
     duration: string;
     exifInfo?: ExifResponseDto;
     fileCreatedAt: string;
@@ -122,14 +146,11 @@ export type AssetResponseDto = {
     hasMetadata: boolean;
     id: string;
     isArchived: boolean;
-    /** This property was deprecated in v1.104.0 */
-    isExternal?: boolean;
     isFavorite: boolean;
     isOffline: boolean;
-    /** This property was deprecated in v1.104.0 */
-    isReadOnly?: boolean;
     isTrashed: boolean;
-    libraryId: string;
+    /** This property was deprecated in v1.106.0 */
+    libraryId?: string | null;
     livePhotoVideoId?: string | null;
     localDateTime: string;
     originalFileName: string;
@@ -164,8 +185,6 @@ export type AlbumResponseDto = {
     owner: UserResponseDto;
     ownerId: string;
     shared: boolean;
-    /** This property was deprecated in v1.102.0 */
-    sharedUsers: UserResponseDto[];
     startDate?: string;
     updatedAt: string;
 };
@@ -175,12 +194,9 @@ export type AlbumUserCreateDto = {
 };
 export type CreateAlbumDto = {
     albumName: string;
-    /** This property was added in v1.104.0 */
     albumUsers?: AlbumUserCreateDto[];
     assetIds?: string[];
     description?: string;
-    /** This property was deprecated in v1.104.0 */
-    sharedWithUserIds?: string[];
 };
 export type AlbumCountResponseDto = {
     notShared: number;
@@ -211,8 +227,6 @@ export type AlbumUserAddDto = {
 };
 export type AddUsersDto = {
     albumUsers: AlbumUserAddDto[];
-    /** This property was deprecated in v1.102.0 */
-    sharedUserIds?: string[];
 };
 export type ApiKeyResponseDto = {
     createdAt: string;
@@ -236,6 +250,7 @@ export type AssetBulkDeleteDto = {
 };
 export type AssetBulkUpdateDto = {
     dateTimeOriginal?: string;
+    duplicateId?: string | null;
     ids: string[];
     isArchived?: boolean;
     isFavorite?: boolean;
@@ -282,8 +297,6 @@ export type MapMarkerResponseDto = {
 };
 export type MemoryLaneResponseDto = {
     assets: AssetResponseDto[];
-    /** This property was deprecated in v1.100.0 */
-    title: string;
     yearsAgo: number;
 };
 export type UpdateStackParentDto = {
@@ -306,7 +319,6 @@ export type CreateAssetDto = {
     isFavorite?: boolean;
     isOffline?: boolean;
     isVisible?: boolean;
-    libraryId?: string;
     livePhotoData?: Blob;
     sidecarData?: Blob;
 };
@@ -321,6 +333,18 @@ export type UpdateAssetDto = {
     isFavorite?: boolean;
     latitude?: number;
     longitude?: number;
+};
+export type AssetMediaReplaceDto = {
+    assetData: Blob;
+    deviceAssetId: string;
+    deviceId: string;
+    duration?: string;
+    fileCreatedAt: string;
+    fileModifiedAt: string;
+};
+export type AssetMediaResponseDto = {
+    id: string;
+    status: AssetMediaStatus;
 };
 export type AuditDeletesResponseDto = {
     ids: string[];
@@ -372,6 +396,10 @@ export type DownloadResponseDto = {
     archives: DownloadArchiveInfo[];
     totalSize: number;
 };
+export type DuplicateResponseDto = {
+    assets: AssetResponseDto[];
+    duplicateId: string;
+};
 export type PersonResponseDto = {
     birthDate: string | null;
     id: string;
@@ -410,6 +438,7 @@ export type JobStatusDto = {
 };
 export type AllJobStatusResponseDto = {
     backgroundTask: JobStatusDto;
+    duplicateDetection: JobStatusDto;
     faceDetection: JobStatusDto;
     facialRecognition: JobStatusDto;
     library: JobStatusDto;
@@ -436,21 +465,17 @@ export type LibraryResponseDto = {
     name: string;
     ownerId: string;
     refreshedAt: string | null;
-    "type": LibraryType;
     updatedAt: string;
 };
 export type CreateLibraryDto = {
     exclusionPatterns?: string[];
     importPaths?: string[];
-    isVisible?: boolean;
     name?: string;
     ownerId: string;
-    "type": LibraryType;
 };
 export type UpdateLibraryDto = {
     exclusionPatterns?: string[];
     importPaths?: string[];
-    isVisible?: boolean;
     name?: string;
 };
 export type ScanLibraryDto = {
@@ -515,22 +540,11 @@ export type OAuthCallbackDto = {
 };
 export type PartnerResponseDto = {
     avatarColor: UserAvatarColor;
-    createdAt: string;
-    deletedAt: string | null;
     email: string;
     id: string;
     inTimeline?: boolean;
-    isAdmin: boolean;
-    memoriesEnabled?: boolean;
     name: string;
-    oauthId: string;
     profileImagePath: string;
-    quotaSizeInBytes: number | null;
-    quotaUsageInBytes: number | null;
-    shouldChangePassword: boolean;
-    status: UserStatus;
-    storageLabel: string | null;
-    updatedAt: string;
 };
 export type UpdatePartnerDto = {
     inTimeline: boolean;
@@ -645,8 +659,6 @@ export type MetadataSearchDto = {
     page?: number;
     personIds?: string[];
     previewPath?: string;
-    /** This property was deprecated in v1.100.0 */
-    resizePath?: string;
     size?: number;
     state?: string;
     takenAfter?: string;
@@ -657,8 +669,6 @@ export type MetadataSearchDto = {
     "type"?: AssetTypeEnum;
     updatedAfter?: string;
     updatedBefore?: string;
-    /** This property was deprecated in v1.100.0 */
-    webpPath?: string;
     withArchived?: boolean;
     withDeleted?: boolean;
     withExif?: boolean;
@@ -730,15 +740,6 @@ export type SmartSearchDto = {
     withDeleted?: boolean;
     withExif?: boolean;
 };
-export type ServerInfoResponseDto = {
-    diskAvailable: string;
-    diskAvailableRaw: number;
-    diskSize: string;
-    diskSizeRaw: number;
-    diskUsagePercentage: number;
-    diskUse: string;
-    diskUseRaw: number;
-};
 export type ServerConfigDto = {
     externalDomain: string;
     isInitialized: boolean;
@@ -750,6 +751,7 @@ export type ServerConfigDto = {
 };
 export type ServerFeaturesDto = {
     configFile: boolean;
+    duplicateDetection: boolean;
     email: boolean;
     facialRecognition: boolean;
     map: boolean;
@@ -784,6 +786,15 @@ export type ServerStatsResponseDto = {
     usage: number;
     usageByUser: UsageByUserDto[];
     videos: number;
+};
+export type ServerStorageResponseDto = {
+    diskAvailable: string;
+    diskAvailableRaw: number;
+    diskSize: string;
+    diskSizeRaw: number;
+    diskUsagePercentage: number;
+    diskUse: string;
+    diskUseRaw: number;
 };
 export type ServerThemeDto = {
     customCss: string;
@@ -863,6 +874,7 @@ export type AssetFullSyncDto = {
 };
 export type SystemConfigFFmpegDto = {
     accel: TranscodeHWAccel;
+    accelDecode: boolean;
     acceptedAudioCodecs: AudioCodec[];
     acceptedVideoCodecs: VideoCodec[];
     bframes: number;
@@ -929,6 +941,10 @@ export type ClipConfig = {
     modelName: string;
     modelType?: ModelType;
 };
+export type DuplicateDetectionConfig = {
+    enabled: boolean;
+    maxDistance: number;
+};
 export type RecognitionConfig = {
     enabled: boolean;
     maxDistance: number;
@@ -939,6 +955,7 @@ export type RecognitionConfig = {
 };
 export type SystemConfigMachineLearningDto = {
     clip: ClipConfig;
+    duplicateDetection: DuplicateDetectionConfig;
     enabled: boolean;
     facialRecognition: RecognitionConfig;
     url: string;
@@ -1055,27 +1072,12 @@ export type TimeBucketResponseDto = {
     count: number;
     timeBucket: string;
 };
-export type CreateUserDto = {
-    email: string;
-    memoriesEnabled?: boolean;
-    name: string;
-    notify?: boolean;
-    password: string;
-    quotaSizeInBytes?: number | null;
-    shouldChangePassword?: boolean;
-    storageLabel?: string | null;
-};
-export type UpdateUserDto = {
+export type UserUpdateMeDto = {
     avatarColor?: UserAvatarColor;
     email?: string;
-    id: string;
-    isAdmin?: boolean;
     memoriesEnabled?: boolean;
     name?: string;
     password?: string;
-    quotaSizeInBytes?: number | null;
-    shouldChangePassword?: boolean;
-    storageLabel?: string;
 };
 export type CreateProfileImageDto = {
     file: Blob;
@@ -1083,9 +1085,6 @@ export type CreateProfileImageDto = {
 export type CreateProfileImageResponseDto = {
     profileImagePath: string;
     userId: string;
-};
-export type DeleteUserDto = {
-    force?: boolean;
 };
 export function getActivities({ albumId, assetId, level, $type, userId }: {
     albumId: string;
@@ -1097,7 +1096,7 @@ export function getActivities({ albumId, assetId, level, $type, userId }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: ActivityResponseDto[];
-    }>(`/activity${QS.query(QS.explode({
+    }>(`/activities${QS.query(QS.explode({
         albumId,
         assetId,
         level,
@@ -1113,7 +1112,7 @@ export function createActivity({ activityCreateDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: ActivityResponseDto;
-    }>("/activity", oazapfts.json({
+    }>("/activities", oazapfts.json({
         ...opts,
         method: "POST",
         body: activityCreateDto
@@ -1126,7 +1125,7 @@ export function getActivityStatistics({ albumId, assetId }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: ActivityStatisticsResponseDto;
-    }>(`/activity/statistics${QS.query(QS.explode({
+    }>(`/activities/statistics${QS.query(QS.explode({
         albumId,
         assetId
     }))}`, {
@@ -1136,9 +1135,80 @@ export function getActivityStatistics({ albumId, assetId }: {
 export function deleteActivity({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/activity/${encodeURIComponent(id)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/activities/${encodeURIComponent(id)}`, {
         ...opts,
         method: "DELETE"
+    }));
+}
+export function searchUsersAdmin({ withDeleted }: {
+    withDeleted?: boolean;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserAdminResponseDto[];
+    }>(`/admin/users${QS.query(QS.explode({
+        withDeleted
+    }))}`, {
+        ...opts
+    }));
+}
+export function createUserAdmin({ userAdminCreateDto }: {
+    userAdminCreateDto: UserAdminCreateDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: UserAdminResponseDto;
+    }>("/admin/users", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: userAdminCreateDto
+    })));
+}
+export function deleteUserAdmin({ id, userAdminDeleteDto }: {
+    id: string;
+    userAdminDeleteDto: UserAdminDeleteDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserAdminResponseDto;
+    }>(`/admin/users/${encodeURIComponent(id)}`, oazapfts.json({
+        ...opts,
+        method: "DELETE",
+        body: userAdminDeleteDto
+    })));
+}
+export function getUserAdmin({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserAdminResponseDto;
+    }>(`/admin/users/${encodeURIComponent(id)}`, {
+        ...opts
+    }));
+}
+export function updateUserAdmin({ id, userAdminUpdateDto }: {
+    id: string;
+    userAdminUpdateDto: UserAdminUpdateDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserAdminResponseDto;
+    }>(`/admin/users/${encodeURIComponent(id)}`, oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: userAdminUpdateDto
+    })));
+}
+export function restoreUserAdmin({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: UserAdminResponseDto;
+    }>(`/admin/users/${encodeURIComponent(id)}/restore`, {
+        ...opts,
+        method: "POST"
     }));
 }
 export function getAllAlbums({ assetId, shared }: {
@@ -1148,7 +1218,7 @@ export function getAllAlbums({ assetId, shared }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AlbumResponseDto[];
-    }>(`/album${QS.query(QS.explode({
+    }>(`/albums${QS.query(QS.explode({
         assetId,
         shared
     }))}`, {
@@ -1161,7 +1231,7 @@ export function createAlbum({ createAlbumDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: AlbumResponseDto;
-    }>("/album", oazapfts.json({
+    }>("/albums", oazapfts.json({
         ...opts,
         method: "POST",
         body: createAlbumDto
@@ -1171,14 +1241,14 @@ export function getAlbumCount(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AlbumCountResponseDto;
-    }>("/album/count", {
+    }>("/albums/count", {
         ...opts
     }));
 }
 export function deleteAlbum({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/album/${encodeURIComponent(id)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/albums/${encodeURIComponent(id)}`, {
         ...opts,
         method: "DELETE"
     }));
@@ -1191,7 +1261,7 @@ export function getAlbumInfo({ id, key, withoutAssets }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AlbumResponseDto;
-    }>(`/album/${encodeURIComponent(id)}${QS.query(QS.explode({
+    }>(`/albums/${encodeURIComponent(id)}${QS.query(QS.explode({
         key,
         withoutAssets
     }))}`, {
@@ -1205,7 +1275,7 @@ export function updateAlbumInfo({ id, updateAlbumDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AlbumResponseDto;
-    }>(`/album/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/albums/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PATCH",
         body: updateAlbumDto
@@ -1218,7 +1288,7 @@ export function removeAssetFromAlbum({ id, bulkIdsDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: BulkIdResponseDto[];
-    }>(`/album/${encodeURIComponent(id)}/assets`, oazapfts.json({
+    }>(`/albums/${encodeURIComponent(id)}/assets`, oazapfts.json({
         ...opts,
         method: "DELETE",
         body: bulkIdsDto
@@ -1232,7 +1302,7 @@ export function addAssetsToAlbum({ id, key, bulkIdsDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: BulkIdResponseDto[];
-    }>(`/album/${encodeURIComponent(id)}/assets${QS.query(QS.explode({
+    }>(`/albums/${encodeURIComponent(id)}/assets${QS.query(QS.explode({
         key
     }))}`, oazapfts.json({
         ...opts,
@@ -1244,7 +1314,7 @@ export function removeUserFromAlbum({ id, userId }: {
     id: string;
     userId: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/album/${encodeURIComponent(id)}/user/${encodeURIComponent(userId)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/albums/${encodeURIComponent(id)}/user/${encodeURIComponent(userId)}`, {
         ...opts,
         method: "DELETE"
     }));
@@ -1254,7 +1324,7 @@ export function updateAlbumUser({ id, userId, updateAlbumUserDto }: {
     userId: string;
     updateAlbumUserDto: UpdateAlbumUserDto;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/album/${encodeURIComponent(id)}/user/${encodeURIComponent(userId)}`, oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText(`/albums/${encodeURIComponent(id)}/user/${encodeURIComponent(userId)}`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: updateAlbumUserDto
@@ -1267,7 +1337,7 @@ export function addUsersToAlbum({ id, addUsersDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AlbumResponseDto;
-    }>(`/album/${encodeURIComponent(id)}/users`, oazapfts.json({
+    }>(`/albums/${encodeURIComponent(id)}/users`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: addUsersDto
@@ -1277,7 +1347,7 @@ export function getApiKeys(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: ApiKeyResponseDto[];
-    }>("/api-key", {
+    }>("/api-keys", {
         ...opts
     }));
 }
@@ -1287,7 +1357,7 @@ export function createApiKey({ apiKeyCreateDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: ApiKeyCreateResponseDto;
-    }>("/api-key", oazapfts.json({
+    }>("/api-keys", oazapfts.json({
         ...opts,
         method: "POST",
         body: apiKeyCreateDto
@@ -1296,7 +1366,7 @@ export function createApiKey({ apiKeyCreateDto }: {
 export function deleteApiKey({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/api-key/${encodeURIComponent(id)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/api-keys/${encodeURIComponent(id)}`, {
         ...opts,
         method: "DELETE"
     }));
@@ -1307,7 +1377,7 @@ export function getApiKey({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: ApiKeyResponseDto;
-    }>(`/api-key/${encodeURIComponent(id)}`, {
+    }>(`/api-keys/${encodeURIComponent(id)}`, {
         ...opts
     }));
 }
@@ -1318,7 +1388,7 @@ export function updateApiKey({ id, apiKeyUpdateDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: ApiKeyResponseDto;
-    }>(`/api-key/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/api-keys/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: apiKeyUpdateDto
@@ -1332,37 +1402,6 @@ export function deleteAssets({ assetBulkDeleteDto }: {
         method: "DELETE",
         body: assetBulkDeleteDto
     })));
-}
-/**
- * Get all AssetEntity belong to the user
- */
-export function getAllAssets({ ifNoneMatch, isArchived, isFavorite, skip, take, updatedAfter, updatedBefore, userId }: {
-    ifNoneMatch?: string;
-    isArchived?: boolean;
-    isFavorite?: boolean;
-    skip?: number;
-    take?: number;
-    updatedAfter?: string;
-    updatedBefore?: string;
-    userId?: string;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 200;
-        data: AssetResponseDto[];
-    }>(`/asset${QS.query(QS.explode({
-        isArchived,
-        isFavorite,
-        skip,
-        take,
-        updatedAfter,
-        updatedBefore,
-        userId
-    }))}`, {
-        ...opts,
-        headers: oazapfts.mergeHeaders(opts?.headers, {
-            "if-none-match": ifNoneMatch
-        })
-    }));
 }
 export function updateAssets({ assetBulkUpdateDto }: {
     assetBulkUpdateDto: AssetBulkUpdateDto;
@@ -1575,6 +1614,25 @@ export function updateAsset({ id, updateAssetDto }: {
         body: updateAssetDto
     })));
 }
+/**
+ * Replace the asset with new file, without changing its id
+ */
+export function replaceAsset({ id, key, assetMediaReplaceDto }: {
+    id: string;
+    key?: string;
+    assetMediaReplaceDto: AssetMediaReplaceDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: AssetMediaResponseDto;
+    }>(`/asset/${encodeURIComponent(id)}/file${QS.query(QS.explode({
+        key
+    }))}`, oazapfts.multipart({
+        ...opts,
+        method: "PUT",
+        body: assetMediaReplaceDto
+    })));
+}
 export function getAuditDeletes({ after, entityType, userId }: {
     after: string;
     entityType: EntityType;
@@ -1596,7 +1654,7 @@ export function signUpAdmin({ signUpDto }: {
 }, opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
-        data: UserResponseDto;
+        data: UserAdminResponseDto;
     }>("/auth/admin-sign-up", oazapfts.json({
         ...opts,
         method: "POST",
@@ -1608,7 +1666,7 @@ export function changePassword({ changePasswordDto }: {
 }, opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
-        data: UserResponseDto;
+        data: UserAdminResponseDto;
     }>("/auth/change-password", oazapfts.json({
         ...opts,
         method: "POST",
@@ -1689,13 +1747,21 @@ export function getDownloadInfo({ key, downloadInfoDto }: {
         body: downloadInfoDto
     })));
 }
+export function getAssetDuplicates(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: DuplicateResponseDto[];
+    }>("/duplicates", {
+        ...opts
+    }));
+}
 export function getFaces({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetFaceResponseDto[];
-    }>(`/face${QS.query(QS.explode({
+    }>(`/faces${QS.query(QS.explode({
         id
     }))}`, {
         ...opts
@@ -1708,7 +1774,7 @@ export function reassignFacesById({ id, faceDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: PersonResponseDto;
-    }>(`/face/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/faces/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: faceDto
@@ -1735,15 +1801,11 @@ export function sendJobCommand({ id, jobCommandDto }: {
         body: jobCommandDto
     })));
 }
-export function getAllLibraries({ $type }: {
-    $type?: LibraryType;
-}, opts?: Oazapfts.RequestOpts) {
+export function getAllLibraries(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: LibraryResponseDto[];
-    }>(`/library${QS.query(QS.explode({
-        "type": $type
-    }))}`, {
+    }>("/libraries", {
         ...opts
     }));
 }
@@ -1753,7 +1815,7 @@ export function createLibrary({ createLibraryDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: LibraryResponseDto;
-    }>("/library", oazapfts.json({
+    }>("/libraries", oazapfts.json({
         ...opts,
         method: "POST",
         body: createLibraryDto
@@ -1762,7 +1824,7 @@ export function createLibrary({ createLibraryDto }: {
 export function deleteLibrary({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/library/${encodeURIComponent(id)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/libraries/${encodeURIComponent(id)}`, {
         ...opts,
         method: "DELETE"
     }));
@@ -1773,7 +1835,7 @@ export function getLibrary({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: LibraryResponseDto;
-    }>(`/library/${encodeURIComponent(id)}`, {
+    }>(`/libraries/${encodeURIComponent(id)}`, {
         ...opts
     }));
 }
@@ -1784,7 +1846,7 @@ export function updateLibrary({ id, updateLibraryDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: LibraryResponseDto;
-    }>(`/library/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/libraries/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: updateLibraryDto
@@ -1793,7 +1855,7 @@ export function updateLibrary({ id, updateLibraryDto }: {
 export function removeOfflineFiles({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/library/${encodeURIComponent(id)}/removeOffline`, {
+    return oazapfts.ok(oazapfts.fetchText(`/libraries/${encodeURIComponent(id)}/removeOffline`, {
         ...opts,
         method: "POST"
     }));
@@ -1802,7 +1864,7 @@ export function scanLibrary({ id, scanLibraryDto }: {
     id: string;
     scanLibraryDto: ScanLibraryDto;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/library/${encodeURIComponent(id)}/scan`, oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText(`/libraries/${encodeURIComponent(id)}/scan`, oazapfts.json({
         ...opts,
         method: "POST",
         body: scanLibraryDto
@@ -1814,7 +1876,7 @@ export function getLibraryStatistics({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: LibraryStatsResponseDto;
-    }>(`/library/${encodeURIComponent(id)}/statistics`, {
+    }>(`/libraries/${encodeURIComponent(id)}/statistics`, {
         ...opts
     }));
 }
@@ -1825,7 +1887,7 @@ export function validate({ id, validateLibraryDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: ValidateLibraryResponseDto;
-    }>(`/library/${encodeURIComponent(id)}/validate`, oazapfts.json({
+    }>(`/libraries/${encodeURIComponent(id)}/validate`, oazapfts.json({
         ...opts,
         method: "POST",
         body: validateLibraryDto
@@ -1937,7 +1999,7 @@ export function linkOAuthAccount({ oAuthCallbackDto }: {
 }, opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
-        data: UserResponseDto;
+        data: UserAdminResponseDto;
     }>("/oauth/link", oazapfts.json({
         ...opts,
         method: "POST",
@@ -1952,7 +2014,7 @@ export function redirectOAuthToMobile(opts?: Oazapfts.RequestOpts) {
 export function unlinkOAuthAccount(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
-        data: UserResponseDto;
+        data: UserAdminResponseDto;
     }>("/oauth/unlink", {
         ...opts,
         method: "POST"
@@ -1964,7 +2026,7 @@ export function getPartners({ direction }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: PartnerResponseDto[];
-    }>(`/partner${QS.query(QS.explode({
+    }>(`/partners${QS.query(QS.explode({
         direction
     }))}`, {
         ...opts
@@ -1973,7 +2035,7 @@ export function getPartners({ direction }: {
 export function removePartner({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/partner/${encodeURIComponent(id)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/partners/${encodeURIComponent(id)}`, {
         ...opts,
         method: "DELETE"
     }));
@@ -1984,7 +2046,7 @@ export function createPartner({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: PartnerResponseDto;
-    }>(`/partner/${encodeURIComponent(id)}`, {
+    }>(`/partners/${encodeURIComponent(id)}`, {
         ...opts,
         method: "POST"
     }));
@@ -1996,7 +2058,7 @@ export function updatePartner({ id, updatePartnerDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: PartnerResponseDto;
-    }>(`/partner/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/partners/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: updatePartnerDto
@@ -2008,7 +2070,7 @@ export function getAllPeople({ withHidden }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: PeopleResponseDto;
-    }>(`/person${QS.query(QS.explode({
+    }>(`/people${QS.query(QS.explode({
         withHidden
     }))}`, {
         ...opts
@@ -2020,7 +2082,7 @@ export function createPerson({ personCreateDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: PersonResponseDto;
-    }>("/person", oazapfts.json({
+    }>("/people", oazapfts.json({
         ...opts,
         method: "POST",
         body: personCreateDto
@@ -2032,7 +2094,7 @@ export function updatePeople({ peopleUpdateDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: BulkIdResponseDto[];
-    }>("/person", oazapfts.json({
+    }>("/people", oazapfts.json({
         ...opts,
         method: "PUT",
         body: peopleUpdateDto
@@ -2044,7 +2106,7 @@ export function getPerson({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: PersonResponseDto;
-    }>(`/person/${encodeURIComponent(id)}`, {
+    }>(`/people/${encodeURIComponent(id)}`, {
         ...opts
     }));
 }
@@ -2055,7 +2117,7 @@ export function updatePerson({ id, personUpdateDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: PersonResponseDto;
-    }>(`/person/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/people/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: personUpdateDto
@@ -2067,7 +2129,7 @@ export function getPersonAssets({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetResponseDto[];
-    }>(`/person/${encodeURIComponent(id)}/assets`, {
+    }>(`/people/${encodeURIComponent(id)}/assets`, {
         ...opts
     }));
 }
@@ -2078,7 +2140,7 @@ export function mergePerson({ id, mergePersonDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: BulkIdResponseDto[];
-    }>(`/person/${encodeURIComponent(id)}/merge`, oazapfts.json({
+    }>(`/people/${encodeURIComponent(id)}/merge`, oazapfts.json({
         ...opts,
         method: "POST",
         body: mergePersonDto
@@ -2091,7 +2153,7 @@ export function reassignFaces({ id, assetFaceUpdateDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: PersonResponseDto[];
-    }>(`/person/${encodeURIComponent(id)}/reassign`, oazapfts.json({
+    }>(`/people/${encodeURIComponent(id)}/reassign`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: assetFaceUpdateDto
@@ -2103,7 +2165,7 @@ export function getPersonStatistics({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: PersonStatisticsResponseDto;
-    }>(`/person/${encodeURIComponent(id)}/statistics`, {
+    }>(`/people/${encodeURIComponent(id)}/statistics`, {
         ...opts
     }));
 }
@@ -2113,7 +2175,7 @@ export function getPersonThumbnail({ id }: {
     return oazapfts.ok(oazapfts.fetchBlob<{
         status: 200;
         data: Blob;
-    }>(`/person/${encodeURIComponent(id)}/thumbnail`, {
+    }>(`/people/${encodeURIComponent(id)}/thumbnail`, {
         ...opts
     }));
 }
@@ -2121,7 +2183,7 @@ export function getAuditFiles(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: FileReportDto;
-    }>("/report", {
+    }>("/reports", {
         ...opts
     }));
 }
@@ -2131,7 +2193,7 @@ export function getFileChecksums({ fileChecksumDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: FileChecksumResponseDto[];
-    }>("/report/checksum", oazapfts.json({
+    }>("/reports/checksum", oazapfts.json({
         ...opts,
         method: "POST",
         body: fileChecksumDto
@@ -2140,7 +2202,7 @@ export function getFileChecksums({ fileChecksumDto }: {
 export function fixAuditFiles({ fileReportFixDto }: {
     fileReportFixDto: FileReportFixDto;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText("/report/fix", oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText("/reports/fix", oazapfts.json({
         ...opts,
         method: "POST",
         body: fileReportFixDto
@@ -2232,14 +2294,6 @@ export function getSearchSuggestions({ country, make, model, state, $type }: {
         ...opts
     }));
 }
-export function getServerInfo(opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 200;
-        data: ServerInfoResponseDto;
-    }>("/server-info", {
-        ...opts
-    }));
-}
 export function getServerConfig(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
@@ -2277,6 +2331,14 @@ export function getServerStatistics(opts?: Oazapfts.RequestOpts) {
         status: 200;
         data: ServerStatsResponseDto;
     }>("/server-info/statistics", {
+        ...opts
+    }));
+}
+export function getStorage(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: ServerStorageResponseDto;
+    }>("/server-info/storage", {
         ...opts
     }));
 }
@@ -2322,7 +2384,7 @@ export function getAllSharedLinks(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: SharedLinkResponseDto[];
-    }>("/shared-link", {
+    }>("/shared-links", {
         ...opts
     }));
 }
@@ -2332,7 +2394,7 @@ export function createSharedLink({ sharedLinkCreateDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: SharedLinkResponseDto;
-    }>("/shared-link", oazapfts.json({
+    }>("/shared-links", oazapfts.json({
         ...opts,
         method: "POST",
         body: sharedLinkCreateDto
@@ -2346,7 +2408,7 @@ export function getMySharedLink({ key, password, token }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: SharedLinkResponseDto;
-    }>(`/shared-link/me${QS.query(QS.explode({
+    }>(`/shared-links/me${QS.query(QS.explode({
         key,
         password,
         token
@@ -2357,7 +2419,7 @@ export function getMySharedLink({ key, password, token }: {
 export function removeSharedLink({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/shared-link/${encodeURIComponent(id)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/shared-links/${encodeURIComponent(id)}`, {
         ...opts,
         method: "DELETE"
     }));
@@ -2368,7 +2430,7 @@ export function getSharedLinkById({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: SharedLinkResponseDto;
-    }>(`/shared-link/${encodeURIComponent(id)}`, {
+    }>(`/shared-links/${encodeURIComponent(id)}`, {
         ...opts
     }));
 }
@@ -2379,7 +2441,7 @@ export function updateSharedLink({ id, sharedLinkEditDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: SharedLinkResponseDto;
-    }>(`/shared-link/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/shared-links/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PATCH",
         body: sharedLinkEditDto
@@ -2393,7 +2455,7 @@ export function removeSharedLinkAssets({ id, key, assetIdsDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetIdsResponseDto[];
-    }>(`/shared-link/${encodeURIComponent(id)}/assets${QS.query(QS.explode({
+    }>(`/shared-links/${encodeURIComponent(id)}/assets${QS.query(QS.explode({
         key
     }))}`, oazapfts.json({
         ...opts,
@@ -2409,7 +2471,7 @@ export function addSharedLinkAssets({ id, key, assetIdsDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetIdsResponseDto[];
-    }>(`/shared-link/${encodeURIComponent(id)}/assets${QS.query(QS.explode({
+    }>(`/shared-links/${encodeURIComponent(id)}/assets${QS.query(QS.explode({
         key
     }))}`, oazapfts.json({
         ...opts,
@@ -2520,7 +2582,7 @@ export function getAllTags(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: TagResponseDto[];
-    }>("/tag", {
+    }>("/tags", {
         ...opts
     }));
 }
@@ -2530,7 +2592,7 @@ export function createTag({ createTagDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: TagResponseDto;
-    }>("/tag", oazapfts.json({
+    }>("/tags", oazapfts.json({
         ...opts,
         method: "POST",
         body: createTagDto
@@ -2539,7 +2601,7 @@ export function createTag({ createTagDto }: {
 export function deleteTag({ id }: {
     id: string;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText(`/tag/${encodeURIComponent(id)}`, {
+    return oazapfts.ok(oazapfts.fetchText(`/tags/${encodeURIComponent(id)}`, {
         ...opts,
         method: "DELETE"
     }));
@@ -2550,7 +2612,7 @@ export function getTagById({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: TagResponseDto;
-    }>(`/tag/${encodeURIComponent(id)}`, {
+    }>(`/tags/${encodeURIComponent(id)}`, {
         ...opts
     }));
 }
@@ -2561,7 +2623,7 @@ export function updateTag({ id, updateTagDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: TagResponseDto;
-    }>(`/tag/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/tags/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PATCH",
         body: updateTagDto
@@ -2574,7 +2636,7 @@ export function untagAssets({ id, assetIdsDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetIdsResponseDto[];
-    }>(`/tag/${encodeURIComponent(id)}/assets`, oazapfts.json({
+    }>(`/tags/${encodeURIComponent(id)}/assets`, oazapfts.json({
         ...opts,
         method: "DELETE",
         body: assetIdsDto
@@ -2586,7 +2648,7 @@ export function getTagAssets({ id }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetResponseDto[];
-    }>(`/tag/${encodeURIComponent(id)}/assets`, {
+    }>(`/tags/${encodeURIComponent(id)}/assets`, {
         ...opts
     }));
 }
@@ -2597,7 +2659,7 @@ export function tagAssets({ id, assetIdsDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetIdsResponseDto[];
-    }>(`/tag/${encodeURIComponent(id)}/assets`, oazapfts.json({
+    }>(`/tags/${encodeURIComponent(id)}/assets`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: assetIdsDto
@@ -2690,62 +2752,36 @@ export function restoreAssets({ bulkIdsDto }: {
         body: bulkIdsDto
     })));
 }
-export function getAllUsers({ isAll }: {
-    isAll: boolean;
-}, opts?: Oazapfts.RequestOpts) {
+export function searchUsers(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: UserResponseDto[];
-    }>(`/user${QS.query(QS.explode({
-        isAll
-    }))}`, {
+    }>("/users", {
         ...opts
     }));
 }
-export function createUser({ createUserDto }: {
-    createUserDto: CreateUserDto;
-}, opts?: Oazapfts.RequestOpts) {
+export function getMyUser(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
-        status: 201;
-        data: UserResponseDto;
-    }>("/user", oazapfts.json({
-        ...opts,
-        method: "POST",
-        body: createUserDto
-    })));
+        status: 200;
+        data: UserAdminResponseDto;
+    }>("/users/me", {
+        ...opts
+    }));
 }
-export function updateUser({ updateUserDto }: {
-    updateUserDto: UpdateUserDto;
+export function updateMyUser({ userUpdateMeDto }: {
+    userUpdateMeDto: UserUpdateMeDto;
 }, opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
-        data: UserResponseDto;
-    }>("/user", oazapfts.json({
+        data: UserAdminResponseDto;
+    }>("/users/me", oazapfts.json({
         ...opts,
         method: "PUT",
-        body: updateUserDto
+        body: userUpdateMeDto
     })));
 }
-export function getUserById({ id }: {
-    id: string;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 200;
-        data: UserResponseDto;
-    }>(`/user/info/${encodeURIComponent(id)}`, {
-        ...opts
-    }));
-}
-export function getMyUserInfo(opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 200;
-        data: UserResponseDto;
-    }>("/user/me", {
-        ...opts
-    }));
-}
 export function deleteProfileImage(opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText("/user/profile-image", {
+    return oazapfts.ok(oazapfts.fetchText("/users/profile-image", {
         ...opts,
         method: "DELETE"
     }));
@@ -2756,11 +2792,21 @@ export function createProfileImage({ createProfileImageDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 201;
         data: CreateProfileImageResponseDto;
-    }>("/user/profile-image", oazapfts.multipart({
+    }>("/users/profile-image", oazapfts.multipart({
         ...opts,
         method: "POST",
         body: createProfileImageDto
     })));
+}
+export function getUser({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserResponseDto;
+    }>(`/users/${encodeURIComponent(id)}`, {
+        ...opts
+    }));
 }
 export function getProfileImage({ id }: {
     id: string;
@@ -2768,32 +2814,8 @@ export function getProfileImage({ id }: {
     return oazapfts.ok(oazapfts.fetchBlob<{
         status: 200;
         data: Blob;
-    }>(`/user/profile-image/${encodeURIComponent(id)}`, {
+    }>(`/users/${encodeURIComponent(id)}/profile-image`, {
         ...opts
-    }));
-}
-export function deleteUser({ id, deleteUserDto }: {
-    id: string;
-    deleteUserDto: DeleteUserDto;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 200;
-        data: UserResponseDto;
-    }>(`/user/${encodeURIComponent(id)}`, oazapfts.json({
-        ...opts,
-        method: "DELETE",
-        body: deleteUserDto
-    })));
-}
-export function restoreUser({ id }: {
-    id: string;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 201;
-        data: UserResponseDto;
-    }>(`/user/${encodeURIComponent(id)}/restore`, {
-        ...opts,
-        method: "POST"
     }));
 }
 export enum ReactionLevel {
@@ -2820,14 +2842,14 @@ export enum UserAvatarColor {
     Gray = "gray",
     Amber = "amber"
 }
-export enum AlbumUserRole {
-    Editor = "editor",
-    Viewer = "viewer"
-}
 export enum UserStatus {
     Active = "active",
     Removing = "removing",
     Deleted = "deleted"
+}
+export enum AlbumUserRole {
+    Editor = "editor",
+    Viewer = "viewer"
 }
 export enum TagTypeEnum {
     Object = "OBJECT",
@@ -2867,6 +2889,10 @@ export enum ThumbnailFormat {
     Jpeg = "JPEG",
     Webp = "WEBP"
 }
+export enum AssetMediaStatus {
+    Replaced = "replaced",
+    Duplicate = "duplicate"
+}
 export enum EntityType {
     Asset = "ASSET",
     Album = "ALBUM"
@@ -2878,6 +2904,7 @@ export enum JobName {
     FaceDetection = "faceDetection",
     FacialRecognition = "facialRecognition",
     SmartSearch = "smartSearch",
+    DuplicateDetection = "duplicateDetection",
     BackgroundTask = "backgroundTask",
     StorageTemplateMigration = "storageTemplateMigration",
     Migration = "migration",
@@ -2892,10 +2919,6 @@ export enum JobCommand {
     Resume = "resume",
     Empty = "empty",
     ClearFailed = "clear-failed"
-}
-export enum LibraryType {
-    Upload = "UPLOAD",
-    External = "EXTERNAL"
 }
 export enum Type2 {
     OnThisDay = "on_this_day"

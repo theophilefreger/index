@@ -1,7 +1,7 @@
 //
 // AUTO-GENERATED FILE, DO NOT MODIFY!
 //
-// @dart=2.12
+// @dart=2.18
 
 // ignore_for_file: unused_element, unused_import
 // ignore_for_file: always_put_required_named_parameters_first
@@ -36,6 +36,7 @@ part 'api/asset_api.dart';
 part 'api/audit_api.dart';
 part 'api/authentication_api.dart';
 part 'api/download_api.dart';
+part 'api/duplicate_api.dart';
 part 'api/face_api.dart';
 part 'api/file_report_api.dart';
 part 'api/job_api.dart';
@@ -90,6 +91,8 @@ part 'model/asset_ids_dto.dart';
 part 'model/asset_ids_response_dto.dart';
 part 'model/asset_job_name.dart';
 part 'model/asset_jobs_dto.dart';
+part 'model/asset_media_response_dto.dart';
+part 'model/asset_media_status.dart';
 part 'model/asset_order.dart';
 part 'model/asset_response_dto.dart';
 part 'model/asset_stats_response_dto.dart';
@@ -109,11 +112,11 @@ part 'model/create_album_dto.dart';
 part 'model/create_library_dto.dart';
 part 'model/create_profile_image_response_dto.dart';
 part 'model/create_tag_dto.dart';
-part 'model/create_user_dto.dart';
-part 'model/delete_user_dto.dart';
 part 'model/download_archive_info.dart';
 part 'model/download_info_dto.dart';
 part 'model/download_response_dto.dart';
+part 'model/duplicate_detection_config.dart';
+part 'model/duplicate_response_dto.dart';
 part 'model/entity_type.dart';
 part 'model/exif_response_dto.dart';
 part 'model/face_dto.dart';
@@ -131,7 +134,6 @@ part 'model/job_settings_dto.dart';
 part 'model/job_status_dto.dart';
 part 'model/library_response_dto.dart';
 part 'model/library_stats_response_dto.dart';
-part 'model/library_type.dart';
 part 'model/log_level.dart';
 part 'model/login_credential_dto.dart';
 part 'model/login_response_dto.dart';
@@ -178,10 +180,10 @@ part 'model/search_response_dto.dart';
 part 'model/search_suggestion_type.dart';
 part 'model/server_config_dto.dart';
 part 'model/server_features_dto.dart';
-part 'model/server_info_response_dto.dart';
 part 'model/server_media_types_response_dto.dart';
 part 'model/server_ping_response.dart';
 part 'model/server_stats_response_dto.dart';
+part 'model/server_storage_response_dto.dart';
 part 'model/server_theme_dto.dart';
 part 'model/server_version_response_dto.dart';
 part 'model/session_response_dto.dart';
@@ -230,12 +232,15 @@ part 'model/update_library_dto.dart';
 part 'model/update_partner_dto.dart';
 part 'model/update_stack_parent_dto.dart';
 part 'model/update_tag_dto.dart';
-part 'model/update_user_dto.dart';
 part 'model/usage_by_user_dto.dart';
+part 'model/user_admin_create_dto.dart';
+part 'model/user_admin_delete_dto.dart';
+part 'model/user_admin_response_dto.dart';
+part 'model/user_admin_update_dto.dart';
 part 'model/user_avatar_color.dart';
-part 'model/user_dto.dart';
 part 'model/user_response_dto.dart';
 part 'model/user_status.dart';
+part 'model/user_update_me_dto.dart';
 part 'model/validate_access_token_response_dto.dart';
 part 'model/validate_library_dto.dart';
 part 'model/validate_library_import_path_response_dto.dart';

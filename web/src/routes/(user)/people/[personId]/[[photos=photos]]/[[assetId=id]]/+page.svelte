@@ -31,8 +31,8 @@
   import { assetViewingStore } from '$lib/stores/asset-viewing.store';
   import { AssetStore } from '$lib/stores/assets.store';
   import { websocketEvents } from '$lib/stores/websocket';
-  import { getPeopleThumbnailUrl, handlePromiseError } from '$lib/utils';
-  import { clickOutside } from '$lib/utils/click-outside';
+  import { getPeopleThumbnailUrl, handlePromiseError, s } from '$lib/utils';
+  import { clickOutside } from '$lib/actions/click-outside';
   import { handleError } from '$lib/utils/handle-error';
   import { isExternalUrl } from '$lib/utils/navigation';
   import {
@@ -55,7 +55,7 @@
   } from '@mdi/js';
   import { onMount } from 'svelte';
   import type { PageData } from './$types';
-  import { listNavigation } from '$lib/utils/list-navigation';
+  import { listNavigation } from '$lib/actions/list-navigation';
 
   export let data: PageData;
 
@@ -468,6 +468,7 @@
             {:else}
               <div class="relative">
                 <button
+                  type="button"
                   class="flex items-center justify-center"
                   title="Editer le nom"
                   on:click={() => (isEditingName = true)}
@@ -486,7 +487,7 @@
                     {#if data.person.name}
                       <p class="w-40 sm:w-72 font-medium truncate">{data.person.name}</p>
                       <p class="absolute w-fit text-sm text-gray-500 dark:text-immich-gray bottom-0">
-                        {`${numberOfAssets} asset${numberOfAssets > 1 ? 's' : ''}`}
+                        {`${numberOfAssets} asset${s(numberOfAssets)}`}
                       </p>
                     {:else}
                       <p class="font-medium">Ajouter un nom</p>
@@ -513,6 +514,7 @@
                 <div bind:this={suggestionContainer}>
                   {#each suggestedPeople as person, index (person.id)}
                     <button
+                      type="button"
                       class="flex w-full border-t border-gray-400 dark:border-immich-dark-gray h-14 place-items-center bg-gray-200 p-2 dark:bg-gray-700 hover:bg-gray-300 hover:dark:bg-[#232932] focus:bg-gray-300 focus:dark:bg-[#232932] {index ===
                       suggestedPeople.length - 1
                         ? 'rounded-b-lg border-b'
