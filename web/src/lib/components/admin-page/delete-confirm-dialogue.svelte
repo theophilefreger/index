@@ -1,10 +1,11 @@
 <script lang="ts">
-  import ConfirmDialogue from '$lib/components/shared-components/confirm-dialogue.svelte';
+  import ConfirmDialog from '$lib/components/shared-components/dialog/confirm-dialog.svelte';
   import { handleError } from '$lib/utils/handle-error';
   import { deleteUserAdmin, type UserResponseDto } from '@immich/sdk';
   import { serverConfig } from '$lib/stores/server-config.store';
   import { createEventDispatcher } from 'svelte';
   import Checkbox from '$lib/components/elements/checkbox.svelte';
+  import { t } from 'svelte-i18n';
 
   export let user: UserResponseDto;
 
@@ -31,7 +32,7 @@
         dispatch('success');
       }
     } catch (error) {
-      handleError(error, 'Unable to delete user');
+      handleError(error, $t('errors.unable_to_delete_user'));
       dispatch('fail');
     }
   };
@@ -42,12 +43,11 @@
   };
 </script>
 
-<ConfirmDialogue
-  id="delete-user-confirmation-modal"
-  title="Delete user"
-  confirmText={forceDelete ? 'Permanently Delete' : 'Delete'}
+<ConfirmDialog
+  title={$t('delete_user')}
+  confirmText={forceDelete ? $t('permanently_delete') : $t('delete')}
   onConfirm={handleDeleteUser}
-  onClose={() => dispatch('cancel')}
+  onCancel={() => dispatch('cancel')}
   disabled={deleteButtonDisabled}
 >
   <svelte:fragment slot="prompt">
@@ -76,13 +76,10 @@
       </div>
 
       {#if forceDelete}
-        <p class="text-immich-error">
-          WARNING: This will immediately remove the user and all assets. This cannot be undone and the files cannot be
-          recovered.
-        </p>
+        <p class="text-immich-error">{$t('admin.force_delete_user_warning')}</p>
 
         <p class="immich-form-label text-sm" id="confirm-user-desc">
-          To confirm, type "{user.email}" below
+          {$t('admin.confirm_email_below', { values: { email: user.email } })}
         </p>
 
         <input
@@ -96,4 +93,4 @@
       {/if}
     </div>
   </svelte:fragment>
-</ConfirmDialogue>
+</ConfirmDialog>

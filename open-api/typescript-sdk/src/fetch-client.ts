@@ -1,6 +1,6 @@
 /**
  * Immich
- * 1.105.1
+ * 1.106.4
  * DO NOT MODIFY - This file has been generated using oazapfts.
  * See https://www.npmjs.com/package/oazapfts
  */
@@ -45,7 +45,6 @@ export type UserAdminResponseDto = {
     email: string;
     id: string;
     isAdmin: boolean;
-    memoriesEnabled?: boolean;
     name: string;
     oauthId: string;
     profileImagePath: string;
@@ -58,7 +57,6 @@ export type UserAdminResponseDto = {
 };
 export type UserAdminCreateDto = {
     email: string;
-    memoriesEnabled?: boolean;
     name: string;
     notify?: boolean;
     password: string;
@@ -70,14 +68,44 @@ export type UserAdminDeleteDto = {
     force?: boolean;
 };
 export type UserAdminUpdateDto = {
-    avatarColor?: UserAvatarColor;
     email?: string;
-    memoriesEnabled?: boolean;
     name?: string;
     password?: string;
     quotaSizeInBytes?: number | null;
     shouldChangePassword?: boolean;
     storageLabel?: string | null;
+};
+export type AvatarResponse = {
+    color: UserAvatarColor;
+};
+export type EmailNotificationsResponse = {
+    albumInvite: boolean;
+    albumUpdate: boolean;
+    enabled: boolean;
+};
+export type MemoryResponse = {
+    enabled: boolean;
+};
+export type UserPreferencesResponseDto = {
+    avatar: AvatarResponse;
+    emailNotifications: EmailNotificationsResponse;
+    memories: MemoryResponse;
+};
+export type AvatarUpdate = {
+    color?: UserAvatarColor;
+};
+export type EmailNotificationsUpdate = {
+    albumInvite?: boolean;
+    albumUpdate?: boolean;
+    enabled?: boolean;
+};
+export type MemoryUpdate = {
+    enabled?: boolean;
+};
+export type UserPreferencesUpdateDto = {
+    avatar?: AvatarUpdate;
+    emailNotifications?: EmailNotificationsUpdate;
+    memories?: MemoryUpdate;
 };
 export type AlbumUserResponseDto = {
     role: AlbumUserRole;
@@ -154,6 +182,7 @@ export type AssetResponseDto = {
     livePhotoVideoId?: string | null;
     localDateTime: string;
     originalFileName: string;
+    originalMimeType?: string;
     originalPath: string;
     owner?: UserResponseDto;
     ownerId: string;
@@ -166,6 +195,7 @@ export type AssetResponseDto = {
     tags?: TagResponseDto[];
     thumbhash: string | null;
     "type": AssetTypeEnum;
+    unassignedFaces?: AssetFaceWithoutPersonResponseDto[];
     updatedAt: string;
 };
 export type AlbumResponseDto = {
@@ -248,6 +278,24 @@ export type AssetBulkDeleteDto = {
     force?: boolean;
     ids: string[];
 };
+export type AssetMediaCreateDto = {
+    assetData: Blob;
+    deviceAssetId: string;
+    deviceId: string;
+    duration?: string;
+    fileCreatedAt: string;
+    fileModifiedAt: string;
+    isArchived?: boolean;
+    isFavorite?: boolean;
+    isOffline?: boolean;
+    isVisible?: boolean;
+    livePhotoVideoId?: string;
+    sidecarData?: Blob;
+};
+export type AssetMediaResponseDto = {
+    id: string;
+    status: AssetMediaStatus;
+};
 export type AssetBulkUpdateDto = {
     dateTimeOriginal?: string;
     duplicateId?: string | null;
@@ -287,14 +335,6 @@ export type AssetJobsDto = {
     assetIds: string[];
     name: AssetJobName;
 };
-export type MapMarkerResponseDto = {
-    city: string | null;
-    country: string | null;
-    id: string;
-    lat: number;
-    lon: number;
-    state: string | null;
-};
 export type MemoryLaneResponseDto = {
     assets: AssetResponseDto[];
     yearsAgo: number;
@@ -307,24 +347,6 @@ export type AssetStatsResponseDto = {
     images: number;
     total: number;
     videos: number;
-};
-export type CreateAssetDto = {
-    assetData: Blob;
-    deviceAssetId: string;
-    deviceId: string;
-    duration?: string;
-    fileCreatedAt: string;
-    fileModifiedAt: string;
-    isArchived?: boolean;
-    isFavorite?: boolean;
-    isOffline?: boolean;
-    isVisible?: boolean;
-    livePhotoData?: Blob;
-    sidecarData?: Blob;
-};
-export type AssetFileUploadResponseDto = {
-    duplicate: boolean;
-    id: string;
 };
 export type UpdateAssetDto = {
     dateTimeOriginal?: string;
@@ -341,10 +363,6 @@ export type AssetMediaReplaceDto = {
     duration?: string;
     fileCreatedAt: string;
     fileModifiedAt: string;
-};
-export type AssetMediaResponseDto = {
-    id: string;
-    status: AssetMediaStatus;
 };
 export type AuditDeletesResponseDto = {
     ids: string[];
@@ -500,6 +518,14 @@ export type ValidateLibraryImportPathResponseDto = {
 export type ValidateLibraryResponseDto = {
     importPaths?: ValidateLibraryImportPathResponseDto[];
 };
+export type MapMarkerResponseDto = {
+    city: string | null;
+    country: string | null;
+    id: string;
+    lat: number;
+    lon: number;
+    state: string | null;
+};
 export type OnThisDayDto = {
     year: number;
 };
@@ -528,6 +554,19 @@ export type MemoryUpdateDto = {
     isSaved?: boolean;
     memoryAt?: string;
     seenAt?: string;
+};
+export type SystemConfigSmtpTransportDto = {
+    host: string;
+    ignoreCert: boolean;
+    password: string;
+    port: number;
+    username: string;
+};
+export type SystemConfigSmtpDto = {
+    enabled: boolean;
+    "from": string;
+    replyTo: string;
+    transport: SystemConfigSmtpTransportDto;
 };
 export type OAuthConfigDto = {
     redirectUri: string;
@@ -866,7 +905,6 @@ export type AssetDeltaSyncResponseDto = {
     upserted: AssetResponseDto[];
 };
 export type AssetFullSyncDto = {
-    lastCreationDate?: string;
     lastId?: string;
     limit: number;
     updatedUntil: string;
@@ -937,27 +975,24 @@ export type SystemConfigLoggingDto = {
 };
 export type ClipConfig = {
     enabled: boolean;
-    mode?: CLIPMode;
     modelName: string;
-    modelType?: ModelType;
 };
 export type DuplicateDetectionConfig = {
     enabled: boolean;
     maxDistance: number;
 };
-export type RecognitionConfig = {
+export type FacialRecognitionConfig = {
     enabled: boolean;
     maxDistance: number;
     minFaces: number;
     minScore: number;
     modelName: string;
-    modelType?: ModelType;
 };
 export type SystemConfigMachineLearningDto = {
     clip: ClipConfig;
     duplicateDetection: DuplicateDetectionConfig;
     enabled: boolean;
-    facialRecognition: RecognitionConfig;
+    facialRecognition: FacialRecognitionConfig;
     url: string;
 };
 export type SystemConfigMapDto = {
@@ -967,19 +1002,6 @@ export type SystemConfigMapDto = {
 };
 export type SystemConfigNewVersionCheckDto = {
     enabled: boolean;
-};
-export type SystemConfigSmtpTransportDto = {
-    host: string;
-    ignoreCert: boolean;
-    password: string;
-    port: number;
-    username: string;
-};
-export type SystemConfigSmtpDto = {
-    enabled: boolean;
-    "from": string;
-    replyTo: string;
-    transport: SystemConfigSmtpTransportDto;
 };
 export type SystemConfigNotificationsDto = {
     smtp: SystemConfigSmtpDto;
@@ -1073,9 +1095,7 @@ export type TimeBucketResponseDto = {
     timeBucket: string;
 };
 export type UserUpdateMeDto = {
-    avatarColor?: UserAvatarColor;
     email?: string;
-    memoriesEnabled?: boolean;
     name?: string;
     password?: string;
 };
@@ -1198,6 +1218,29 @@ export function updateUserAdmin({ id, userAdminUpdateDto }: {
         ...opts,
         method: "PUT",
         body: userAdminUpdateDto
+    })));
+}
+export function getUserPreferencesAdmin({ id }: {
+    id: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserPreferencesResponseDto;
+    }>(`/admin/users/${encodeURIComponent(id)}/preferences`, {
+        ...opts
+    }));
+}
+export function updateUserPreferencesAdmin({ id, userPreferencesUpdateDto }: {
+    id: string;
+    userPreferencesUpdateDto: UserPreferencesUpdateDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserPreferencesResponseDto;
+    }>(`/admin/users/${encodeURIComponent(id)}/preferences`, oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: userPreferencesUpdateDto
     })));
 }
 export function restoreUserAdmin({ id }: {
@@ -1397,16 +1440,35 @@ export function updateApiKey({ id, apiKeyUpdateDto }: {
 export function deleteAssets({ assetBulkDeleteDto }: {
     assetBulkDeleteDto: AssetBulkDeleteDto;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText("/asset", oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText("/assets", oazapfts.json({
         ...opts,
         method: "DELETE",
         body: assetBulkDeleteDto
     })));
 }
+export function uploadAsset({ key, xImmichChecksum, assetMediaCreateDto }: {
+    key?: string;
+    xImmichChecksum?: string;
+    assetMediaCreateDto: AssetMediaCreateDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 201;
+        data: AssetMediaResponseDto;
+    }>(`/assets${QS.query(QS.explode({
+        key
+    }))}`, oazapfts.multipart({
+        ...opts,
+        method: "POST",
+        body: assetMediaCreateDto,
+        headers: oazapfts.mergeHeaders(opts?.headers, {
+            "x-immich-checksum": xImmichChecksum
+        })
+    })));
+}
 export function updateAssets({ assetBulkUpdateDto }: {
     assetBulkUpdateDto: AssetBulkUpdateDto;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText("/asset", oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText("/assets", oazapfts.json({
         ...opts,
         method: "PUT",
         body: assetBulkUpdateDto
@@ -1421,7 +1483,7 @@ export function checkBulkUpload({ assetBulkUploadCheckDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetBulkUploadCheckResponseDto;
-    }>("/asset/bulk-upload-check", oazapfts.json({
+    }>("/assets/bulk-upload-check", oazapfts.json({
         ...opts,
         method: "POST",
         body: assetBulkUploadCheckDto
@@ -1436,7 +1498,7 @@ export function getAllUserAssetsByDeviceId({ deviceId }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: string[];
-    }>(`/asset/device/${encodeURIComponent(deviceId)}`, {
+    }>(`/assets/device/${encodeURIComponent(deviceId)}`, {
         ...opts
     }));
 }
@@ -1449,59 +1511,20 @@ export function checkExistingAssets({ checkExistingAssetsDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: CheckExistingAssetsResponseDto;
-    }>("/asset/exist", oazapfts.json({
+    }>("/assets/exist", oazapfts.json({
         ...opts,
         method: "POST",
         body: checkExistingAssetsDto
     })));
 }
-export function serveFile({ id, isThumb, isWeb, key }: {
-    id: string;
-    isThumb?: boolean;
-    isWeb?: boolean;
-    key?: string;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchBlob<{
-        status: 200;
-        data: Blob;
-    }>(`/asset/file/${encodeURIComponent(id)}${QS.query(QS.explode({
-        isThumb,
-        isWeb,
-        key
-    }))}`, {
-        ...opts
-    }));
-}
 export function runAssetJobs({ assetJobsDto }: {
     assetJobsDto: AssetJobsDto;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText("/asset/jobs", oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText("/assets/jobs", oazapfts.json({
         ...opts,
         method: "POST",
         body: assetJobsDto
     })));
-}
-export function getMapMarkers({ fileCreatedAfter, fileCreatedBefore, isArchived, isFavorite, withPartners, withSharedAlbums }: {
-    fileCreatedAfter?: string;
-    fileCreatedBefore?: string;
-    isArchived?: boolean;
-    isFavorite?: boolean;
-    withPartners?: boolean;
-    withSharedAlbums?: boolean;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 200;
-        data: MapMarkerResponseDto[];
-    }>(`/asset/map-marker${QS.query(QS.explode({
-        fileCreatedAfter,
-        fileCreatedBefore,
-        isArchived,
-        isFavorite,
-        withPartners,
-        withSharedAlbums
-    }))}`, {
-        ...opts
-    }));
 }
 export function getMemoryLane({ day, month }: {
     day: number;
@@ -1510,7 +1533,7 @@ export function getMemoryLane({ day, month }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: MemoryLaneResponseDto[];
-    }>(`/asset/memory-lane${QS.query(QS.explode({
+    }>(`/assets/memory-lane${QS.query(QS.explode({
         day,
         month
     }))}`, {
@@ -1523,7 +1546,7 @@ export function getRandom({ count }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetResponseDto[];
-    }>(`/asset/random${QS.query(QS.explode({
+    }>(`/assets/random${QS.query(QS.explode({
         count
     }))}`, {
         ...opts
@@ -1532,7 +1555,7 @@ export function getRandom({ count }: {
 export function updateStackParent({ updateStackParentDto }: {
     updateStackParentDto: UpdateStackParentDto;
 }, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchText("/asset/stack/parent", oazapfts.json({
+    return oazapfts.ok(oazapfts.fetchText("/assets/stack/parent", oazapfts.json({
         ...opts,
         method: "PUT",
         body: updateStackParentDto
@@ -1546,47 +1569,13 @@ export function getAssetStatistics({ isArchived, isFavorite, isTrashed }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetStatsResponseDto;
-    }>(`/asset/statistics${QS.query(QS.explode({
+    }>(`/assets/statistics${QS.query(QS.explode({
         isArchived,
         isFavorite,
         isTrashed
     }))}`, {
         ...opts
     }));
-}
-export function getAssetThumbnail({ format, id, key }: {
-    format?: ThumbnailFormat;
-    id: string;
-    key?: string;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchBlob<{
-        status: 200;
-        data: Blob;
-    }>(`/asset/thumbnail/${encodeURIComponent(id)}${QS.query(QS.explode({
-        format,
-        key
-    }))}`, {
-        ...opts
-    }));
-}
-export function uploadFile({ key, xImmichChecksum, createAssetDto }: {
-    key?: string;
-    xImmichChecksum?: string;
-    createAssetDto: CreateAssetDto;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 201;
-        data: AssetFileUploadResponseDto;
-    }>(`/asset/upload${QS.query(QS.explode({
-        key
-    }))}`, oazapfts.multipart({
-        ...opts,
-        method: "POST",
-        body: createAssetDto,
-        headers: oazapfts.mergeHeaders(opts?.headers, {
-            "x-immich-checksum": xImmichChecksum
-        })
-    })));
 }
 export function getAssetInfo({ id, key }: {
     id: string;
@@ -1595,7 +1584,7 @@ export function getAssetInfo({ id, key }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetResponseDto;
-    }>(`/asset/${encodeURIComponent(id)}${QS.query(QS.explode({
+    }>(`/assets/${encodeURIComponent(id)}${QS.query(QS.explode({
         key
     }))}`, {
         ...opts
@@ -1608,11 +1597,24 @@ export function updateAsset({ id, updateAssetDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetResponseDto;
-    }>(`/asset/${encodeURIComponent(id)}`, oazapfts.json({
+    }>(`/assets/${encodeURIComponent(id)}`, oazapfts.json({
         ...opts,
         method: "PUT",
         body: updateAssetDto
     })));
+}
+export function downloadAsset({ id, key }: {
+    id: string;
+    key?: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchBlob<{
+        status: 200;
+        data: Blob;
+    }>(`/assets/${encodeURIComponent(id)}/original${QS.query(QS.explode({
+        key
+    }))}`, {
+        ...opts
+    }));
 }
 /**
  * Replace the asset with new file, without changing its id
@@ -1625,13 +1627,41 @@ export function replaceAsset({ id, key, assetMediaReplaceDto }: {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
         data: AssetMediaResponseDto;
-    }>(`/asset/${encodeURIComponent(id)}/file${QS.query(QS.explode({
+    }>(`/assets/${encodeURIComponent(id)}/original${QS.query(QS.explode({
         key
     }))}`, oazapfts.multipart({
         ...opts,
         method: "PUT",
         body: assetMediaReplaceDto
     })));
+}
+export function viewAsset({ id, key, size }: {
+    id: string;
+    key?: string;
+    size?: AssetMediaSize;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchBlob<{
+        status: 200;
+        data: Blob;
+    }>(`/assets/${encodeURIComponent(id)}/thumbnail${QS.query(QS.explode({
+        key,
+        size
+    }))}`, {
+        ...opts
+    }));
+}
+export function playAssetVideo({ id, key }: {
+    id: string;
+    key?: string;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchBlob<{
+        status: 200;
+        data: Blob;
+    }>(`/assets/${encodeURIComponent(id)}/video/playback${QS.query(QS.explode({
+        key
+    }))}`, {
+        ...opts
+    }));
 }
 export function getAuditDeletes({ after, entityType, userId }: {
     after: string;
@@ -1717,20 +1747,6 @@ export function downloadArchive({ key, assetIdsDto }: {
         method: "POST",
         body: assetIdsDto
     })));
-}
-export function downloadFile({ id, key }: {
-    id: string;
-    key?: string;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchBlob<{
-        status: 200;
-        data: Blob;
-    }>(`/download/asset/${encodeURIComponent(id)}${QS.query(QS.explode({
-        key
-    }))}`, {
-        ...opts,
-        method: "POST"
-    }));
 }
 export function getDownloadInfo({ key, downloadInfoDto }: {
     key?: string;
@@ -1893,6 +1909,42 @@ export function validate({ id, validateLibraryDto }: {
         body: validateLibraryDto
     })));
 }
+export function getMapMarkers({ fileCreatedAfter, fileCreatedBefore, isArchived, isFavorite, withPartners, withSharedAlbums }: {
+    fileCreatedAfter?: string;
+    fileCreatedBefore?: string;
+    isArchived?: boolean;
+    isFavorite?: boolean;
+    withPartners?: boolean;
+    withSharedAlbums?: boolean;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: MapMarkerResponseDto[];
+    }>(`/map/markers${QS.query(QS.explode({
+        fileCreatedAfter,
+        fileCreatedBefore,
+        isArchived,
+        isFavorite,
+        withPartners,
+        withSharedAlbums
+    }))}`, {
+        ...opts
+    }));
+}
+export function getMapStyle({ key, theme }: {
+    key?: string;
+    theme: MapTheme;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: object;
+    }>(`/map/style.json${QS.query(QS.explode({
+        key,
+        theme
+    }))}`, {
+        ...opts
+    }));
+}
 export function searchMemories(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
@@ -1968,6 +2020,15 @@ export function addMemoryAssets({ id, bulkIdsDto }: {
         ...opts,
         method: "PUT",
         body: bulkIdsDto
+    })));
+}
+export function sendTestEmail({ systemConfigSmtpDto }: {
+    systemConfigSmtpDto: SystemConfigSmtpDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchText("/notifications/test-email", oazapfts.json({
+        ...opts,
+        method: "POST",
+        body: systemConfigSmtpDto
     })));
 }
 export function startOAuth({ oAuthConfigDto }: {
@@ -2531,20 +2592,6 @@ export function getConfigDefaults(opts?: Oazapfts.RequestOpts) {
         ...opts
     }));
 }
-export function getMapStyle({ key, theme }: {
-    key?: string;
-    theme: MapTheme;
-}, opts?: Oazapfts.RequestOpts) {
-    return oazapfts.ok(oazapfts.fetchJson<{
-        status: 200;
-        data: object;
-    }>(`/system-config/map/style.json${QS.query(QS.explode({
-        key,
-        theme
-    }))}`, {
-        ...opts
-    }));
-}
 export function getStorageTemplateOptions(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchJson<{
         status: 200;
@@ -2780,6 +2827,26 @@ export function updateMyUser({ userUpdateMeDto }: {
         body: userUpdateMeDto
     })));
 }
+export function getMyPreferences(opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserPreferencesResponseDto;
+    }>("/users/me/preferences", {
+        ...opts
+    }));
+}
+export function updateMyPreferences({ userPreferencesUpdateDto }: {
+    userPreferencesUpdateDto: UserPreferencesUpdateDto;
+}, opts?: Oazapfts.RequestOpts) {
+    return oazapfts.ok(oazapfts.fetchJson<{
+        status: 200;
+        data: UserPreferencesResponseDto;
+    }>("/users/me/preferences", oazapfts.json({
+        ...opts,
+        method: "PUT",
+        body: userPreferencesUpdateDto
+    })));
+}
 export function deleteProfileImage(opts?: Oazapfts.RequestOpts) {
     return oazapfts.ok(oazapfts.fetchText("/users/profile-image", {
         ...opts,
@@ -2872,6 +2939,11 @@ export enum Error {
     NotFound = "not_found",
     Unknown = "unknown"
 }
+export enum AssetMediaStatus {
+    Created = "created",
+    Replaced = "replaced",
+    Duplicate = "duplicate"
+}
 export enum Action {
     Accept = "accept",
     Reject = "reject"
@@ -2885,13 +2957,9 @@ export enum AssetJobName {
     RefreshMetadata = "refresh-metadata",
     TranscodeVideo = "transcode-video"
 }
-export enum ThumbnailFormat {
-    Jpeg = "JPEG",
-    Webp = "WEBP"
-}
-export enum AssetMediaStatus {
-    Replaced = "replaced",
-    Duplicate = "duplicate"
+export enum AssetMediaSize {
+    Preview = "preview",
+    Thumbnail = "thumbnail"
 }
 export enum EntityType {
     Asset = "ASSET",
@@ -2919,6 +2987,10 @@ export enum JobCommand {
     Resume = "resume",
     Empty = "empty",
     ClearFailed = "clear-failed"
+}
+export enum MapTheme {
+    Light = "light",
+    Dark = "dark"
 }
 export enum Type2 {
     OnThisDay = "on_this_day"
@@ -3007,18 +3079,6 @@ export enum LogLevel {
     Warn = "warn",
     Error = "error",
     Fatal = "fatal"
-}
-export enum CLIPMode {
-    Vision = "vision",
-    Text = "text"
-}
-export enum ModelType {
-    FacialRecognition = "facial-recognition",
-    Clip = "clip"
-}
-export enum MapTheme {
-    Light = "light",
-    Dark = "dark"
 }
 export enum TimeBucketSize {
     Day = "DAY",

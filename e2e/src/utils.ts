@@ -1,15 +1,17 @@
 import {
   AllJobStatusResponseDto,
-  AssetFileUploadResponseDto,
+  AssetMediaCreateDto,
+  AssetMediaResponseDto,
   AssetResponseDto,
+  CheckExistingAssetsDto,
   CreateAlbumDto,
-  CreateAssetDto,
   CreateLibraryDto,
   MetadataSearchDto,
   PersonCreateDto,
   SharedLinkCreateDto,
   UserAdminCreateDto,
   ValidateLibraryDto,
+  checkExistingAssets,
   createAlbum,
   createApiKey,
   createLibrary,
@@ -292,7 +294,7 @@ export const utils = {
 
   createAsset: async (
     accessToken: string,
-    dto?: Partial<Omit<CreateAssetDto, 'assetData'>> & { assetData?: AssetData },
+    dto?: Partial<Omit<AssetMediaCreateDto, 'assetData'>> & { assetData?: AssetData },
   ) => {
     const _dto = {
       deviceAssetId: 'test-1',
@@ -310,7 +312,7 @@ export const utils = {
     }
 
     const builder = request(app)
-      .post(`/asset/upload`)
+      .post(`/assets`)
       .attach('assetData', assetData, filename)
       .set('Authorization', `Bearer ${accessToken}`);
 
@@ -320,7 +322,41 @@ export const utils = {
 
     const { body } = await builder;
 
-    return body as AssetFileUploadResponseDto;
+    return body as AssetMediaResponseDto;
+  },
+
+  replaceAsset: async (
+    accessToken: string,
+    assetId: string,
+    dto?: Partial<Omit<AssetMediaCreateDto, 'assetData'>> & { assetData?: AssetData },
+  ) => {
+    const _dto = {
+      deviceAssetId: 'test-1',
+      deviceId: 'test',
+      fileCreatedAt: new Date().toISOString(),
+      fileModifiedAt: new Date().toISOString(),
+      ...dto,
+    };
+
+    const assetData = dto?.assetData?.bytes || makeRandomImage();
+    const filename = dto?.assetData?.filename || 'example.png';
+
+    if (dto?.assetData?.bytes) {
+      console.log(`Uploading ${filename}`);
+    }
+
+    const builder = request(app)
+      .put(`/assets/${assetId}/original`)
+      .attach('assetData', assetData, filename)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    for (const [key, value] of Object.entries(_dto)) {
+      void builder.field(key, String(value));
+    }
+
+    const { body } = await builder;
+
+    return body as AssetMediaResponseDto;
   },
 
   createImageFile: (path: string) => {
@@ -339,6 +375,9 @@ export const utils = {
   },
 
   getAssetInfo: (accessToken: string, id: string) => getAssetInfo({ id }, { headers: asBearerAuth(accessToken) }),
+
+  checkExistingAssets: (accessToken: string, checkExistingAssetsDto: CheckExistingAssetsDto) =>
+    checkExistingAssets({ checkExistingAssetsDto }, { headers: asBearerAuth(accessToken) }),
 
   metadataSearch: async (accessToken: string, dto: MetadataSearchDto) => {
     return searchMetadata({ metadataSearchDto: dto }, { headers: asBearerAuth(accessToken) });

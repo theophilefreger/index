@@ -31,7 +31,7 @@ export class SystemConfigService {
   private core: SystemConfigCore;
 
   constructor(
-    @Inject(ISystemMetadataRepository) private repository: ISystemMetadataRepository,
+    @Inject(ISystemMetadataRepository) repository: ISystemMetadataRepository,
     @Inject(IEventRepository) private eventRepository: IEventRepository,
     @Inject(ILoggerRepository) private logger: ILoggerRepository,
     @Inject(ISearchRepository) private smartInfoRepository: ISearchRepository,
@@ -42,7 +42,7 @@ export class SystemConfigService {
   }
 
   async init() {
-    const config = await this.core.getConfig();
+    const config = await this.core.getConfig({ withCache: false });
     this.config$.next(config);
   }
 
@@ -51,7 +51,7 @@ export class SystemConfigService {
   }
 
   async getConfig(): Promise<SystemConfigDto> {
-    const config = await this.core.getConfig();
+    const config = await this.core.getConfig({ withCache: false });
     return mapConfig(config);
   }
 
@@ -71,7 +71,7 @@ export class SystemConfigService {
       throw new BadRequestException('Cannot update configuration while IMMICH_CONFIG_FILE is in use');
     }
 
-    const oldConfig = await this.core.getConfig();
+    const oldConfig = await this.core.getConfig({ withCache: false });
 
     try {
       await this.eventRepository.serverSendAsync(ServerAsyncEvent.CONFIG_VALIDATE, {
@@ -109,19 +109,8 @@ export class SystemConfigService {
     return options;
   }
 
-  async getMapStyle(theme: 'light' | 'dark') {
-    const { map } = await this.getConfig();
-    const styleUrl = theme === 'dark' ? map.darkStyle : map.lightStyle;
-
-    if (styleUrl) {
-      return this.repository.fetchStyle(styleUrl);
-    }
-
-    return JSON.parse(await this.repository.readFile(`./resources/style-${theme}.json`));
-  }
-
   async getCustomCss(): Promise<string> {
-    const { theme } = await this.core.getConfig();
+    const { theme } = await this.core.getConfig({ withCache: false });
     return theme.customCss;
   }
 

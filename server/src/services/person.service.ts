@@ -22,6 +22,7 @@ import {
   mapFaces,
   mapPerson,
 } from 'src/dtos/person.dto';
+import { AssetEntity, AssetType } from 'src/entities/asset.entity';
 import { PersonPathType } from 'src/entities/move.entity';
 import { PersonEntity } from 'src/entities/person.entity';
 import { IAccessRepository } from 'src/interfaces/access.interface';
@@ -39,7 +40,7 @@ import {
   QueueName,
 } from 'src/interfaces/job.interface';
 import { ILoggerRepository } from 'src/interfaces/logger.interface';
-import { IMachineLearningRepository } from 'src/interfaces/machine-learning.interface';
+import { BoundingBox, IMachineLearningRepository } from 'src/interfaces/machine-learning.interface';
 import { CropOptions, IMediaRepository, ImageDimensions } from 'src/interfaces/media.interface';
 import { IMoveRepository } from 'src/interfaces/move.interface';
 import { IPersonRepository, UpdateFacesData } from 'src/interfaces/person.interface';
@@ -88,7 +89,7 @@ export class PersonService {
   }
 
   async getAll(auth: AuthDto, dto: PersonSearchDto): Promise<PeopleResponseDto> {
-    const { machineLearning } = await this.configCore.getConfig();
+    const { machineLearning } = await this.configCore.getConfig({ withCache: false });
     const people = await this.repository.getAllForUser(auth.user.id, {
       minimumFaceCount: machineLearning.facialRecognition.minFaces,
       withHidden: dto.withHidden || false,
@@ -282,7 +283,7 @@ export class PersonService {
   }
 
   async handleQueueDetectFaces({ force }: IBaseJob): Promise<JobStatus> {
-    const { machineLearning } = await this.configCore.getConfig();
+    const { machineLearning } = await this.configCore.getConfig({ withCache: false });
     if (!isFacialRecognitionEnabled(machineLearning)) {
       return JobStatus.SKIPPED;
     }
@@ -313,7 +314,7 @@ export class PersonService {
   }
 
   async handleDetectFaces({ id }: IEntityJob): Promise<JobStatus> {
-    const { machineLearning } = await this.configCore.getConfig();
+    const { machineLearning } = await this.configCore.getConfig({ withCache: true });
     if (!isFacialRecognitionEnabled(machineLearning)) {
       return JobStatus.SKIPPED;
     }
@@ -333,26 +334,28 @@ export class PersonService {
       return JobStatus.SKIPPED;
     }
 
-    const faces = await this.machineLearningRepository.detectFaces(
+    if (!asset.isVisible) {
+      return JobStatus.SKIPPED;
+    }
+
+    const { imageHeight, imageWidth, faces } = await this.machineLearningRepository.detectFaces(
       machineLearning.url,
-      { imagePath: asset.previewPath },
+      asset.previewPath,
       machineLearning.facialRecognition,
     );
 
     this.logger.debug(`${faces.length} faces detected in ${asset.previewPath}`);
-    this.logger.verbose(faces.map((face) => ({ ...face, embedding: `vector(${face.embedding.length})` })));
 
     if (faces.length > 0) {
       await this.jobRepository.queue({ name: JobName.QUEUE_FACIAL_RECOGNITION, data: { force: false } });
-
       const mappedFaces = faces.map((face) => ({
         assetId: asset.id,
         embedding: face.embedding,
-        imageHeight: face.imageHeight,
-        imageWidth: face.imageWidth,
+        imageHeight,
+        imageWidth,
         boundingBoxX1: face.boundingBox.x1,
-        boundingBoxX2: face.boundingBox.x2,
         boundingBoxY1: face.boundingBox.y1,
+        boundingBoxX2: face.boundingBox.x2,
         boundingBoxY2: face.boundingBox.y2,
       }));
 
@@ -369,7 +372,7 @@ export class PersonService {
   }
 
   async handleQueueRecognizeFaces({ force }: IBaseJob): Promise<JobStatus> {
-    const { machineLearning } = await this.configCore.getConfig();
+    const { machineLearning } = await this.configCore.getConfig({ withCache: false });
     if (!isFacialRecognitionEnabled(machineLearning)) {
       return JobStatus.SKIPPED;
     }
@@ -400,7 +403,7 @@ export class PersonService {
   }
 
   async handleRecognizeFaces({ id, deferred }: IDeferrableJob): Promise<JobStatus> {
-    const { machineLearning } = await this.configCore.getConfig();
+    const { machineLearning } = await this.configCore.getConfig({ withCache: true });
     if (!isFacialRecognitionEnabled(machineLearning)) {
       return JobStatus.SKIPPED;
     }
@@ -484,7 +487,7 @@ export class PersonService {
   }
 
   async handleGeneratePersonThumbnail(data: IEntityJob): Promise<JobStatus> {
-    const { machineLearning, image } = await this.configCore.getConfig();
+    const { machineLearning, image } = await this.configCore.getConfig({ withCache: true });
     if (!isFacialRecognitionEnabled(machineLearning)) {
       return JobStatus.SKIPPED;
     }
@@ -507,61 +510,30 @@ export class PersonService {
       boundingBoxX2: x2,
       boundingBoxY1: y1,
       boundingBoxY2: y2,
-      imageWidth,
-      imageHeight,
+      imageWidth: oldWidth,
+      imageHeight: oldHeight,
     } = face;
 
     const asset = await this.assetRepository.getById(assetId, { exifInfo: true });
-    if (!asset?.exifInfo?.exifImageHeight || !asset.exifInfo.exifImageWidth) {
-      this.logger.error(`Could not generate person thumbnail: asset ${assetId} dimensions are unknown`);
+    if (!asset) {
+      this.logger.error(`Could not generate person thumbnail: asset ${assetId} does not exist`);
       return JobStatus.FAILED;
     }
 
-    this.logger.verbose(`Cropping face for person: ${person.id}`);
+    const { width, height, inputPath } = await this.getInputDimensions(asset);
+
     const thumbnailPath = StorageCore.getPersonThumbnailPath(person);
     this.storageCore.ensureFolders(thumbnailPath);
-
-    const { width: exifWidth, height: exifHeight } = this.withOrientation(asset.exifInfo.orientation as Orientation, {
-      width: asset.exifInfo.exifImageWidth,
-      height: asset.exifInfo.exifImageHeight,
-    });
-
-    const widthScale = exifWidth / imageWidth;
-    const heightScale = exifHeight / imageHeight;
-
-    const halfWidth = (widthScale * (x2 - x1)) / 2;
-    const halfHeight = (heightScale * (y2 - y1)) / 2;
-
-    const middleX = Math.round(widthScale * x1 + halfWidth);
-    const middleY = Math.round(heightScale * y1 + halfHeight);
-
-    // zoom out 10%
-    const targetHalfSize = Math.floor(Math.max(halfWidth, halfHeight) * 1.1);
-
-    // get the longest distance from the center of the image without overflowing
-    const newHalfSize = Math.min(
-      middleX - Math.max(0, middleX - targetHalfSize),
-      middleY - Math.max(0, middleY - targetHalfSize),
-      Math.min(exifWidth - 1, middleX + targetHalfSize) - middleX,
-      Math.min(exifHeight - 1, middleY + targetHalfSize) - middleY,
-    );
-
-    const cropOptions: CropOptions = {
-      left: middleX - newHalfSize,
-      top: middleY - newHalfSize,
-      width: newHalfSize * 2,
-      height: newHalfSize * 2,
-    };
 
     const thumbnailOptions = {
       format: ImageFormat.JPEG,
       size: FACE_THUMBNAIL_SIZE,
       colorspace: image.colorspace,
       quality: image.quality,
-      crop: cropOptions,
+      crop: this.getCrop({ old: { width: oldWidth, height: oldHeight }, new: { width, height } }, { x1, y1, x2, y2 }),
     } as const;
 
-    await this.mediaRepository.generateThumbnail(asset.originalPath, thumbnailPath, thumbnailOptions);
+    await this.mediaRepository.generateThumbnail(inputPath, thumbnailPath, thumbnailOptions);
     await this.repository.update({ id: person.id, thumbnailPath });
 
     return JobStatus.SUCCESS;
@@ -629,6 +601,27 @@ export class PersonService {
     return person;
   }
 
+  private async getInputDimensions(asset: AssetEntity): Promise<ImageDimensions & { inputPath: string }> {
+    if (!asset.exifInfo?.exifImageHeight || !asset.exifInfo.exifImageWidth) {
+      throw new Error(`Asset ${asset.id} dimensions are unknown`);
+    }
+
+    if (!asset.previewPath) {
+      throw new Error(`Asset ${asset.id} has no preview path`);
+    }
+
+    if (asset.type === AssetType.IMAGE) {
+      const { width, height } = this.withOrientation(asset.exifInfo.orientation as Orientation, {
+        width: asset.exifInfo.exifImageWidth,
+        height: asset.exifInfo.exifImageHeight,
+      });
+      return { width, height, inputPath: asset.originalPath };
+    }
+
+    const { width, height } = await this.mediaRepository.getImageDimensions(asset.previewPath);
+    return { width, height, inputPath: asset.previewPath };
+  }
+
   private withOrientation(orientation: Orientation, { width, height }: ImageDimensions): ImageDimensions {
     switch (orientation) {
       case Orientation.MirrorHorizontalRotate270CW:
@@ -641,5 +634,34 @@ export class PersonService {
         return { width, height };
       }
     }
+  }
+
+  private getCrop(dims: { old: ImageDimensions; new: ImageDimensions }, { x1, y1, x2, y2 }: BoundingBox): CropOptions {
+    const widthScale = dims.new.width / dims.old.width;
+    const heightScale = dims.new.height / dims.old.height;
+
+    const halfWidth = (widthScale * (x2 - x1)) / 2;
+    const halfHeight = (heightScale * (y2 - y1)) / 2;
+
+    const middleX = Math.round(widthScale * x1 + halfWidth);
+    const middleY = Math.round(heightScale * y1 + halfHeight);
+
+    // zoom out 10%
+    const targetHalfSize = Math.floor(Math.max(halfWidth, halfHeight) * 1.1);
+
+    // get the longest distance from the center of the image without overflowing
+    const newHalfSize = Math.min(
+      middleX - Math.max(0, middleX - targetHalfSize),
+      middleY - Math.max(0, middleY - targetHalfSize),
+      Math.min(dims.new.width - 1, middleX + targetHalfSize) - middleX,
+      Math.min(dims.new.height - 1, middleY + targetHalfSize) - middleY,
+    );
+
+    return {
+      left: middleX - newHalfSize,
+      top: middleY - newHalfSize,
+      width: newHalfSize * 2,
+      height: newHalfSize * 2,
+    };
   }
 }

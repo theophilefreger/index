@@ -2,12 +2,13 @@
   import Button from '$lib/components/elements/buttons/button.svelte';
   import Icon from '$lib/components/elements/icon.svelte';
   import { getAssetThumbnailUrl } from '$lib/utils';
-  import { ThumbnailFormat, type AssetResponseDto, type DuplicateResponseDto, getAllAlbums } from '@immich/sdk';
+  import { type AssetResponseDto, type DuplicateResponseDto, getAllAlbums } from '@immich/sdk';
   import { mdiCheck, mdiTrashCanOutline } from '@mdi/js';
   import { onMount } from 'svelte';
   import { s } from '$lib/utils';
   import { getAssetResolution, getFileSize } from '$lib/utils/asset-utils';
   import { sortBy } from 'lodash-es';
+  import { t } from 'svelte-i18n';
 
   export let duplicate: DuplicateResponseDto;
   export let onResolve: (duplicateAssetIds: string[], trashIds: string[]) => void;
@@ -38,6 +39,16 @@
     selectedAssetIds = selectedAssetIds;
   };
 
+  const onSelectNone = () => {
+    selectedAssetIds.clear();
+    selectedAssetIds = selectedAssetIds;
+  };
+
+  const onSelectAll = () => {
+    selectedAssetIds = new Set(duplicate.assets.map((asset) => asset.id));
+    selectedAssetIds = selectedAssetIds;
+  };
+
   const handleResolve = () => {
     const trashIds = duplicate.assets.map((asset) => asset.id).filter((id) => !selectedAssetIds.has(id));
     const duplicateAssetIds = duplicate.assets.map((asset) => asset.id);
@@ -56,7 +67,7 @@
         <button type="button" on:click={() => onSelectAsset(asset)} class="block relative">
           <!-- THUMBNAIL-->
           <img
-            src={getAssetThumbnailUrl(asset.id, ThumbnailFormat.Webp)}
+            src={getAssetThumbnailUrl(asset.id)}
             alt={asset.id}
             title={`${assetData}`}
             class={`w-[250px] h-[250px] object-cover rounded-t-xl border-t-[4px] border-l-[4px] border-r-[4px] border-gray-300 ${isSelected ? 'border-immich-primary dark:border-immich-dark-primary' : 'dark:border-gray-800'} transition-all`}
@@ -67,7 +78,7 @@
           <div
             class={`absolute bottom-2 right-3 ${isSelected ? 'bg-green-400/90' : 'bg-red-300/90'} px-4 py-1 rounded-xl text-xs font-semibold`}
           >
-            {isSelected ? 'Keep' : 'Trash'}
+            {isSelected ? $t('keep') : $t('trash')}
           </div>
 
           <!-- EXTERNAL LIBRARY CHIP-->
@@ -75,7 +86,7 @@
             <div
               class="absolute top-2 right-3 bg-immich-primary/90 px-4 py-1 rounded-xl text-xs font-semibold text-white"
             >
-              External
+              {$t('external')}
             </div>
           {/if}
         </button>
@@ -116,18 +127,34 @@
     {/each}
   </div>
 
-  <!-- CONFIRM BUTTONS -->
-  <div class="flex gap-4 my-4 border-transparent w-full justify-end p-4 h-[85px]">
-    {#if trashCount === 0}
-      <Button size="sm" color="primary" class="flex place-items-center gap-2" on:click={handleResolve}
-        ><Icon path={mdiCheck} size="20" />Keep All
-      </Button>
-    {:else}
-      <Button size="sm" color="red" class="flex place-items-center gap-2" on:click={handleResolve}
-        ><Icon path={mdiTrashCanOutline} size="20" />{trashCount === duplicate.assets.length
-          ? 'Trash All'
-          : `Trash ${trashCount}`}
-      </Button>
-    {/if}
+  <div class="flex mt-10 mb-4 px-6 w-full place-content-end justify-between h-[45px]">
+    <!-- MARK ALL BUTTONS -->
+    <div class="flex text-xs text-black">
+      <button
+        type="button"
+        class="px-4 flex place-items-center gap-2 rounded-tl-full rounded-bl-full dark:bg-immich-dark-primary hover:dark:bg-immich-dark-primary/90 bg-immich-primary/25 hover:bg-immich-primary/50"
+        on:click={onSelectAll}><Icon path={mdiCheck} size="20" />{$t('select_keep_all')}</button
+      >
+      <button
+        type="button"
+        class="px-4 flex place-items-center gap-2 rounded-tr-full rounded-br-full dark:bg-immich-dark-primary/50 hover:dark:bg-immich-dark-primary/70 bg-immich-primary hover:bg-immich-primary/80 text-white"
+        on:click={onSelectNone}><Icon path={mdiTrashCanOutline} size="20" />{$t('select_trash_all')}</button
+      >
+    </div>
+
+    <!-- CONFIRM BUTTONS -->
+    <div class="flex gap-4">
+      {#if trashCount === 0}
+        <Button size="sm" color="primary" class="flex place-items-center gap-2" on:click={handleResolve}
+          ><Icon path={mdiCheck} size="20" />Keep All
+        </Button>
+      {:else}
+        <Button size="sm" color="red" class="flex place-items-center gap-2" on:click={handleResolve}
+          ><Icon path={mdiTrashCanOutline} size="20" />{trashCount === duplicate.assets.length
+            ? $t('trash_all')
+            : `${$t('trash')} ${trashCount}`}
+        </Button>
+      {/if}
+    </div>
   </div>
 </div>

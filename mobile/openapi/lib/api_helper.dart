@@ -61,6 +61,9 @@ String parameterToString(dynamic value) {
   if (value is AssetJobName) {
     return AssetJobNameTypeTransformer().encode(value).toString();
   }
+  if (value is AssetMediaSize) {
+    return AssetMediaSizeTypeTransformer().encode(value).toString();
+  }
   if (value is AssetMediaStatus) {
     return AssetMediaStatusTypeTransformer().encode(value).toString();
   }
@@ -72,9 +75,6 @@ String parameterToString(dynamic value) {
   }
   if (value is AudioCodec) {
     return AudioCodecTypeTransformer().encode(value).toString();
-  }
-  if (value is CLIPMode) {
-    return CLIPModeTypeTransformer().encode(value).toString();
   }
   if (value is CQMode) {
     return CQModeTypeTransformer().encode(value).toString();
@@ -103,9 +103,6 @@ String parameterToString(dynamic value) {
   if (value is MemoryType) {
     return MemoryTypeTypeTransformer().encode(value).toString();
   }
-  if (value is ModelType) {
-    return ModelTypeTypeTransformer().encode(value).toString();
-  }
   if (value is PathEntityType) {
     return PathEntityTypeTypeTransformer().encode(value).toString();
   }
@@ -126,9 +123,6 @@ String parameterToString(dynamic value) {
   }
   if (value is TagTypeEnum) {
     return TagTypeEnumTypeTransformer().encode(value).toString();
-  }
-  if (value is ThumbnailFormat) {
-    return ThumbnailFormatTypeTransformer().encode(value).toString();
   }
   if (value is TimeBucketSize) {
     return TimeBucketSizeTypeTransformer().encode(value).toString();

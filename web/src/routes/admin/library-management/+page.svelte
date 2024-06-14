@@ -6,7 +6,6 @@
   import LibraryScanSettingsForm from '$lib/components/forms/library-scan-settings-form.svelte';
   import LibraryUserPickerForm from '$lib/components/forms/library-user-picker-form.svelte';
   import UserPageLayout from '$lib/components/layouts/user-page-layout.svelte';
-  import ConfirmDialogue from '$lib/components/shared-components/confirm-dialogue.svelte';
   import ContextMenu from '$lib/components/shared-components/context-menu/context-menu.svelte';
   import MenuOption from '$lib/components/shared-components/context-menu/menu-option.svelte';
   import LoadingSpinner from '$lib/components/shared-components/loading-spinner.svelte';
@@ -37,6 +36,8 @@
   import LinkButton from '../../../lib/components/elements/buttons/link-button.svelte';
   import type { PageData } from './$types';
   import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
+  import { dialogController } from '$lib/components/shared-components/dialog/dialog';
+  import { t } from 'svelte-i18n';
 
   export let data: PageData;
 
@@ -120,11 +121,11 @@
     try {
       const createdLibrary = await createLibrary({ createLibraryDto: { ownerId } });
       notificationController.show({
-        message: `Created library: ${createdLibrary.name}`,
+        message: $t('admin.library_created', { values: { library: createdLibrary.name } }),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to create library');
+      handleError(error, $t('errors.unable_to_create_library'));
     } finally {
       toCreateLibrary = false;
       await readLibraryList();
@@ -142,7 +143,7 @@
       closeAll();
       await readLibraryList();
     } catch (error) {
-      handleError(error, 'Unable to update library');
+      handleError(error, $t('errors.unable_to_update_library'));
     }
   };
 
@@ -158,11 +159,11 @@
     try {
       await deleteLibrary({ id: deletedLibrary.id });
       notificationController.show({
-        message: `Library deleted`,
+        message: $t('admin.library_deleted'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to remove library');
+      handleError(error, $t('errors.unable_to_remove_library'));
     } finally {
       confirmDeleteLibrary = null;
       deletedLibrary = null;
@@ -176,11 +177,11 @@
         await scanLibrary({ id: library.id, scanLibraryDto: {} });
       }
       notificationController.show({
-        message: `Refreshing all libraries`,
+        message: $t('admin.refreshing_all_libraries'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to scan libraries');
+      handleError(error, $t('errors.unable_to_scan_libraries'));
     }
   };
 
@@ -188,11 +189,11 @@
     try {
       await scanLibrary({ id: libraryId, scanLibraryDto: {} });
       notificationController.show({
-        message: `Scanning library for new files`,
+        message: $t('admin.scanning_library_for_new_files'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to scan library');
+      handleError(error, $t('errors.unable_to_scan_library'));
     }
   };
 
@@ -200,11 +201,11 @@
     try {
       await scanLibrary({ id: libraryId, scanLibraryDto: { refreshModifiedFiles: true } });
       notificationController.show({
-        message: `Scanning library for changed files`,
+        message: $t('admin.scanning_library_for_changed_files'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to scan library');
+      handleError(error, $t('errors.unable_to_scan_library'));
     }
   };
 
@@ -212,11 +213,11 @@
     try {
       await scanLibrary({ id: libraryId, scanLibraryDto: { refreshAllFiles: true } });
       notificationController.show({
-        message: `Forcing refresh of all library files`,
+        message: $t('admin.forcing_refresh_library_files'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to scan library');
+      handleError(error, $t('errors.unable_to_scan_library'));
     }
   };
 
@@ -224,11 +225,11 @@
     try {
       await removeOfflineFiles({ id: libraryId });
       notificationController.show({
-        message: `Removing Offline Files`,
+        message: $t('admin.removing_offline_files'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to remove offline files');
+      handleError(error, $t('errors.unable_to_remove_offline_files'));
     }
   };
 
@@ -282,28 +283,38 @@
   const onDeleteLibraryClicked = async () => {
     closeAll();
 
-    if (selectedLibrary && confirm(`Are you sure you want to delete ${selectedLibrary.name} library?`) == true) {
-      await refreshStats(selectedLibraryIndex);
-      if (totalCount[selectedLibraryIndex] > 0) {
-        deleteAssetCount = totalCount[selectedLibraryIndex];
-        confirmDeleteLibrary = selectedLibrary;
-      } else {
-        deletedLibrary = selectedLibrary;
-        await handleDelete();
+    if (!selectedLibrary) {
+      return;
+    }
+
+    const isConfirmedLibrary = await dialogController.show({
+      id: 'delete-library',
+      prompt: $t('admin.confirm_delete_library', { values: { library: selectedLibrary.name } }),
+    });
+
+    if (!isConfirmedLibrary) {
+      return;
+    }
+
+    await refreshStats(selectedLibraryIndex);
+    if (totalCount[selectedLibraryIndex] > 0) {
+      deleteAssetCount = totalCount[selectedLibraryIndex];
+
+      const isConfirmedLibraryAssetCount = await dialogController.show({
+        id: 'delete-library-assets',
+        prompt: $t('admin.confirm_delete_library_assets', { values: { count: deleteAssetCount } }),
+      });
+
+      if (!isConfirmedLibraryAssetCount) {
+        return;
       }
+      await handleDelete();
+    } else {
+      deletedLibrary = selectedLibrary;
+      await handleDelete();
     }
   };
 </script>
-
-{#if confirmDeleteLibrary}
-  <ConfirmDialogue
-    id="warning-modal"
-    title="Warning!"
-    prompt="Are you sure you want to delete this library? This will delete all {deleteAssetCount} contained assets from Immich and cannot be undone. Files will remain on disk."
-    onConfirm={handleDelete}
-    onClose={() => (confirmDeleteLibrary = null)}
-  />
-{/if}
 
 {#if toCreateLibrary}
   <LibraryUserPickerForm
@@ -318,14 +329,14 @@
       <LinkButton on:click={() => handleScanAll()}>
         <div class="flex gap-1 text-sm">
           <Icon path={mdiSync} size="18" />
-          <span>Scan All Libraries</span>
+          <span>{$t('scan_all_libraries')}</span>
         </div>
       </LinkButton>
     {/if}
     <LinkButton on:click={() => (toCreateLibrary = true)}>
       <div class="flex gap-1 text-sm">
         <Icon path={mdiPlusBoxOutline} size="18" />
-        <span>Create Library</span>
+        <span>{$t('create_library')}</span>
       </div>
     </LinkButton>
   </div>
@@ -337,11 +348,11 @@
             class="mb-4 flex h-12 w-full rounded-md border bg-gray-50 text-immich-primary dark:border-immich-dark-gray dark:bg-immich-dark-gray dark:text-immich-dark-primary"
           >
             <tr class="grid grid-cols-6 w-full place-items-center">
-              <th class="text-center text-sm font-medium">Type</th>
-              <th class="text-center text-sm font-medium">Name</th>
-              <th class="text-center text-sm font-medium">Owner</th>
-              <th class="text-center text-sm font-medium">Assets</th>
-              <th class="text-center text-sm font-medium">Size</th>
+              <th class="text-center text-sm font-medium">{$t('type')}</th>
+              <th class="text-center text-sm font-medium">{$t('name')}</th>
+              <th class="text-center text-sm font-medium">{$t('owner')}</th>
+              <th class="text-center text-sm font-medium">{$t('assets')}</th>
+              <th class="text-center text-sm font-medium">{$t('size')}</th>
               <th class="text-center text-sm font-medium" />
             </tr>
           </thead>
@@ -355,7 +366,11 @@
                 }`}
               >
                 <td class=" px-10 text-sm">
-                  <Icon path={mdiDatabase} size="40" title="External library (created on {library.createdAt})" />
+                  <Icon
+                    path={mdiDatabase}
+                    size="40"
+                    title={$t('admin.external_library_created_at', { values: { date: library.createdAt } })}
+                  />
                 </td>
 
                 <td class=" text-ellipsis px-4 text-sm">{library.name}</td>
@@ -380,35 +395,38 @@
                   <CircleIconButton
                     color="primary"
                     icon={mdiDotsVertical}
-                    title="Library options"
+                    title={$t('library_options')}
                     size="16"
                     on:click={(e) => showMenu(e, library, index)}
                   />
 
                   {#if showContextMenu}
                     <Portal target="body">
-                      <ContextMenu {...contextMenuPosition} on:outclick={() => onMenuExit()}>
-                        <MenuOption on:click={() => onRenameClicked()} text={`Rename`} />
+                      <ContextMenu {...contextMenuPosition} onClose={() => onMenuExit()}>
+                        <MenuOption on:click={() => onRenameClicked()} text={$t('rename')} />
 
                         {#if selectedLibrary}
-                          <MenuOption on:click={() => onEditImportPathClicked()} text="Edit Import Paths" />
-                          <MenuOption on:click={() => onScanSettingClicked()} text="Scan Settings" />
+                          <MenuOption on:click={() => onEditImportPathClicked()} text={$t('edit_import_paths')} />
+                          <MenuOption on:click={() => onScanSettingClicked()} text={$t('scan_settings')} />
                           <hr />
-                          <MenuOption on:click={() => onScanNewLibraryClicked()} text="Scan New Library Files" />
+                          <MenuOption on:click={() => onScanNewLibraryClicked()} text={$t('scan_new_library_files')} />
                           <MenuOption
                             on:click={() => onScanAllLibraryFilesClicked()}
-                            text="Re-scan All Library Files"
-                            subtitle={'Only refreshes modified files'}
+                            text={$t('scan_all_library_files')}
+                            subtitle={$t('only_refreshes_modified_files')}
                           />
                           <MenuOption
                             on:click={() => onForceScanAllLibraryFilesClicked()}
-                            text="Force Re-scan All Library Files"
-                            subtitle={'Refreshes every file'}
+                            text={$t('force_re-scan_library_files')}
+                            subtitle={$t('refreshes_every_file')}
                           />
                           <hr />
-                          <MenuOption on:click={() => onRemoveOfflineFilesClicked()} text="Remove Offline Files" />
+                          <MenuOption
+                            on:click={() => onRemoveOfflineFilesClicked()}
+                            text={$t('remove_offline_files')}
+                          />
                           <MenuOption on:click={() => onDeleteLibraryClicked()}>
-                            <p class="text-red-600">Delete library</p>
+                            <p class="text-red-600">{$t('delete_library')}</p>
                           </MenuOption>
                         {/if}
                       </ContextMenu>
@@ -449,10 +467,7 @@
 
         <!-- Empty message -->
       {:else}
-        <EmptyPlaceholder
-          text="Create an external library to view your photos and videos"
-          onClick={() => (toCreateLibrary = true)}
-        />
+        <EmptyPlaceholder text={$t('no_libraries_message')} onClick={() => (toCreateLibrary = true)} />
       {/if}
     </div>
   </section>

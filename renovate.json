@@ -49,6 +49,11 @@
       ]
     },
     {
+      "groupName": "flutter",
+      "matchPackagePatterns": ["flutter"],
+      "schedule": "on tuesday"
+    },
+    {
       "groupName": "exiftool",
       "matchPackagePrefixes": [
         "exiftool"
@@ -96,15 +101,7 @@
       "versionScheme": "docker"
     }
   ],
-  "ignorePaths": [
-    "mobile/openapi/pubspec.yaml"
-  ],
-  "ignoreDeps": [
-    "http",
-    "intl"
-  ],
-  "labels": [
-    "dependencies",
-    "renovate"
-  ]
+  "ignorePaths": ["mobile/openapi/pubspec.yaml", "mobile/ios", "mobile/android"],
+  "ignoreDeps": ["http", "intl"],
+  "labels": ["dependencies", "renovate"]
 }

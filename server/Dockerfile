@@ -1,5 +1,5 @@
 # dev build
-FROM ghcr.io/immich-app/base-server-dev:20240521@sha256:1558bd68efc2c3a4bb4968428abd66b992a41a76afc1dbb601d2a7ea2a1f7c9a as dev
+FROM ghcr.io/immich-app/base-server-dev:20240611@sha256:2047ec0f857a800675379c65404dfdf4ac02ab7684c759916e3256d3d9566027 as dev
 
 RUN apt-get install --no-install-recommends -yqq tini
 WORKDIR /usr/src/app
@@ -41,7 +41,7 @@ RUN npm run build
 
 
 # prod build
-FROM ghcr.io/immich-app/base-server-prod:20240521@sha256:894e6dff5617062c03e65d44d946169a60df51e232b63b6f38bac1c0d168d989
+FROM ghcr.io/immich-app/base-server-prod:20240611@sha256:efd32a2af6e7ace8bcea1e94115fe95a971fe1d1fef7e667ff6e77364ce51c46
 
 WORKDIR /usr/src/app
 ENV NODE_ENV=production \
@@ -54,6 +54,7 @@ COPY --from=web /usr/src/app/build ./www
 COPY server/resources resources
 COPY server/package.json server/package-lock.json ./
 COPY server/start*.sh ./
+COPY "docker/scripts/get-cpus.sh" ./
 RUN npm link && npm install -g @immich/cli && npm cache clean --force
 COPY LICENSE /licenses/LICENSE.txt
 COPY LICENSE /LICENSE

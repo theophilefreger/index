@@ -11,8 +11,10 @@ import { asByteUnitString } from '$lib/utils/byte-units';
 import { encodeHTMLSpecialChars } from '$lib/utils/string-utils';
 import {
   addAssetsToAlbum as addAssets,
+  getAssetInfo,
   getBaseUrl,
   getDownloadInfo,
+  updateAsset,
   updateAssets,
   type AlbumResponseDto,
   type AssetResponseDto,
@@ -22,6 +24,7 @@ import {
   type UserResponseDto,
 } from '@immich/sdk';
 import { DateTime } from 'luxon';
+import { t as translate } from 'svelte-i18n';
 import { get } from 'svelte/store';
 import { handleError } from './handle-error';
 
@@ -154,11 +157,13 @@ export const downloadFile = async (asset: AssetResponseDto) => {
       size: asset.exifInfo?.fileSizeInByte || 0,
     },
   ];
+
   if (asset.livePhotoVideoId) {
+    const motionAsset = await getAssetInfo({ id: asset.livePhotoVideoId, key: getKey() });
     assets.push({
-      filename: asset.originalFileName,
+      filename: motionAsset.originalFileName,
       id: asset.livePhotoVideoId,
-      size: 0,
+      size: motionAsset.exifInfo?.fileSizeInByte || 0,
     });
   }
 
@@ -177,8 +182,8 @@ export const downloadFile = async (asset: AssetResponseDto) => {
 
       // TODO use sdk once it supports progress events
       const { data } = await downloadRequest({
-        method: 'POST',
-        url: getBaseUrl() + `/download/asset/${id}` + (key ? `?key=${key}` : ''),
+        method: 'GET',
+        url: getBaseUrl() + `/assets/${id}/original` + (key ? `?key=${key}` : ''),
         signal: abort.signal,
         onDownloadProgress: (event) => downloadManager.update(downloadKey, event.loaded, event.total),
       });
@@ -252,15 +257,24 @@ export function getAssetRatio(asset: AssetResponseDto) {
 }
 
 // list of supported image extensions from https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types excluding svg
-const supportedImageExtensions = new Set(['apng', 'avif', 'gif', 'jpg', 'jpeg', 'jfif', 'pjpeg', 'pjp', 'png', 'webp']);
+const supportedImageMimeTypes = new Set([
+  'image/apng',
+  'image/avif',
+  'image/gif',
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+]);
 
 /**
  * Returns true if the asset is an image supported by web browsers, false otherwise
  */
 export function isWebCompatibleImage(asset: AssetResponseDto): boolean {
-  const imgExtension = getFilenameExtension(asset.originalPath);
+  if (!asset.originalMimeType) {
+    return false;
+  }
 
-  return supportedImageExtensions.has(imgExtension);
+  return supportedImageMimeTypes.has(asset.originalMimeType);
 }
 
 export const getAssetType = (type: AssetTypeEnum) => {
@@ -392,6 +406,53 @@ export const selectAllAssets = async (assetStore: AssetStore, assetInteractionSt
     handleError(error, 'Error selecting all assets');
     isSelectingAllAssets.set(false);
   }
+};
+
+export const toggleArchive = async (asset: AssetResponseDto) => {
+  try {
+    const data = await updateAsset({
+      id: asset.id,
+      updateAssetDto: {
+        isArchived: !asset.isArchived,
+      },
+    });
+
+    asset.isArchived = data.isArchived;
+
+    notificationController.show({
+      type: NotificationType.Info,
+      message: asset.isArchived ? `Added to archive` : `Removed from archive`,
+    });
+  } catch (error) {
+    handleError(error, `Unable to ${asset.isArchived ? `remove asset from` : `add asset to`} archive`);
+  }
+
+  return asset;
+};
+
+export const archiveAssets = async (assets: AssetResponseDto[], archive: boolean) => {
+  const isArchived = archive;
+  const ids = assets.map(({ id }) => id);
+
+  try {
+    if (ids.length > 0) {
+      await updateAssets({ assetBulkUpdateDto: { ids, isArchived } });
+    }
+
+    for (const asset of assets) {
+      asset.isArchived = isArchived;
+    }
+
+    const t = get(translate);
+    notificationController.show({
+      message: `${isArchived ? t('archived') : t('unarchived')} ${ids.length}`,
+      type: NotificationType.Info,
+    });
+  } catch (error) {
+    handleError(error, `Unable to ${isArchived ? 'archive' : 'unarchive'}`);
+  }
+
+  return ids;
 };
 
 export const delay = async (ms: number) => {

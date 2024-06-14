@@ -17,7 +17,7 @@ import { StorageService } from 'src/services/storage.service';
 import { SystemConfigService } from 'src/services/system-config.service';
 import { UserService } from 'src/services/user.service';
 import { VersionService } from 'src/services/version.service';
-import { otelSDK } from 'src/utils/instrumentation';
+import { otelShutdown } from 'src/utils/instrumentation';
 
 @Injectable()
 export class MicroservicesService {
@@ -90,6 +90,8 @@ export class MicroservicesService {
       [JobName.LIBRARY_QUEUE_SCAN_ALL]: (data) => this.libraryService.handleQueueAllScan(data),
       [JobName.LIBRARY_QUEUE_CLEANUP]: () => this.libraryService.handleQueueCleanup(),
       [JobName.SEND_EMAIL]: (data) => this.notificationService.handleSendEmail(data),
+      [JobName.NOTIFY_ALBUM_INVITE]: (data) => this.notificationService.handleAlbumInvite(data),
+      [JobName.NOTIFY_ALBUM_UPDATE]: (data) => this.notificationService.handleAlbumUpdate(data),
       [JobName.NOTIFY_SIGNUP]: (data) => this.notificationService.handleUserSignup(data),
       [JobName.VERSION_CHECK]: () => this.versionService.handleVersionCheck(),
     });
@@ -100,6 +102,6 @@ export class MicroservicesService {
   async teardown() {
     await this.libraryService.teardown();
     await this.metadataService.teardown();
-    await otelSDK.shutdown();
+    await otelShutdown();
   }
 }

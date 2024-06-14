@@ -2,11 +2,12 @@
   import IntersectionObserver from '$lib/components/asset-viewer/intersection-observer.svelte';
   import Icon from '$lib/components/elements/icon.svelte';
   import { ProjectionType } from '$lib/constants';
-  import { getAssetFileUrl, getAssetThumbnailUrl, isSharedLink } from '$lib/utils';
+  import { getAssetThumbnailUrl, isSharedLink } from '$lib/utils';
   import { getAltText } from '$lib/utils/thumbnail-util';
   import { timeToSeconds } from '$lib/utils/date-time';
-  import { AssetTypeEnum, ThumbnailFormat, type AssetResponseDto } from '@immich/sdk';
+  import { AssetMediaSize, AssetTypeEnum, type AssetResponseDto } from '@immich/sdk';
   import { playVideoThumbnailOnHover } from '$lib/stores/preferences.store';
+  import { getAssetPlaybackUrl } from '$lib/utils';
   import {
     mdiArchiveArrowDownOutline,
     mdiCameraBurst,
@@ -21,7 +22,7 @@
   import { fade } from 'svelte/transition';
   import ImageThumbnail from './image-thumbnail.svelte';
   import VideoThumbnail from './video-thumbnail.svelte';
-  import { shortcut } from '$lib/actions/shortcut';
+  import { currentUrlReplaceAssetId } from '$lib/utils/navigation';
 
   const dispatch = createEventDispatcher<{
     select: { asset: AssetResponseDto };
@@ -33,20 +34,18 @@
   export let thumbnailSize: number | undefined = undefined;
   export let thumbnailWidth: number | undefined = undefined;
   export let thumbnailHeight: number | undefined = undefined;
-  export let format: ThumbnailFormat = ThumbnailFormat.Webp;
   export let selected = false;
   export let selectionCandidate = false;
   export let disabled = false;
   export let readonly = false;
   export let showArchiveIcon = false;
   export let showStackedIcon = true;
-  export let onClick: ((asset: AssetResponseDto) => void) | undefined = undefined;
+  export let onClick: ((asset: AssetResponseDto, event: Event) => void) | undefined = undefined;
 
   let className = '';
   export { className as class };
 
   let mouseOver = false;
-  $: clickable = !disabled && onClick;
 
   $: dispatch('mouse-event', { isMouseOver: mouseOver, selectedGroupIndex: groupIndex });
 
@@ -62,17 +61,25 @@
     return [235, 235];
   })();
 
-  const thumbnailClickedHandler = () => {
-    if (clickable) {
-      onClick?.(asset);
-    }
-  };
-
   const onIconClickedHandler = (e: MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     if (!disabled) {
       dispatch('select', { asset });
     }
+  };
+
+  const handleClick = (e: MouseEvent) => {
+    if (e.ctrlKey || e.metaKey) {
+      return;
+    }
+
+    if (selected) {
+      onIconClickedHandler(e);
+      return;
+    }
+
+    onClick?.(asset, e);
   };
 
   const onMouseEnter = () => {
@@ -85,24 +92,21 @@
 </script>
 
 <IntersectionObserver once={false} on:intersected let:intersecting>
-  <!-- svelte-ignore a11y-no-noninteractive-tabindex -->
-  <div
+  <a
+    href={currentUrlReplaceAssetId(asset.id)}
     style:width="{width}px"
     style:height="{height}px"
-    class="group focus-visible:outline-none relative overflow-hidden {disabled
+    class="group focus-visible:outline-none flex overflow-hidden {disabled
       ? 'bg-gray-300'
       : 'bg-immich-primary/20 dark:bg-immich-dark-primary/20'}"
     class:cursor-not-allowed={disabled}
-    class:hover:cursor-pointer={clickable}
     on:mouseenter={onMouseEnter}
     on:mouseleave={onMouseLeave}
-    role={clickable ? 'button' : undefined}
-    tabindex={clickable ? 0 : undefined}
-    on:click={thumbnailClickedHandler}
-    use:shortcut={{ shortcut: { key: 'Enter' }, onShortcut: thumbnailClickedHandler }}
+    tabindex={0}
+    on:click={handleClick}
   >
     {#if intersecting}
-      <div class="absolute z-20 h-full w-full {className}">
+      <div class="absolute z-20 {className}" style:width="{width}px" style:height="{height}px">
         <!-- Select asset button  -->
         {#if !readonly && (mouseOver || selected || selectionCandidate)}
           <button
@@ -128,7 +132,7 @@
       </div>
 
       <div
-        class="absolute h-full w-full select-none bg-gray-100 transition-transform dark:bg-immich-dark-gray"
+        class="absolute h-full w-full select-none bg-transparent transition-transform"
         class:scale-[0.85]={selected}
         class:rounded-xl={selected}
       >
@@ -181,7 +185,7 @@
 
         {#if asset.resized}
           <ImageThumbnail
-            url={getAssetThumbnailUrl(asset.id, format, asset.checksum)}
+            url={getAssetThumbnailUrl({ id: asset.id, size: AssetMediaSize.Thumbnail, checksum: asset.checksum })}
             altText={getAltText(asset)}
             widthStyle="{width}px"
             heightStyle="{height}px"
@@ -197,7 +201,7 @@
         {#if asset.type === AssetTypeEnum.Video}
           <div class="absolute top-0 h-full w-full">
             <VideoThumbnail
-              url={getAssetFileUrl(asset.id, false, true, asset.checksum)}
+              url={getAssetPlaybackUrl({ id: asset.id, checksum: asset.checksum })}
               enablePlayback={mouseOver && $playVideoThumbnailOnHover}
               curve={selected}
               durationInSeconds={timeToSeconds(asset.duration)}
@@ -209,7 +213,7 @@
         {#if asset.type === AssetTypeEnum.Image && asset.livePhotoVideoId}
           <div class="absolute top-0 h-full w-full">
             <VideoThumbnail
-              url={getAssetFileUrl(asset.livePhotoVideoId, false, true, asset.checksum)}
+              url={getAssetPlaybackUrl({ id: asset.livePhotoVideoId, checksum: asset.checksum })}
               pauseIcon={mdiMotionPauseOutline}
               playIcon={mdiMotionPlayOutline}
               showTime={false}
@@ -227,5 +231,5 @@
         />
       {/if}
     {/if}
-  </div>
+  </a>
 </IntersectionObserver>
