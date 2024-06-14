@@ -29,7 +29,7 @@
     "check_all": "Olhar Tudo",
     "config_set_by_file": "A configuração está atualmente definida por um arquivo de configuração",
     "confirm_delete_library": "Você tem certeza que deseja excluir a biblioteca {library} ?",
-    "confirm_delete_library_assets": "Você tem certeza que deseja excluir essa biblioteca? Isso excluirá todos {count} contidos no Immich e não poderá ser desfeito. Os arquivos permanecerão no disco.",
+    "confirm_delete_library_assets": "Você tem certeza que deseja excluir essa biblioteca? Isso excluirá todos {count} contidos no Mémoire Vive e não poderá ser desfeito. Os arquivos permanecerão no disco.",
     "confirm_email_below": "Para confirmar, digite o {email} abaixo",
     "confirm_reprocess_all_faces": "Tem certeza de que deseja reprocessar todos os rostos? Isso também limpará as pessoas nomeadas.",
     "confirm_user_password_reset": "Tem certeza de que deseja redefinir a senha de {user}?",

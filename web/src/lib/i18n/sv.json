@@ -28,7 +28,7 @@
     "check_all": "Välj Alla",
     "config_set_by_file": "Konfigurationen är satt av en konfigurationsfil",
     "confirm_delete_library": "Är du säker på att du vill radera {library} album?",
-    "confirm_delete_library_assets": "Är du säker på att du vill radera detta album? Samtliga {count} objekt kommer att tas bort från Immich och åtgärden kan inte ångras. Filerna kommer att behållas på hårddisken.",
+    "confirm_delete_library_assets": "Är du säker på att du vill radera detta album? Samtliga {count} objekt kommer att tas bort från Mémoire Vive och åtgärden kan inte ångras. Filerna kommer att behållas på hårddisken.",
     "confirm_email_below": "För att bekräfta, skriv ”{email}” nedan",
     "confirm_reprocess_all_faces": "Är du säker på att du vill återprocessa alla ansikten? Detta kommer också rensa namngivna personer.",
     "confirm_user_password_reset": "Är du säker på att du vill återställa {user}’s lösenord?",

@@ -143,7 +143,7 @@
     {
       item: ThemeSettings,
       title: 'Paramètres de Thème',
-      subtitle: "Gérer la personnalisation de l'interface web Immich",
+      subtitle: "Gérer la personnalisation de l'interface web de Mémoire Vive",
       key: 'theme',
     },
     {
