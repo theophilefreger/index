@@ -13,6 +13,7 @@
   import { onDestroy } from 'svelte';
   import type { PageData } from './$types';
   import { mdiPlus, mdiArrowLeft } from '@mdi/js';
+  import { t } from 'svelte-i18n';
 
   export let data: PageData;
 
@@ -29,7 +30,7 @@
   {#if $isMultiSelectState}
     <AssetSelectControlBar assets={$selectedAssets} clearSelect={clearMultiselect}>
       <CreateSharedLink />
-      <AssetSelectContextMenu icon={mdiPlus} title="Ajouter">
+      <AssetSelectContextMenu icon={mdiPlus} title={$t('add')}>
         <AddToAlbum />
         <AddToAlbum shared />
       </AssetSelectContextMenu>
@@ -39,7 +40,7 @@
     <ControlAppBar showBackButton backIcon={mdiArrowLeft} on:close={() => goto(AppRoute.SHARING)}>
       <svelte:fragment slot="leading">
         <p class="whitespace-nowrap text-immich-fg dark:text-immich-dark-fg">
-          Photos de {data.partner.name}
+          {data.partner.name}'s photos
         </p>
       </svelte:fragment>
     </ControlAppBar>

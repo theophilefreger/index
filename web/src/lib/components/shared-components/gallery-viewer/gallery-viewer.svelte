@@ -52,7 +52,7 @@
         await navigate({ targetRoute: 'current', assetId: $viewingAsset.id });
       }
     } catch (error) {
-      handleError(error, 'Impossible de naviguer vers la ressource suivante');
+      handleError(error, 'Cannot navigate to the next asset');
     }
   };
 
@@ -63,7 +63,7 @@
         await navigate({ targetRoute: 'current', assetId: $viewingAsset.id });
       }
     } catch (error) {
-      handleError(error, 'Impossible de naviguer vers la ressource précédente');
+      handleError(error, 'Cannot navigate to previous asset');
     }
   };
 

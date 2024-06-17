@@ -1,18 +1,19 @@
 <script lang="ts">
   import Button from '$lib/components/elements/buttons/button.svelte';
+  import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
   import Icon from '$lib/components/elements/icon.svelte';
+  import FocusTrap from '$lib/components/shared-components/focus-trap.svelte';
   import { AppRoute } from '$lib/constants';
-  import { user } from '$lib/stores/user.store';
+  import { preferences, user } from '$lib/stores/user.store';
   import { handleError } from '$lib/utils/handle-error';
-  import { deleteProfileImage, updateMyUser, type UserAvatarColor } from '@immich/sdk';
+  import { deleteProfileImage, updateMyPreferences, type UserAvatarColor } from '@immich/sdk';
   import { mdiCog, mdiLogout, mdiPencil } from '@mdi/js';
   import { createEventDispatcher } from 'svelte';
   import { fade } from 'svelte/transition';
-  import { notificationController, NotificationType } from '../notification/notification';
+  import { NotificationType, notificationController } from '../notification/notification';
   import UserAvatar from '../user-avatar.svelte';
   import AvatarSelector from './avatar-selector.svelte';
-  import FocusTrap from '$lib/components/shared-components/focus-trap.svelte';
-  import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
+  import { t } from 'svelte-i18n';
 
   let isShowSelectAvatar = false;
 
@@ -27,22 +28,15 @@
         await deleteProfileImage();
       }
 
-      $user = await updateMyUser({
-        userUpdateMeDto: {
-          email: $user.email,
-          name: $user.name,
-          avatarColor: color,
-        },
-      });
-
+      $preferences = await updateMyPreferences({ userPreferencesUpdateDto: { avatar: { color } } });
       isShowSelectAvatar = false;
 
       notificationController.show({
-        message: 'Profil enregistré',
+        message: $t('saved_profile'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, "Impossible d'enregistrer le profil");
+      handleError(error, $t('errors.unable_to_save_profile'));
     }
   };
 </script>
@@ -65,7 +59,7 @@
           <CircleIconButton
             color="primary"
             icon={mdiPencil}
-            title="Editer la photo de profil"
+            title={$t('edit_avatar')}
             class="border"
             size="12"
             padding="2"
@@ -84,7 +78,7 @@
         <Button color="dark-gray" size="sm" shadow={false} border>
           <div class="flex place-content-center place-items-center gap-2 px-2">
             <Icon path={mdiCog} size="18" />
-            Paramètres du compte
+            {$t('account_settings')}
           </div>
         </Button>
       </a>
@@ -97,7 +91,7 @@
         on:click={() => dispatch('logout')}
       >
         <Icon path={mdiLogout} size={24} />
-        Déconnexion</button
+        {$t('sign_out')}</button
       >
     </div>
   </div>

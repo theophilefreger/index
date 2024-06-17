@@ -13,10 +13,11 @@
   import Button from '../elements/buttons/button.svelte';
   import CircleIconButton from '../elements/buttons/circle-icon-button.svelte';
   import Icon from '../elements/icon.svelte';
-  import ConfirmDialogue from '$lib/components/shared-components/confirm-dialogue.svelte';
   import UserAvatar from '$lib/components/shared-components/user-avatar.svelte';
   import PartnerSelectionModal from './partner-selection-modal.svelte';
   import SettingSwitch from '$lib/components/shared-components/settings/setting-switch.svelte';
+  import { dialogController } from '$lib/components/shared-components/dialog/dialog';
+  import { t } from 'svelte-i18n';
 
   interface PartnerSharing {
     user: UserResponseDto;
@@ -28,7 +29,7 @@
   export let user: UserResponseDto;
 
   let createPartnerFlag = false;
-  let removePartnerDto: PartnerResponseDto | null = null;
+  // let removePartnerDto: PartnerResponseDto | null = null;
   let partners: Array<PartnerSharing> = [];
 
   onMount(async () => {
@@ -75,17 +76,22 @@
     }
   };
 
-  const handleRemovePartner = async () => {
-    if (!removePartnerDto) {
+  const handleRemovePartner = async (partner: PartnerResponseDto) => {
+    const isConfirmed = await dialogController.show({
+      id: 'remove-partner',
+      title: $t('stop_photo_sharing'),
+      prompt: $t('stop_photo_sharing_description', { values: { partner: partner.name } }),
+    });
+
+    if (!isConfirmed) {
       return;
     }
 
     try {
-      await removePartner({ id: removePartnerDto.id });
-      removePartnerDto = null;
+      await removePartner({ id: partner.id });
       await refreshPartners();
     } catch (error) {
-      handleError(error, 'Impossible de retirer le partenaire');
+      handleError(error, $t('errors.unable_to_remove_partner'));
     }
   };
 
@@ -98,7 +104,7 @@
       await refreshPartners();
       createPartnerFlag = false;
     } catch (error) {
-      handleError(error, "Impossible d'ajouter le partenaire");
+      handleError(error, $t('errors.unable_to_add_partners'));
     }
   };
 
@@ -109,7 +115,7 @@
       partner.inTimeline = inTimeline;
       partners = partners;
     } catch (error) {
-      handleError(error, "Impossible de mettre à jour le statut d'affichage de la chronologie.");
+      handleError(error, $t('errors.unable_to_update_timeline_display_status'));
     }
   };
 </script>
@@ -133,10 +139,10 @@
 
           {#if partner.sharedByMe}
             <CircleIconButton
-              on:click={() => (removePartnerDto = partner.user)}
+              on:click={() => handleRemovePartner(partner.user)}
               icon={mdiClose}
               size={'16'}
-              title="Arrêter de partager vos photos avec cet utilisateur"
+              title={$t('stop_sharing_photos_with_user')}
             />
           {/if}
         </div>
@@ -145,15 +151,18 @@
           <!-- I am sharing my assets with this user -->
           {#if partner.sharedByMe}
             <hr class="my-4 border border-gray-200 dark:border-gray-700" />
-            <p class="text-xs font-medium my-4">PARTAGÉ AVEC {partner.user.name.toUpperCase()}</p>
-            <p class="text-md">{partner.user.name} peut accéder</p>
+            <p class="text-xs font-medium my-4">
+              {$t('shared_with_partner', { values: { partner: partner.user.name } }).toUpperCase()}
+            </p>
+            <p class="text-md">{$t('partner_can_access', { values: { partner: partner.user.name } })}</p>
             <ul class="text-sm">
               <li class="flex gap-2 place-items-center py-1 mt-2">
-                <Icon path={mdiCheck} /> Toutes vos photos et vidéos, à l'exception de celles dans les archives et les éléments
-                supprimés.
+                <Icon path={mdiCheck} />
+                {$t('partner_can_access_assets')}
               </li>
               <li class="flex gap-2 place-items-center py-1">
-                <Icon path={mdiCheck} /> La localisation de vos photos
+                <Icon path={mdiCheck} />
+                {$t('partner_can_access_location')}
               </li>
             </ul>
           {/if}
@@ -161,11 +170,12 @@
           <!-- this user is sharing assets with me -->
           {#if partner.sharedWithMe}
             <hr class="my-4 border border-gray-200 dark:border-gray-700" />
-            <p class="text-xs font-medium my-4">PHOTOS DE {partner.user.name.toUpperCase()}</p>
+            <p class="text-xs font-medium my-4">
+              {$t('shared_from_partner', { values: { partner: partner.user.name } }).toUpperCase()}
+            </p>
             <SettingSwitch
-              id="show-in-timeline"
-              title="Visible dans la Timeline"
-              subtitle="Afficher les photos et vidéos de cet utilisateur dans la Timeline."
+              title={$t('show_in_timeline')}
+              subtitle={$t('show_in_timeline_setting_description')}
               bind:checked={partner.inTimeline}
               on:toggle={({ detail }) => handleShowOnTimelineChanged(partner, detail)}
             />
@@ -176,7 +186,7 @@
   {/if}
 
   <div class="flex justify-end mt-5">
-    <Button size="sm" on:click={() => (createPartnerFlag = true)}>Ajouter un partenaire</Button>
+    <Button size="sm" on:click={() => (createPartnerFlag = true)}>{$t('add_partner')}</Button>
   </div>
 </section>
 
@@ -185,15 +195,5 @@
     {user}
     onClose={() => (createPartnerFlag = false)}
     on:add-users={(event) => handleCreatePartners(event.detail)}
-  />
-{/if}
-
-{#if removePartnerDto}
-  <ConfirmDialogue
-    id="stop-sharing-photos-modal"
-    title="Arrêter de partager vos photos ?"
-    prompt="{removePartnerDto.name} ne pourra plus accéder à vos photos."
-    onClose={() => (removePartnerDto = null)}
-    onConfirm={() => handleRemovePartner()}
   />
 {/if}

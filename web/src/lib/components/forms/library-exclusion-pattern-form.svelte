@@ -4,11 +4,12 @@
   import FullScreenModal from '../shared-components/full-screen-modal.svelte';
   import { mdiFolderRemove } from '@mdi/js';
   import { onMount } from 'svelte';
+  import { t } from 'svelte-i18n';
 
   export let exclusionPattern: string;
   export let exclusionPatterns: string[] = [];
   export let isEditing = false;
-  export let submitText = 'Submit';
+  export let submitText = $t('submit');
 
   onMount(() => {
     if (isEditing) {
@@ -28,24 +29,15 @@
   const handleSubmit = () => dispatch('submit', { excludePattern: exclusionPattern });
 </script>
 
-<FullScreenModal
-  id="add-exclusion-pattern-modal"
-  title="Add exclusion pattern"
-  icon={mdiFolderRemove}
-  onClose={handleCancel}
->
+<FullScreenModal title={$t('add_exclusion_pattern')} icon={mdiFolderRemove} onClose={handleCancel}>
   <form on:submit|preventDefault={() => handleSubmit()} autocomplete="off" id="add-exclusion-pattern-form">
     <p class="py-5 text-sm">
-      Les motifs d'exclusion vous permettent d'ignorer des fichiers et des dossiers lors de la numérisation de votre
-      bibliothèque. Cela est utile si vous avez des dossiers contenant des fichiers que vous ne souhaitez pas importer,
-      tels que des fichiers RAW.
+      {$t('admin.exclusion_pattern_description')}
       <br /><br />
-      Ajoutez des motifs d'exclusion. La recherche avec , ** et ? est prise en charge. Pour ignorer tous les fichiers dans
-      un répertoire nommé 'Raw', utilisez '/Raw/'. Pour ignorer tous les fichiers se terminant par '.tif', utilisez '**/.tif'.
-      Pour ignorer un chemin absolu, utilisez '/chemin/à/ignorer'.
+      {$t('admin.add_exclusion_pattern_description')}
     </p>
     <div class="my-4 flex flex-col gap-2">
-      <label class="immich-form-label" for="exclusionPattern">Pattern</label>
+      <label class="immich-form-label" for="exclusionPattern">{$t('pattern')}</label>
       <input
         class="immich-form-input"
         id="exclusionPattern"
@@ -56,14 +48,14 @@
     </div>
     <div class="mt-8 flex w-full gap-4">
       {#if isDuplicate}
-        <p class="text-red-500 text-sm">Ce motif d'exclusion existe déjà.</p>
+        <p class="text-red-500 text-sm">{$t('errors.exclusion_pattern_already_exists')}</p>
       {/if}
     </div>
   </form>
   <svelte:fragment slot="sticky-bottom">
-    <Button color="gray" fullwidth on:click={() => handleCancel()}>Annuler</Button>
+    <Button color="gray" fullwidth on:click={() => handleCancel()}>{$t('cancel')}</Button>
     {#if isEditing}
-      <Button color="red" fullwidth on:click={() => dispatch('delete')}>Supprimer</Button>
+      <Button color="red" fullwidth on:click={() => dispatch('delete')}>{$t('delete')}</Button>
     {/if}
     <Button type="submit" disabled={!canSubmit} fullwidth form="add-exclusion-pattern-form">{submitText}</Button>
   </svelte:fragment>

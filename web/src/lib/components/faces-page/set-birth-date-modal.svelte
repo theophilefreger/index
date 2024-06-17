@@ -4,6 +4,7 @@
   import FullScreenModal from '../shared-components/full-screen-modal.svelte';
   import { mdiCake } from '@mdi/js';
   import DateInput from '../elements/date-input.svelte';
+  import { t } from 'svelte-i18n';
 
   export let birthDate: string;
 
@@ -20,10 +21,10 @@
   };
 </script>
 
-<FullScreenModal id="set-birth-date-modal" title="Définir la date de naissance" icon={mdiCake} onClose={handleCancel}>
+<FullScreenModal title={$t('set_date_of_birth')} icon={mdiCake} onClose={handleCancel}>
   <div class="text-immich-primary dark:text-immich-dark-primary">
     <p class="text-sm dark:text-immich-dark-fg">
-      La date de naissance est utilisée pour calculer l'âge de cette personne au moment de la photo.
+      Date of birth is used to calculate the age of this person at the time of a photo.
     </p>
   </div>
 
@@ -40,7 +41,7 @@
     </div>
   </form>
   <svelte:fragment slot="sticky-bottom">
-    <Button color="gray" fullwidth on:click={() => handleCancel()}>Cancel</Button>
-    <Button type="submit" fullwidth form="set-birth-date-form">Set</Button>
+    <Button color="gray" fullwidth on:click={() => handleCancel()}>{$t('cancel')}</Button>
+    <Button type="submit" fullwidth form="set-birth-date-form">{$t('set')}</Button>
   </svelte:fragment>
 </FullScreenModal>

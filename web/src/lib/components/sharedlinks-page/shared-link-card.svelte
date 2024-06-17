@@ -8,6 +8,7 @@
   import CircleIconButton from '../elements/buttons/circle-icon-button.svelte';
   import { locale } from '$lib/stores/preferences.store';
   import AlbumCover from '$lib/components/album-page/album-cover.svelte';
+  import { t } from 'svelte-i18n';
 
   export let link: SharedLinkResponseDto;
 
@@ -59,14 +60,14 @@
       <div class="font-mono text-xs font-semibold text-gray-500 dark:text-gray-400">
         {#if link.expiresAt}
           {#if isExpired(link.expiresAt)}
-            <p class="font-bold text-red-600 dark:text-red-400">Expiré</p>
+            <p class="font-bold text-red-600 dark:text-red-400">{$t('expired')}</p>
           {:else}
             <p>
-              Expire {getCountDownExpirationDate()}
+              Expires {getCountDownExpirationDate()}
             </p>
           {/if}
         {:else}
-          <p>Expire ∞</p>
+          <p>Expires ∞</p>
         {/if}
       </div>
 
@@ -77,11 +78,11 @@
               {link.album?.albumName.toUpperCase()}
             </p>
           {:else if link.type === SharedLinkType.Individual}
-            <p>Partage individuel</p>
+            <p>{$t('individual_share').toUpperCase()}</p>
           {/if}
 
           {#if !link.expiresAt || !isExpired(link.expiresAt)}
-            <a href="{AppRoute.SHARE}/{link.key}" title="Go to share page">
+            <a href="{AppRoute.SHARE}/{link.key}" title={$t('go_to_share_page')}>
               <Icon path={mdiOpenInNew} />
             </a>
           {/if}
@@ -104,7 +105,7 @@
         <div
           class="flex w-[100px] place-content-center place-items-center rounded-full bg-immich-primary px-2 py-1 text-xs text-white dark:bg-immich-dark-primary dark:text-immich-dark-gray"
         >
-          Téléchargement
+          Download
         </div>
       {/if}
 
@@ -120,7 +121,7 @@
         <div
           class="flex w-[100px] place-content-center place-items-center rounded-full bg-immich-primary px-2 py-1 text-xs text-white dark:bg-immich-dark-primary dark:text-immich-dark-gray"
         >
-          Mot de passe
+          Password
         </div>
       {/if}
     </div>
@@ -128,9 +129,9 @@
 
   <div class="flex flex-auto flex-col place-content-center place-items-end text-right">
     <div class="flex">
-      <CircleIconButton title="Delete link" icon={mdiDelete} on:click={() => dispatch('delete')} />
-      <CircleIconButton title="Edit link" icon={mdiCircleEditOutline} on:click={() => dispatch('edit')} />
-      <CircleIconButton title="Copy link" icon={mdiContentCopy} on:click={() => dispatch('copy')} />
+      <CircleIconButton title={$t('delete_link')} icon={mdiDelete} on:click={() => dispatch('delete')} />
+      <CircleIconButton title={$t('edit_link')} icon={mdiCircleEditOutline} on:click={() => dispatch('edit')} />
+      <CircleIconButton title={$t('copy_link')} icon={mdiContentCopy} on:click={() => dispatch('copy')} />
     </div>
   </div>
 </div>

@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Opps! Erreur de la Mémoire Vive</title>
+  <title>Oops! Erreur - Mémoire Vive</title>
 </svelte:head>
 
 <section class="flex flex-col px-4 h-screen w-screen place-content-center place-items-center">

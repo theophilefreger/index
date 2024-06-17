@@ -1,20 +1,30 @@
 <script lang="ts">
   import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
-  import { getKey } from '$lib/utils';
+  import { getKey, s } from '$lib/utils';
   import { handleError } from '$lib/utils/handle-error';
   import { removeSharedLinkAssets, type SharedLinkResponseDto } from '@immich/sdk';
   import { mdiDeleteOutline } from '@mdi/js';
-  import ConfirmDialogue from '../../shared-components/confirm-dialogue.svelte';
   import { NotificationType, notificationController } from '../../shared-components/notification/notification';
   import { getAssetControlContext } from '../asset-select-control-bar.svelte';
+  import { dialogController } from '$lib/components/shared-components/dialog/dialog';
+  import { t } from 'svelte-i18n';
 
   export let sharedLink: SharedLinkResponseDto;
-
-  let removing = false;
 
   const { getAssets, clearSelect } = getAssetControlContext();
 
   const handleRemove = async () => {
+    const isConfirmed = await dialogController.show({
+      id: 'remove-from-shared-link',
+      title: 'Remove assets?',
+      prompt: `Are you sure you want to remove ${getAssets().size} asset${s(getAssets().size)} from this shared link?`,
+      confirmText: 'Remove',
+    });
+
+    if (!isConfirmed) {
+      return;
+    }
+
     try {
       const results = await removeSharedLinkAssets({
         id: sharedLink.id,
@@ -36,25 +46,14 @@
 
       notificationController.show({
         type: NotificationType.Info,
-        message: `${count} ressources supprimées`,
+        message: `Removed ${count} assets`,
       });
 
       clearSelect();
     } catch (error) {
-      handleError(error, 'Impossible de retirer les ressources du lien partagé');
+      handleError(error, 'Unable to remove assets from shared link');
     }
   };
 </script>
 
-<CircleIconButton title="Retirer du lien partagé" on:click={() => (removing = true)} icon={mdiDeleteOutline} />
-
-{#if removing}
-  <ConfirmDialogue
-    id="remove-assets-modal"
-    title="Retirer les ressources?"
-    prompt="Êtes-vous sûr de vouloir retirer {getAssets().size} ressource(s) de ce lien partagé ?"
-    confirmText="Retirer"
-    onConfirm={() => handleRemove()}
-    onClose={() => (removing = false)}
-  />
-{/if}
+<CircleIconButton title={$t('remove_from_shared_link')} on:click={handleRemove} icon={mdiDeleteOutline} />

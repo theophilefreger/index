@@ -10,13 +10,14 @@
   import { updateAssets } from '@immich/sdk';
   import { mdiHeartMinusOutline, mdiHeartOutline, mdiTimerSand } from '@mdi/js';
   import { getAssetControlContext } from '../asset-select-control-bar.svelte';
+  import { t } from 'svelte-i18n';
 
   export let onFavorite: OnFavorite;
 
   export let menuItem = false;
   export let removeFavorite: boolean;
 
-  $: text = removeFavorite ? 'Retirer des favoris' : 'Favoris';
+  $: text = removeFavorite ? $t('remove_from_favorites') : $t('to_favorite');
   $: icon = removeFavorite ? mdiHeartMinusOutline : mdiHeartOutline;
 
   let loading = false;
@@ -43,13 +44,13 @@
       onFavorite(ids, isFavorite);
 
       notificationController.show({
-        message: isFavorite ? `Ajouté ${ids.length} aux favoris` : `Retiré ${ids.length} des favoris`,
+        message: isFavorite ? `Added ${ids.length} to favorites` : `Removed ${ids.length} from favorites`,
         type: NotificationType.Info,
       });
 
       clearSelect();
     } catch (error) {
-      handleError(error, `Impossible ${isFavorite ? "d'ajouter aux" : 'de retirer des'} favoris`);
+      handleError(error, `Unable to ${isFavorite ? 'add to' : 'remove from'} favorites`);
     } finally {
       loading = false;
     }
@@ -62,7 +63,7 @@
 
 {#if !menuItem}
   {#if loading}
-    <CircleIconButton title="Chargement" icon={mdiTimerSand} />
+    <CircleIconButton title={$t('loading')} icon={mdiTimerSand} />
   {:else}
     <CircleIconButton title={text} {icon} on:click={handleFavorite} />
   {/if}

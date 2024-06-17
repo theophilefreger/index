@@ -1,5 +1,4 @@
 <script lang="ts">
-  import ConfirmDialogue from '$lib/components/shared-components/confirm-dialogue.svelte';
   import FullScreenModal from '$lib/components/shared-components/full-screen-modal.svelte';
   import { AppRoute } from '$lib/constants';
   import { serverInfo } from '$lib/stores/server-info.store';
@@ -9,6 +8,8 @@
   import { mdiAccountEditOutline } from '@mdi/js';
   import { createEventDispatcher } from 'svelte';
   import Button from '../elements/buttons/button.svelte';
+  import { dialogController } from '$lib/components/shared-components/dialog/dialog';
+  import { t } from 'svelte-i18n';
 
   export let user: UserAdminResponseDto;
   export let canResetPassword = true;
@@ -17,7 +18,6 @@
 
   let error: string;
   let success: string;
-  let isShowResetPasswordConfirmation = false;
   let quotaSize = user.quotaSizeInBytes ? convertFromBytes(user.quotaSizeInBytes, 'GiB') : null;
 
   const previousQutoa = user.quotaSizeInBytes;
@@ -48,11 +48,20 @@
 
       dispatch('editSuccess');
     } catch (error) {
-      handleError(error, "Impossible de créer l'utilisateur");
+      handleError(error, $t('errors.unable_to_update_user'));
     }
   };
 
   const resetPassword = async () => {
+    const isConfirmed = await dialogController.show({
+      id: 'confirm-reset-password',
+      prompt: $t('admin.confirm_user_password_reset', { values: { user: user.name } }),
+    });
+
+    if (!isConfirmed) {
+      return;
+    }
+
     try {
       newPassword = generatePassword();
 
@@ -66,9 +75,7 @@
 
       dispatch('resetPasswordSuccess');
     } catch (error) {
-      handleError(error, 'Impossible de réinitialiser le mot de passe');
-    } finally {
-      isShowResetPasswordConfirmation = false;
+      handleError(error, $t('errors.unable_to_reset_password'));
     }
   };
 
@@ -90,30 +97,31 @@
   }
 </script>
 
-<FullScreenModal id="edit-user-modal" title="Editer l'utilisateur" icon={mdiAccountEditOutline} {onClose}>
+<FullScreenModal title={$t('edit_user')} icon={mdiAccountEditOutline} {onClose}>
   <form on:submit|preventDefault={editUser} autocomplete="off" id="edit-user-form">
     <div class="my-4 flex flex-col gap-2">
-      <label class="immich-form-label" for="email">Email</label>
+      <label class="immich-form-label" for="email">{$t('email')}</label>
       <input class="immich-form-input" id="email" name="email" type="email" bind:value={user.email} />
     </div>
 
     <div class="my-4 flex flex-col gap-2">
-      <label class="immich-form-label" for="name">Nom</label>
+      <label class="immich-form-label" for="name">{$t('name')}</label>
       <input class="immich-form-input" id="name" name="name" type="text" required bind:value={user.name} />
     </div>
 
     <div class="my-4 flex flex-col gap-2">
-      <label class="flex items-center gap-2 immich-form-label" for="quotaSize"
-        >Taille du quota (GiB) {#if quotaSizeWarning}
-          <p class="text-red-400 text-sm">Votre quota est supérieur à la taille du disque</p>
+      <label class="flex items-center gap-2 immich-form-label" for="quotaSize">
+        {$t('admin.quota_size_gib')}
+        {#if quotaSizeWarning}
+          <p class="text-red-400 text-sm">{$t('errors.quota_higher_than_disk_size')}</p>
         {/if}</label
       >
       <input class="immich-form-input" id="quotaSize" name="quotaSize" type="number" min="0" bind:value={quotaSize} />
-      <p>Note: Entrer 0 pour un quota illimité</p>
+      <p>{$t('admin.note_unlimited_quota')}</p>
     </div>
 
     <div class="my-4 flex flex-col gap-2">
-      <label class="immich-form-label" for="storage-label">Nom du stockage</label>
+      <label class="immich-form-label" for="storage-label">{$t('storage_label')}</label>
       <input
         class="immich-form-input"
         id="storage-label"
@@ -123,10 +131,10 @@
       />
 
       <p>
-        Note : Pour appliquer l'étiquette de stockage aux ressources déjà téléchargées, exécutez le
+        {$t('admin.note_apply_storage_label_previous_assets')}
         <a href={AppRoute.ADMIN_JOBS} class="text-immich-primary dark:text-immich-dark-primary">
-          Job de migration du stockage</a
-        >
+          {$t('admin.storage_template_migration_job')}
+        </a>
       </p>
     </div>
 
@@ -140,26 +148,8 @@
   </form>
   <svelte:fragment slot="sticky-bottom">
     {#if canResetPassword}
-      <Button color="light-red" fullwidth on:click={() => (isShowResetPasswordConfirmation = true)}
-        >Reinitialiser le mot de passe</Button
-      >
+      <Button color="light-red" fullwidth on:click={resetPassword}>{$t('reset_password')}</Button>
     {/if}
-    <Button type="submit" fullwidth form="edit-user-form">Confirmer</Button>
+    <Button type="submit" fullwidth form="edit-user-form">{$t('confirm')}</Button>
   </svelte:fragment>
 </FullScreenModal>
-
-{#if isShowResetPasswordConfirmation}
-  <ConfirmDialogue
-    id="reset-password-modal"
-    title="Réinitialiser le mot de passe"
-    confirmText="Réinitialiser"
-    onConfirm={resetPassword}
-    onClose={() => (isShowResetPasswordConfirmation = false)}
-  >
-    <svelte:fragment slot="prompt">
-      <p>
-        Êtes-vous sûr de vouloir réinitialiser le mot de passe de <b>{user.name}</b> ?
-      </p>
-    </svelte:fragment>
-  </ConfirmDialogue>
-{/if}

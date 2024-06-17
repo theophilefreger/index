@@ -5,6 +5,7 @@
   import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
   import { copyToClipboard } from '$lib/utils';
   import { mdiCodeTags, mdiContentCopy, mdiMessage, mdiPartyPopper } from '@mdi/js';
+  import { t } from 'svelte-i18n';
 
   const handleCopy = async () => {
     //
@@ -21,7 +22,7 @@
   <section class="bg-immich-bg dark:bg-immich-dark-bg">
     <div class="flex place-items-center border-b px-6 py-4 dark:border-b-immich-dark-gray">
       <a class="flex place-items-center gap-2 hover:cursor-pointer" href="/photos">
-        <ImmichLogo width="85%" />
+        <ImmichLogo width="55%" />
       </a>
     </div>
   </section>
@@ -40,7 +41,7 @@
               <CircleIconButton
                 color="primary"
                 icon={mdiContentCopy}
-                title="Copy error"
+                title={$t('copy_error')}
                 on:click={() => handleCopy()}
               />
             </div>
@@ -52,7 +53,7 @@
             <div class="flex w-full flex-col gap-2">
               <p class="text-red-500">{$page.error?.message} ({$page.error?.code})</p>
               {#if $page.error?.stack}
-                <label for="stacktrace">Stacktrace</label>
+                <label for="stacktrace">{$t('stacktrace')}</label>
                 <pre id="stacktrace" class="text-xs">{$page.error?.stack || 'No stack'}</pre>
               {/if}
             </div>
@@ -61,40 +62,40 @@
           <hr />
 
           <div class="flex place-content-center place-items-center justify-around">
-            <!-- href="mailto:tfreger@rfstudio.fr" -->
+            <!-- href="https://github.com/immich-app/immich/issues/new" -->
             <a
-              href="https://rfstudio.fr"
+              href="mailto:tfreger@rfstudio.fr"
               target="_blank"
               rel="noopener noreferrer"
               class="flex grow basis-0 justify-center p-4"
             >
               <div class="flex flex-col place-content-center place-items-center gap-2">
                 <Icon path={mdiMessage} size={24} />
-                <p class="text-sm">Obtenir de l'aide</p>
+                <p class="text-sm">{$t('get_help')}</p>
               </div>
             </a>
 
             <a
-              href="https://github.com/theophilefreger"
+              href="rfstudio.fr"
               target="_blank"
               rel="noopener noreferrer"
               class="flex grow basis-0 justify-center p-4"
             >
               <div class="flex flex-col place-content-center place-items-center gap-2">
                 <Icon path={mdiPartyPopper} size={24} />
-                <p class="text-sm">Lire la note de mise à jour</p>
+                <p class="text-sm">{$t('read_changelog')}</p>
               </div>
             </a>
 
             <a
-              href="https://github.com/theophilefreger"
+              href="mailto:tfreger@rfstudio.fr"
               target="_blank"
               rel="noopener noreferrer"
               class="flex grow basis-0 justify-center p-4"
             >
               <div class="flex flex-col place-content-center place-items-center gap-2">
                 <Icon path={mdiCodeTags} size={24} />
-                <p class="text-sm">Lire les changements</p>
+                <p class="text-sm">{$t('check_logs')}</p>
               </div>
             </a>
           </div>

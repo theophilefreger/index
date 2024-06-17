@@ -64,7 +64,7 @@
     try {
       await removeUserFromAlbum({ id: album.id, userId });
       dispatch('remove', userId);
-      const message = userId === 'me' ? `Restant ${album.albumName}` : `Retiré ${selectedRemoveUser.name}`;
+      const message = userId === 'me' ? `Left ${album.albumName}` : `Removed ${selectedRemoveUser.name}`;
       notificationController.show({ type: NotificationType.Info, message });
     } catch (error) {
       handleError(error, $t('errors.unable_to_remove_album_users'));

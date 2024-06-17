@@ -8,6 +8,7 @@
   import Button from '../elements/buttons/button.svelte';
   import { NotificationType, notificationController } from './notification/notification';
   import FullScreenModal from '$lib/components/shared-components/full-screen-modal.svelte';
+  import { t } from 'svelte-i18n';
 
   export let asset: AssetResponseDto;
   export let onClose: () => void;
@@ -27,13 +28,13 @@
     canvas.height = img.height;
     const context = canvas.getContext('2d');
     if (!context) {
-      throw new Error("Impossible d'obtenir le contexte du canevas.");
+      throw new Error('Could not get canvas context.');
     }
     context.drawImage(img, 0, 0);
     const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData?.data;
     if (!data) {
-      throw new Error("Impossible d'obtenir les données de l'image.");
+      throw new Error('Could not get image data.');
     }
     for (let index = 0; index < data.length; index += 4) {
       if (data[index + 3] < 255) {
@@ -49,8 +50,7 @@
       if (await hasTransparentPixels(blob)) {
         notificationController.show({
           type: NotificationType.Error,
-          message:
-            "Les photos de profil ne peuvent pas contenir de pixels transparents. Veuillez zoomer et/ou déplacer l'image.",
+          message: 'Profile pictures cannot have transparent pixels. Please zoom in and/or move the image.',
           timeout: 3000,
         });
         return;
@@ -59,18 +59,18 @@
       const { profileImagePath } = await createProfileImage({ createProfileImageDto: { file } });
       notificationController.show({
         type: NotificationType.Info,
-        message: 'Photo de profil définie.',
+        message: $t('profile_picture_set'),
         timeout: 3000,
       });
       $user.profileImagePath = profileImagePath;
     } catch (error) {
-      handleError(error, 'Erreur lors de la définition de la photo de profil.');
+      handleError(error, $t('errors.unable_to_set_profile_picture'));
     }
     onClose();
   };
 </script>
 
-<FullScreenModal id="profile-image-cropper" title="Définir la photo de profil" width="auto" {onClose}>
+<FullScreenModal title={$t('set_profile_picture')} width="auto" {onClose}>
   <div class="flex place-items-center items-center justify-center">
     <div
       class="relative flex aspect-square w-[250px] overflow-hidden rounded-full border-4 border-immich-primary bg-immich-dark-primary dark:border-immich-dark-primary dark:bg-immich-primary"
@@ -79,6 +79,6 @@
     </div>
   </div>
   <svelte:fragment slot="sticky-bottom">
-    <Button fullwidth on:click={handleSetProfilePicture}>Définir comme photo de profil</Button>
+    <Button fullwidth on:click={handleSetProfilePicture}>{$t('set_as_profile_picture')}</Button>
   </svelte:fragment>
 </FullScreenModal>

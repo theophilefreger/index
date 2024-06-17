@@ -4,8 +4,9 @@
   import MenuOption from '../../shared-components/context-menu/menu-option.svelte';
   import { getAssetControlContext } from '../asset-select-control-bar.svelte';
   import { mdiCloudDownloadOutline, mdiFileDownloadOutline, mdiFolderDownloadOutline } from '@mdi/js';
+  import { t } from 'svelte-i18n';
 
-  export let filename = 'memoirevive.zip';
+  export let filename = 'rfstudio.zip';
   export let menuItem = false;
 
   const { getAssets, clearSelect } = getAssetControlContext();
@@ -26,7 +27,7 @@
 </script>
 
 {#if menuItem}
-  <MenuOption text="Télécharger" icon={menuItemIcon} on:click={handleDownloadFiles} />
+  <MenuOption text={$t('download')} icon={menuItemIcon} on:click={handleDownloadFiles} />
 {:else}
-  <CircleIconButton title="Télécharger" icon={mdiCloudDownloadOutline} on:click={handleDownloadFiles} />
+  <CircleIconButton title={$t('download')} icon={mdiCloudDownloadOutline} on:click={handleDownloadFiles} />
 {/if}

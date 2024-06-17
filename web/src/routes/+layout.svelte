@@ -18,6 +18,8 @@
   import { onDestroy, onMount } from 'svelte';
   import '../app.css';
   import { isAssetViewerRoute, isSharedLinkRoute } from '$lib/utils/navigation';
+  import DialogWrapper from '$lib/components/shared-components/dialog/dialog-wrapper.svelte';
+  import { t } from 'svelte-i18n';
 
   let showNavigationLoadingBar = false;
 
@@ -107,7 +109,7 @@
 <noscript
   class="absolute z-[1000] flex h-screen w-screen place-content-center place-items-center bg-immich-bg dark:bg-immich-dark-bg dark:text-immich-dark-fg"
 >
-  <FullscreenContainer title="Bienvenue sur la Mémoire Vive">
+  <FullscreenContainer title={$t('welcome_to_immich')}>
     Pour utiliser la Mémoire Vive, vous devez utiliser un navigateur compatible avec Javascript
   </FullscreenContainer>
 </noscript>
@@ -121,6 +123,7 @@
 <DownloadPanel />
 <UploadPanel />
 <NotificationList />
+<DialogWrapper />
 
 {#if $user?.isAdmin}
   <VersionAnnouncementBox />

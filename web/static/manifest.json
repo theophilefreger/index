@@ -1,35 +1,35 @@
 {
-	"name": "Mémoire Vive",
-	"short_name": "Mémoire Vive",
-	"start_url": "/",
-	"display": "standalone",
-	"background_color": "#ffffff",
-	"icons": [
-		{
-			"src": "manifest-icon-192.maskable.png",
-			"sizes": "192x192",
-			"type": "image/png",
-			"purpose": "any"
-		},
-		{
-			"src": "manifest-icon-192.maskable.png",
-			"sizes": "192x192",
-			"type": "image/png",
-			"purpose": "maskable"
-		},
-		{
-			"src": "manifest-icon-512.maskable.png",
-			"sizes": "512x512",
-			"type": "image/png",
-			"purpose": "any"
-		},
-		{
-			"src": "manifest-icon-512.maskable.png",
-			"sizes": "512x512",
-			"type": "image/png",
-			"purpose": "maskable"
-		}
-	],
-	"description": "Mémoire Vive de RF STUDIO",
-	"lang": "en"
+  "background_color": "#ffffff",
+  "description": "Mémoire Vive des références de RF STUDIO",
+  "display": "standalone",
+  "icons": [
+    {
+      "purpose": "any",
+      "sizes": "192x192",
+      "src": "manifest-icon-192.maskable.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "192x192",
+      "src": "manifest-icon-192.maskable.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "manifest-icon-512.maskable.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "maskable",
+      "sizes": "512x512",
+      "src": "manifest-icon-512.maskable.png",
+      "type": "image/png"
+    }
+  ],
+  "lang": "en",
+  "name": "Mémoire Vive",
+  "short_name": "Mémoire Vive",
+  "start_url": "/"
 }

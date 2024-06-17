@@ -3,6 +3,7 @@
   import type { ServerVersionResponseDto } from '@immich/sdk';
   import Button from '../elements/buttons/button.svelte';
   import FullScreenModal from './full-screen-modal.svelte';
+  import { t } from 'svelte-i18n';
 
   let showModal = false;
 
@@ -33,16 +34,17 @@
 </script>
 
 {#if showModal}
-  <FullScreenModal id="new-version-modal" title="🎉 Nouvelle version disponible 🎉" onClose={() => (showModal = false)}>
+  <FullScreenModal title="🎉 Nouvelle version disponible" onClose={() => (showModal = false)}>
     <div>
       Une nouvelle mise à jour de l'application est en cours de déploiement
       <span class="font-medium underline"
-        ><a href="https://github.com/theophilefreger" target="_blank" rel="noopener noreferrer">Notes de mise à jour</a
+        ><a href="https://github.com/theophilefreger" target="_blank" rel="noopener noreferrer"
+          >Notes de mises à jour</a
         ></span
       >
       et assurez-vous que votre configuration <code>docker-compose</code> et <code>.env</code> est à jour pour éviter toute
       mauvaise configuration, en particulier si vous utilisez WatchTower ou un mécanisme qui gère la mise à jour de votre
-      application automatiquement. Admnistrateurs uniquement
+      application automatiquement. Pour admnistrateurs uniquement
     </div>
 
     <div class="mt-4 font-medium">Théophile</div>
@@ -50,11 +52,11 @@
     <div class="font-sm mt-8">
       <code>Version du serveur: {serverVersion}</code>
       <br />
-      <code>Dernière version: {releaseVersion}</code>
+      <code>Version en déploiement: {releaseVersion}</code>
     </div>
 
     <svelte:fragment slot="sticky-bottom">
-      <Button fullwidth on:click={onAcknowledge}>OK</Button>
+      <Button fullwidth on:click={onAcknowledge}>{$t('acknowledge')}</Button>
     </svelte:fragment>
   </FullScreenModal>
 {/if}

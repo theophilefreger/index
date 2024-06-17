@@ -16,6 +16,7 @@
   import MenuOption from '../shared-components/context-menu/menu-option.svelte';
   import Portal from '../shared-components/portal/portal.svelte';
   import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
+  import { t } from 'svelte-i18n';
 
   export let person: PersonResponseDto;
   export let preload = false;
@@ -76,7 +77,7 @@
     <CircleIconButton
       color="opaque"
       icon={mdiDotsVertical}
-      title="Show person options"
+      title={$t('show_person_options')}
       size="20"
       padding="2"
       class="icon-white-drop-shadow"
@@ -87,18 +88,18 @@
 
 {#if showContextMenu}
   <Portal target="body">
-    <ContextMenu {...contextMenuPosition} on:outclick={() => onMenuExit()}>
-      <MenuOption on:click={() => onMenuClick('hide-person')} icon={mdiEyeOffOutline} text="Masquer la personne" />
-      <MenuOption on:click={() => onMenuClick('change-name')} icon={mdiAccountEditOutline} text="Changer le nom" />
+    <ContextMenu {...contextMenuPosition} onClose={() => onMenuExit()}>
+      <MenuOption on:click={() => onMenuClick('hide-person')} icon={mdiEyeOffOutline} text={$t('hide_person')} />
+      <MenuOption on:click={() => onMenuClick('change-name')} icon={mdiAccountEditOutline} text={$t('change_name')} />
       <MenuOption
         on:click={() => onMenuClick('set-birth-date')}
         icon={mdiCalendarEditOutline}
-        text="Définir la date de naissance"
+        text={$t('set_date_of_birth')}
       />
       <MenuOption
         on:click={() => onMenuClick('merge-people')}
         icon={mdiAccountMultipleCheckOutline}
-        text="Fusionner les personnes"
+        text={$t('merge_people')}
       />
     </ContextMenu>
   </Portal>

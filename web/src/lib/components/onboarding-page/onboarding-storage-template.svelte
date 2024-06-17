@@ -9,6 +9,7 @@
   import Button from '../elements/buttons/button.svelte';
   import Icon from '../elements/icon.svelte';
   import OnboardingCard from './onboarding-card.svelte';
+  import { t } from 'svelte-i18n';
 
   const dispatch = createEventDispatcher<{
     done: void;
@@ -23,7 +24,9 @@
 </script>
 
 <OnboardingCard>
-  <p class="text-xl text-immich-primary dark:text-immich-dark-primary">MODÈLE DE STOCKAGE</p>
+  <p class="text-xl text-immich-primary dark:text-immich-dark-primary">
+    {$t('admin.storage_template_settings').toUpperCase()}
+  </p>
 
   <p>
     Le modèle de stockage est utilisé pour déterminer la structure des dossiers et le nom des fichiers de vos fichiers multimédias.
@@ -46,7 +49,7 @@
           <div class="w-full flex place-content-start">
             <Button class="flex gap-2 place-content-center" on:click={() => dispatch('previous')}>
               <Icon path={mdiArrowLeft} size="18" />
-              <p>Theme</p>
+              <p>{$t('theme')}</p>
             </Button>
           </div>
           <div class="flex w-full place-content-end">

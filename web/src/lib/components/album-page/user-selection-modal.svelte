@@ -110,7 +110,7 @@
 
   {#if users.length + Object.keys(selectedUsers).length === 0}
     <p class="p-5 text-sm">
-      Votre album a été partagé avec tout les utilisateurs
+      Looks like you have shared this album with all users or you don't have any user to share with.
     </p>
   {/if}
 

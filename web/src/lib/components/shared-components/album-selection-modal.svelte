@@ -7,6 +7,7 @@
   import { normalizeSearchString } from '$lib/utils/string-utils';
   import FullScreenModal from '$lib/components/shared-components/full-screen-modal.svelte';
   import { initInput } from '$lib/actions/focus';
+  import { t } from 'svelte-i18n';
 
   let albums: AlbumResponseDto[] = [];
   let recentAlbums: AlbumResponseDto[] = [];
@@ -47,13 +48,13 @@
 
   const getTitle = () => {
     if (shared) {
-      return "Ajouter à l'album partagé";
+      return $t('add_to_shared_album');
     }
-    return "Ajouter à l'album";
+    return $t('add_to_album');
   };
 </script>
 
-<FullScreenModal id="album-selection-modal" title={getTitle()} {onClose}>
+<FullScreenModal title={getTitle()} {onClose}>
   <div class="mb-2 flex max-h-[400px] flex-col">
     {#if loading}
       {#each { length: 3 } as _}
@@ -71,7 +72,7 @@
     {:else}
       <input
         class="border-b-4 border-immich-bg bg-immich-bg px-6 py-2 text-2xl focus:border-immich-primary dark:border-immich-dark-gray dark:bg-immich-dark-gray dark:focus:border-immich-dark-primary"
-        placeholder="Rechercher"
+        placeholder={$t('search')}
         bind:value={search}
         use:initInput
       />
@@ -85,12 +86,12 @@
             <Icon path={mdiPlus} size="30" />
           </div>
           <p class="">
-            Nouvel album {#if search.length > 0}<b>{search}</b>{/if}
+            New Album {#if search.length > 0}<b>{search}</b>{/if}
           </p>
         </button>
         {#if filteredAlbums.length > 0}
           {#if !shared && search.length === 0}
-            <p class="px-5 py-3 text-xs">RECENT</p>
+            <p class="px-5 py-3 text-xs">{$t('recent').toUpperCase()}</p>
             {#each recentAlbums as album (album.id)}
               <AlbumListItem {album} on:album={() => handleSelect(album)} />
             {/each}
@@ -98,7 +99,7 @@
 
           {#if !shared}
             <p class="px-5 py-3 text-xs">
-              {#if search.length === 0}TOUT
+              {#if search.length === 0}ALL
               {/if}ALBUMS
             </p>
           {/if}
@@ -106,9 +107,9 @@
             <AlbumListItem {album} searchQuery={search} on:album={() => handleSelect(album)} />
           {/each}
         {:else if albums.length > 0}
-          <p class="px-5 py-1 text-sm">Il semble que vous n'ayez pas encore d'albums avec ce nom.</p>
+          <p class="px-5 py-1 text-sm">It looks like you do not have any albums with this name yet.</p>
         {:else}
-          <p class="px-5 py-1 text-sm">Il semble que vous n'ayez pas encore d'albums.</p>
+          <p class="px-5 py-1 text-sm">It looks like you do not have any albums yet.</p>
         {/if}
       </div>
     {/if}

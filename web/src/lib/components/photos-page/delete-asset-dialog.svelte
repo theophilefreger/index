@@ -1,9 +1,10 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import ConfirmDialogue from '../shared-components/confirm-dialogue.svelte';
+  import ConfirmDialog from '../shared-components/dialog/confirm-dialog.svelte';
   import { showDeleteModal } from '$lib/stores/preferences.store';
   import Checkbox from '$lib/components/elements/checkbox.svelte';
   import { s } from '$lib/utils';
+  import { t } from 'svelte-i18n';
 
   export let size: number;
 
@@ -22,26 +23,25 @@
   };
 </script>
 
-<ConfirmDialogue
-  id="permanently-delete-asset-modal"
-  title="Supprimer Définitivement l'Actif{s(size)}"
-  confirmText="Supprimer"
+<ConfirmDialog
+  title="Permanently delete asset{s(size)}"
+  confirmText={$t('delete')}
   onConfirm={handleConfirm}
-  onClose={() => dispatch('cancel')}
+  onCancel={() => dispatch('cancel')}
 >
   <svelte:fragment slot="prompt">
     <p>
-      Êtes-vous sûr de vouloir supprimer définitivement
+      Are you sure you want to permanently delete
       {#if size > 1}
-        ces <b>{size}</b> actifs ? Cela les supprimera également de leurs albums.
+        these <b>{size}</b> assets? This will also remove them from their album(s).
       {:else}
-        cet actif ? Cela le supprimera également de ses albums.
+        this asset? This will also remove it from its album(s).
       {/if}
     </p>
-    <p><b>Vous ne pouvez pas annuler cette action !</b></p>
+    <p><b>You cannot undo this action!</b></p>
 
     <div class="pt-4 flex justify-center items-center">
-      <Checkbox id="confirm-deletion-input" label="Ne plus afficher ce message" bind:checked />
+      <Checkbox id="confirm-deletion-input" label="Do not show this message again" bind:checked />
     </div>
   </svelte:fragment>
-</ConfirmDialogue>
+</ConfirmDialog>

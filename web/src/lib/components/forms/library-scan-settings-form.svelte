@@ -6,6 +6,7 @@
   import Button from '../elements/buttons/button.svelte';
   import LibraryExclusionPatternForm from './library-exclusion-pattern-form.svelte';
   import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
+  import { t } from 'svelte-i18n';
 
   export let library: Partial<LibraryResponseDto>;
 
@@ -53,7 +54,7 @@
         exclusionPatterns = library.exclusionPatterns;
       }
     } catch (error) {
-      handleError(error, "Impossible d'ajouter un motif d'exclusion");
+      handleError(error, $t('errors.unable_to_add_exclusion_pattern'));
     } finally {
       exclusionPatternToAdd = '';
       addExclusionPattern = false;
@@ -73,7 +74,7 @@
       library.exclusionPatterns[editExclusionPattern] = editedExclusionPattern;
       exclusionPatterns = library.exclusionPatterns;
     } catch (error) {
-      handleError(error, "Impossible de modifier un motif d'exclusion");
+      handleError(error, $t('errors.unable_to_edit_exclusion_pattern'));
     } finally {
       editExclusionPattern = null;
     }
@@ -93,7 +94,7 @@
       library.exclusionPatterns = library.exclusionPatterns.filter((path) => path != pathToDelete);
       exclusionPatterns = library.exclusionPatterns;
     } catch (error) {
-      handleError(error, "Impossible de supprimer un motif d'exclusion");
+      handleError(error, $t('errors.unable_to_delete_exclusion_pattern'));
     } finally {
       editExclusionPattern = null;
     }
@@ -102,7 +103,7 @@
 
 {#if addExclusionPattern}
   <LibraryExclusionPatternForm
-    submitText="Ajouter"
+    submitText={$t('add')}
     bind:exclusionPattern={exclusionPatternToAdd}
     {exclusionPatterns}
     on:submit={handleAddExclusionPattern}
@@ -114,7 +115,7 @@
 
 {#if editExclusionPattern != undefined}
   <LibraryExclusionPatternForm
-    submitText="Sauvegarder"
+    submitText={$t('save')}
     isEditing={true}
     bind:exclusionPattern={editedExclusionPattern}
     {exclusionPatterns}
@@ -142,7 +143,7 @@
             <CircleIconButton
               color="primary"
               icon={mdiPencilOutline}
-              title="Edit exclusion pattern"
+              title={$t('edit_exclusion_pattern')}
               size="16"
               on:click={() => {
                 editExclusionPattern = listIndex;
@@ -161,7 +162,7 @@
       >
         <td class="w-3/4 text-ellipsis px-4 text-sm">
           {#if exclusionPatterns.length === 0}
-            Aucun motif ajouté
+            {$t('admin.no_pattern_added')}
           {/if}
         </td>
         <td class="w-1/4 text-ellipsis px-4 text-sm"
@@ -169,7 +170,7 @@
             size="sm"
             on:click={() => {
               addExclusionPattern = true;
-            }}>Ajouter un motif d'exclusion</Button
+            }}>{$t('add_exclusion_pattern')}</Button
           ></td
         ></tr
       >
@@ -177,7 +178,7 @@
   </table>
 
   <div class="flex w-full justify-end gap-4">
-    <Button size="sm" color="gray" on:click={() => handleCancel()}>Annuler</Button>
-    <Button size="sm" type="submit">Sauvegarder</Button>
+    <Button size="sm" color="gray" on:click={() => handleCancel()}>{$t('cancel')}</Button>
+    <Button size="sm" type="submit">{$t('save')}</Button>
   </div>
 </form>

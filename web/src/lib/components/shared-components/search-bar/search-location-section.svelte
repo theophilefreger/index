@@ -10,6 +10,7 @@
   import { getSearchSuggestions, SearchSuggestionType } from '@immich/sdk';
   import Combobox, { toComboBoxOptions } from '../combobox.svelte';
   import { handlePromiseError } from '$lib/utils';
+  import { t } from 'svelte-i18n';
 
   export let filters: SearchLocationFilter;
 
@@ -58,38 +59,35 @@
 </script>
 
 <div id="location-selection">
-  <p class="immich-form-label">Lieux</p>
+  <p class="immich-form-label">{$t('place').toUpperCase()}</p>
 
   <div class="grid grid-cols-[repeat(auto-fit,minmax(10rem,1fr))] gap-5 mt-1">
     <div class="w-full">
       <Combobox
-        id="location-country"
-        label="Pays"
+        label={$t('country')}
         on:select={({ detail }) => (filters.country = detail?.value)}
         options={toComboBoxOptions(countries)}
-        placeholder="Rechercher un pays..."
+        placeholder={$t('search_country')}
         selectedOption={filters.country ? { label: filters.country, value: filters.country } : undefined}
       />
     </div>
 
     <div class="w-full">
       <Combobox
-        id="location-state"
-        label="Région"
+        label={$t('state')}
         on:select={({ detail }) => (filters.state = detail?.value)}
         options={toComboBoxOptions(states)}
-        placeholder="Rechercher une région..."
+        placeholder={$t('search_state')}
         selectedOption={filters.state ? { label: filters.state, value: filters.state } : undefined}
       />
     </div>
 
     <div class="w-full">
       <Combobox
-        id="location-city"
-        label="Ville"
+        label={$t('city')}
         on:select={({ detail }) => (filters.city = detail?.value)}
         options={toComboBoxOptions(cities)}
-        placeholder="Rechercher une ville..."
+        placeholder={$t('search_city')}
         selectedOption={filters.city ? { label: filters.city, value: filters.city } : undefined}
       />
     </div>

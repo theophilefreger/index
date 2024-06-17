@@ -28,6 +28,7 @@
   import type { SystemConfigDto } from '@immich/sdk';
   import { mdiAlert, mdiContentCopy, mdiDownload, mdiUpload } from '@mdi/js';
   import type { PageData } from './$types';
+  import { t } from 'svelte-i18n';
 
   export let data: PageData;
 
@@ -82,92 +83,92 @@
   }> = [
     {
       item: AuthSettings,
-      title: 'Authentication Settings',
-      subtitle: 'Manage password, OAuth, and other authentication settings',
+      title: $t('admin.authentication_settings'),
+      subtitle: $t('admin.authentication_settings_description'),
       key: 'image',
     },
     {
       item: ImageSettings,
-      title: 'Image Settings',
-      subtitle: 'Manage the quality and resolution of generated images',
+      title: $t('admin.image_settings'),
+      subtitle: $t('admin.image_settings_description'),
       key: 'image',
     },
     {
       item: JobSettings,
-      title: 'Paramètres de travail',
-      subtitle: 'Gérer la concurrence des travaux',
+      title: $t('admin.job_settings'),
+      subtitle: $t('admin.job_settings_description'),
       key: 'job',
     },
     {
       item: LibrarySettings,
-      title: 'Bibliothèque Externe',
-      subtitle: 'Gérer les paramètres de la bibliothèque externe',
+      title: $t('admin.library_settings'),
+      subtitle: $t('admin.library_settings_description'),
       key: 'external-library',
     },
     {
       item: LoggingSettings,
-      title: 'Journalisation',
-      subtitle: 'Gérer les paramètres des journaux',
+      title: $t('admin.logging_settings'),
+      subtitle: $t('admin.manage_log_settings'),
       key: 'logging',
     },
     {
       item: MachineLearningSettings,
-      title: "Paramètres d'Apprentissage Automatique",
-      subtitle: "Gérer les fonctionnalités et les paramètres d'apprentissage automatique",
+      title: $t('admin.machine_learning_settings'),
+      subtitle: $t('admin.machine_learning_settings_description'),
       key: 'machine-learning',
     },
     {
       item: MapSettings,
-      title: 'Paramètres de Carte & GPS',
-      subtitle: 'Gérer les fonctionnalités et les paramètres liés à la carte',
+      title: $t('admin.map_settings'),
+      subtitle: $t('admin.map_settings_description'),
       key: 'location',
     },
     {
       item: NotificationSettings,
-      title: 'Notification Settings',
-      subtitle: 'Manage notification settings, including email',
+      title: $t('admin.notification_settings'),
+      subtitle: $t('admin.notification_settings_description'),
       key: 'notifications',
     },
     {
       item: ServerSettings,
-      title: 'Paramètres du Serveur',
-      subtitle: 'Gérer les paramètres du serveur',
+      title: $t('admin.server_settings'),
+      subtitle: $t('admin.server_settings_description'),
       key: 'server',
     },
     {
       item: StorageTemplateSettings,
-      title: 'Modèle de Stockage',
-      subtitle: 'Gérer la structure des dossiers et le nom des fichiers des actifs téléchargés',
+      title: $t('admin.storage_template_settings'),
+      subtitle: $t('admin.storage_template_settings_description'),
       key: 'storage-template',
     },
     {
       item: ThemeSettings,
-      title: 'Paramètres de Thème',
-      subtitle: "Gérer la personnalisation de l'interface web de Mémoire Vive",
+      title: $t('admin.theme_settings'),
+      subtitle: $t('admin.theme_settings_description'),
       key: 'theme',
     },
     {
       item: TrashSettings,
-      title: 'Paramètres de la Corbeille',
-      subtitle: 'Gérer les paramètres de la corbeille',
+      title: $t('admin.trash_settings'),
+      subtitle: $t('admin.trash_settings_description'),
       key: 'trash',
     },
     {
       item: UserSettings,
-      title: 'Paramètres Utilisateur',
-      subtitle: 'Gérer les paramètres utilisateur',
+      title: $t('admin.user_settings'),
+      subtitle: $t('admin.user_settings_description'),
       key: 'user-settings',
     },
     {
       item: NewVersionCheckSettings,
-      title: 'Vérification de Version',
-      subtitle: 'Activer/désactiver la notification de nouvelle version',
+      title: $t('admin.version_check_settings'),
+      subtitle: $t('admin.version_check_settings_description'),
       key: 'version-check',
     },
     {
       item: FFmpegSettings,
-      title: 'Paramètres de Transcodage Vidéo',
-      subtitle: "Gérer la résolution et les informations d'encodage des fichiers vidéo",
+      title: $t('admin.transcoding_settings'),
+      subtitle: $t('admin.transcoding_settings_description'),
       key: 'video-transcoding',
     },
   ];
@@ -180,7 +181,7 @@
     <div class="flex flex-row items-center gap-2 bg-gray-100 p-3 dark:bg-gray-800">
       <Icon path={mdiAlert} class="text-yellow-400" size={18} />
       <h2 class="text-md text-immich-primary dark:text-immich-dark-primary">
-        La configuration est gérée par un fichier JSON
+        {$t('admin.config_set_by_file')}
       </h2>
     </div>
   {/if}
@@ -190,19 +191,19 @@
       <LinkButton on:click={() => copyToClipboard(JSON.stringify(config, null, 2))}>
         <div class="flex place-items-center gap-2 text-sm">
           <Icon path={mdiContentCopy} size="18" />
-          Placer dans le presse papier
+          {$t('copy_to_clipboard')}
         </div>
       </LinkButton>
       <LinkButton on:click={() => downloadConfig()}>
         <div class="flex place-items-center gap-2 text-sm">
           <Icon path={mdiDownload} size="18" />
-          Exporter en JSON
+          {$t('export_as_json')}
         </div>
       </LinkButton>
       <LinkButton on:click={() => inputElement?.click()}>
         <div class="flex place-items-center gap-2 text-sm">
           <Icon path={mdiUpload} size="18" />
-          Import from JSON
+          {$t('import_from_json')}
         </div>
       </LinkButton>
     </div>

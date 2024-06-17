@@ -34,6 +34,7 @@
   import { clearQueryParam } from '$lib/utils/navigation';
   import SearchPeople from '$lib/components/faces-page/people-search.svelte';
   import LinkButton from '$lib/components/elements/buttons/link-button.svelte';
+  import { t } from 'svelte-i18n';
 
   export let data: PageData;
 
@@ -73,7 +74,7 @@
       showPeople = searchedPeopleLocal;
       countVisiblePeople = searchedPeopleLocal.length;
     } else {
-      showPeople = people.filter((person: Person) => !person.isHidden);
+      showPeople = people.filter((person) => !person.isHidden);
       countVisiblePeople = countTotalPeople - countHiddenPeople;
     }
   }
@@ -160,20 +161,20 @@
         if (results.length - count > 0) {
           notificationController.show({
             type: NotificationType.Error,
-            message: `Impossible de changer la visibilité pour ${results.length - count} ${
-              results.length - count <= 1 ? 'personne' : 'personnes'
+            message: `Unable to change the visibility for ${results.length - count} ${
+              results.length - count <= 1 ? 'person' : 'people'
             }`,
           });
         }
         notificationController.show({
           type: NotificationType.Info,
-          message: `Visibilité changé pour ${count} ${count <= 1 ? 'personne' : 'personnes'}`,
+          message: `Visibility changed for ${count} ${count <= 1 ? 'person' : 'people'}`,
         });
       }
     } catch (error) {
       handleError(
         error,
-        `Impossible de changer la visibilité pour ${changed.length} ${changed.length <= 1 ? 'personne' : 'personnes'}`,
+        `Unable to change the visibility for ${changed.length} ${changed.length <= 1 ? 'person' : 'people'}`,
       );
     }
     // Reset variables used on the "Show & hide people" modal
@@ -204,11 +205,11 @@
       }
       countTotalPeople--;
       notificationController.show({
-        message: 'Fusion des personnes effectuée',
+        message: $t('merge_people_successfully'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to save name');
+      handleError(error, $t('errors.unable_to_save_name'));
     }
     if (personToBeMergedIn.name !== personName && edittingPerson.id === personToBeMergedIn.id) {
       /*
@@ -227,14 +228,14 @@
           }
         }
         notificationController.show({
-          message: 'Changement du nom effectué',
+          message: $t('change_name_successfully'),
           type: NotificationType.Info,
         });
 
         // trigger reactivity
         people = people;
       } catch (error) {
-        handleError(error, 'Unable to save name');
+        handleError(error, $t('errors.unable_to_save_name'));
       }
     }
   };
@@ -274,11 +275,11 @@
       showChangeNameModal = false;
       countHiddenPeople++;
       notificationController.show({
-        message: 'Fusion des personnes effectuée',
+        message: $t('changed_visibility_successfully'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to hide person');
+      handleError(error, $t('errors.unable_to_hide_person'));
     }
   };
 
@@ -349,7 +350,7 @@
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to save name');
+      handleError(error, $t('errors.unable_to_save_name'));
     }
   };
 
@@ -372,11 +373,11 @@
         return person;
       });
       notificationController.show({
-        message: 'Change name successfully',
+        message: $t('change_name_successfully'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to save name');
+      handleError(error, $t('errors.unable_to_save_name'));
     }
   };
 
@@ -399,7 +400,7 @@
 {/if}
 
 <UserPageLayout
-  title="Personnes"
+  title={$t('people')}
   description={countVisiblePeople === 0 && !searchName ? undefined : `(${countVisiblePeople.toLocaleString($locale)})`}
 >
   <svelte:fragment slot="buttons">
@@ -409,7 +410,7 @@
           <div class="w-40 lg:w-80 h-10">
             <SearchPeople
               type="searchBar"
-              placeholder="Search people"
+              placeholder={$t('search_people')}
               onReset={onResetSearchBar}
               onSearch={handleSearch}
               bind:searchName
@@ -421,7 +422,7 @@
         <LinkButton on:click={() => (selectHidden = !selectHidden)}>
           <div class="flex flex-wrap place-items-center justify-center gap-x-1 text-sm">
             <Icon path={mdiEyeOutline} size="18" />
-            <p class="ml-2">Afficher ou masquer des personnes</p>
+            <p class="ml-2">{$t('show_and_hide_people')}</p>
           </div>
         </LinkButton>
       </div>
@@ -446,17 +447,17 @@
       <div class="flex flex-col content-center items-center text-center">
         <Icon path={mdiAccountOff} size="3.5em" />
         <p class="mt-5 text-3xl font-medium max-w-lg line-clamp-2 overflow-hidden">
-          {`Aucune personne ${searchName ? ` nommée "${searchName}"` : ''}`}
+          {`No people${searchName ? ` named "${searchName}"` : ''}`}
         </p>
       </div>
     </div>
   {/if}
 
   {#if showChangeNameModal}
-    <FullScreenModal id="change-name-modal" title="Changer le nom" onClose={() => (showChangeNameModal = false)}>
+    <FullScreenModal title={$t('change_name')} onClose={() => (showChangeNameModal = false)}>
       <form on:submit|preventDefault={submitNameChange} autocomplete="off" id="change-name-form">
         <div class="flex flex-col gap-2">
-          <label class="immich-form-label" for="name">Nom</label>
+          <label class="immich-form-label" for="name">{$t('name')}</label>
           <input
             class="immich-form-input"
             id="name"
@@ -473,9 +474,9 @@
           fullwidth
           on:click={() => {
             showChangeNameModal = false;
-          }}>Annuler</Button
+          }}>{$t('cancel')}</Button
         >
-        <Button type="submit" fullwidth form="change-name-form">Ok</Button>
+        <Button type="submit" fullwidth form="change-name-form">{$t('ok')}</Button>
       </svelte:fragment>
     </FullScreenModal>
   {/if}

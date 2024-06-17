@@ -18,6 +18,7 @@
   import UserAvatar from '../user-avatar.svelte';
   import AccountInfoPanel from './account-info-panel.svelte';
   import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
+  import { t } from 'svelte-i18n';
 
   export let showUploadButton = true;
 
@@ -42,12 +43,12 @@
 <svelte:window bind:innerWidth />
 
 <section id="dashboard-navbar" class="fixed z-[900] h-[var(--navbar-height)] w-screen text-sm">
-  <SkipLink>Aller au contenu</SkipLink>
+  <SkipLink>{$t('skip_to_content')}</SkipLink>
   <div
     class="grid h-full grid-cols-[theme(spacing.18)_auto] items-center border-b bg-immich-bg py-2 dark:border-b-immich-dark-gray dark:bg-immich-dark-bg md:grid-cols-[theme(spacing.64)_auto]"
   >
     <a data-sveltekit-preload-data="hover" class="ml-4" href={AppRoute.PHOTOS}>
-      <ImmichLogo width="85%" noText={innerWidth < 768} />
+      <ImmichLogo width="55%" noText={innerWidth < 768} />
     </a>
     <div class="flex justify-between gap-16 pr-6">
       <div class="hidden w-full max-w-5xl flex-1 pl-4 tall:pl-0 sm:block">
@@ -59,7 +60,7 @@
       <section class="flex place-items-center justify-end gap-4 max-sm:w-full">
         {#if $featureFlags.search}
           <a href={AppRoute.SEARCH} id="search-button" class="ml-4 sm:hidden">
-            <CircleIconButton title="Aller à la recherche" icon={mdiMagnify} />
+            <CircleIconButton title={$t('go_to_search')} icon={mdiMagnify} />
           </a>
         {/if}
 
@@ -70,7 +71,7 @@
             <LinkButton on:click={() => dispatch('uploadClicked')}>
               <div class="flex gap-2">
                 <Icon path={mdiTrayArrowUp} size="1.5em" />
-                <span class="hidden md:block">Upload</span>
+                <span class="hidden md:block">{$t('upload')}</span>
               </div>
             </LinkButton>
           </div>
@@ -80,7 +81,7 @@
           <a
             data-sveltekit-preload-data="hover"
             href={AppRoute.ADMIN_USER_MANAGEMENT}
-            aria-label="Administration"
+            aria-label={$t('administration')}
             aria-current={$page.url.pathname.includes('/admin') ? 'page' : null}
           >
             <div
@@ -92,7 +93,7 @@
                     ? 'item text-immich-primary underline dark:text-immich-dark-primary'
                     : ''}
                 >
-                  Administration
+                  {$t('administration')}
                 </span>
               </div>
               <div class="block sm:hidden" aria-hidden="true">
@@ -114,9 +115,10 @@
         {/if}
 
         <div
-          use:clickOutside
-          on:outclick={() => (shouldShowAccountInfoPanel = false)}
-          on:escape={() => (shouldShowAccountInfoPanel = false)}
+          use:clickOutside={{
+            onOutclick: () => (shouldShowAccountInfoPanel = false),
+            onEscape: () => (shouldShowAccountInfoPanel = false),
+          }}
         >
           <button
             type="button"

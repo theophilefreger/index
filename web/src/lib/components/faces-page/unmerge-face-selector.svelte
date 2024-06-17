@@ -77,11 +77,11 @@
       await reassignFaces({ id: data.id, assetFaceUpdateDto: { data: selectedPeople } });
 
       notificationController.show({
-        message: `Réaffecté ${assetIds.length} ressource${s(assetIds.length)} à une nouvelle personne`,
+        message: `Re-assigned ${assetIds.length} asset${s(assetIds.length)} to a new person`,
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Impossible de réaffecter les ressources à une nouvelle personne');
+      handleError(error, 'Unable to reassign assets to a new person');
     } finally {
       clearTimeout(timeout);
     }
@@ -97,14 +97,14 @@
       if (selectedPerson) {
         await reassignFaces({ id: selectedPerson.id, assetFaceUpdateDto: { data: selectedPeople } });
         notificationController.show({
-          message: `Réaffecté ${assetIds.length} ressource${s(assetIds.length)} à ${
-            selectedPerson.name || 'une personne existante'
+          message: `Re-assigned ${assetIds.length} asset${s(assetIds.length)} to ${
+            selectedPerson.name || 'an existing person'
           }`,
           type: NotificationType.Info,
         });
       }
     } catch (error) {
-      handleError(error, `Impossible de réaffecter les ressources à ${selectedPerson?.name || 'une personne existante'}`);
+      handleError(error, `Unable to reassign assets to ${selectedPerson?.name || 'an existing person'}`);
     } finally {
       clearTimeout(timeout);
     }
@@ -128,7 +128,7 @@
     <svelte:fragment slot="trailing">
       <div class="flex gap-4">
         <Button
-        title={'Attribuer les ressources sélectionnées à une nouvelle personne'}
+          title={'Assign selected assets to a new person'}
           size={'sm'}
           disabled={disableButtons || hasSelection}
           on:click={handleCreate}
@@ -138,11 +138,11 @@
           {:else}
             <LoadingSpinner />
           {/if}
-          <span class="ml-2"> Créer une nouvelle personne</span></Button
+          <span class="ml-2"> Create new Person</span></Button
         >
         <Button
           size={'sm'}
-          title={'Attribuer les ressources sélectionnées à une personne existante'}
+          title={'Assign selected assets to an existing person'}
           disabled={disableButtons || !hasSelection}
           on:click={handleReassign}
         >
@@ -153,7 +153,7 @@
           {:else}
             <LoadingSpinner />
           {/if}
-          <span class="ml-2"> Réassigner</span></Button
+          <span class="ml-2"> Reassign</span></Button
         >
       </div>
     </svelte:fragment>
@@ -163,7 +163,7 @@
     <section id="merge-face-selector relative">
       {#if selectedPerson !== null}
         <div class="mb-10 h-[200px] place-content-center place-items-center">
-          <p class="mb-4 text-center uppercase dark:text-white">Choisissez les visages correspondants à réaffecter</p>
+          <p class="mb-4 text-center uppercase dark:text-white">Choose matching faces to re assign</p>
 
           <div class="grid grid-flow-col-dense place-content-center place-items-center gap-4">
             <FaceThumbnail

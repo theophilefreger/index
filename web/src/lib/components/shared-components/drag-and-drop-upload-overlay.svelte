@@ -64,6 +64,6 @@
     }}
   >
     <ImmichLogo noText class="m-16 w-48 animate-bounce" />
-    <div class="text-2xl">Déposez des fichiers n'importe où pour les télécharger</div>
+    <div class="text-2xl">Déposez des fichiers n'importe où pour les sauvegarder</div>
   </div>
 {/if}

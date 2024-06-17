@@ -56,6 +56,7 @@
   import { onMount } from 'svelte';
   import type { PageData } from './$types';
   import { listNavigation } from '$lib/actions/list-navigation';
+  import { t } from 'svelte-i18n';
 
   export let data: PageData;
 
@@ -182,13 +183,13 @@
       });
 
       notificationController.show({
-        message: 'Changement de visibilité effectué',
+        message: $t('changed_visibility_successfully'),
         type: NotificationType.Info,
       });
 
       await goto(previousRoute, { replaceState: true });
     } catch (error) {
-      handleError(error, 'Unable to hide person');
+      handleError(error, $t('errors.unable_to_hide_person'));
     }
   };
 
@@ -208,7 +209,7 @@
 
     await updatePerson({ id: data.person.id, personUpdateDto: { featureFaceAssetId: asset.id } });
 
-    notificationController.show({ message: 'Photo à jour', type: NotificationType.Info });
+    notificationController.show({ message: $t('feature_photo_updated'), type: NotificationType.Info });
     assetInteractionStore.clearMultiselect();
 
     viewMode = ViewMode.VIEW_ASSETS;
@@ -224,7 +225,7 @@
         mergePersonDto: { ids: [personToMerge.id] },
       });
       notificationController.show({
-        message: 'Personnes combinées',
+        message: $t('merge_people_successfully'),
         type: NotificationType.Info,
       });
       people = people.filter((person: PersonResponseDto) => person.id !== personToMerge.id);
@@ -235,7 +236,7 @@
       }
       await goto(`${AppRoute.PEOPLE}/${personToBeMergedIn.id}`, { replaceState: true });
     } catch (error) {
-      handleError(error, 'Unable to save name');
+      handleError(error, $t('errors.unable_to_save_name'));
     }
   };
 
@@ -257,11 +258,11 @@
       await updatePerson({ id: data.person.id, personUpdateDto: { name: personName } });
 
       notificationController.show({
-        message: 'Changement du nom effectué',
+        message: $t('change_name_successfully'),
         type: NotificationType.Info,
       });
     } catch (error) {
-      handleError(error, 'Unable to save name');
+      handleError(error, $t('errors.unable_to_save_name'));
     }
   };
 
@@ -327,7 +328,7 @@
         return person;
       });
 
-      notificationController.show({ message: 'Date de naissance enregistrée', type: NotificationType.Info });
+      notificationController.show({ message: 'Date of birth saved successfully', type: NotificationType.Info });
     } catch (error) {
       handleError(error, 'Unable to save date of birth');
     }
@@ -379,16 +380,16 @@
     <AssetSelectControlBar assets={$selectedAssets} clearSelect={() => assetInteractionStore.clearMultiselect()}>
       <CreateSharedLink />
       <SelectAllAssets {assetStore} {assetInteractionStore} />
-      <AssetSelectContextMenu icon={mdiPlus} title="Ajouter à...">
+      <AssetSelectContextMenu icon={mdiPlus} title={$t('add_to')}>
         <AddToAlbum />
         <AddToAlbum shared />
       </AssetSelectContextMenu>
       <FavoriteAction removeFavorite={isAllFavorite} onFavorite={() => assetStore.triggerUpdate()} />
-      <AssetSelectContextMenu icon={mdiDotsVertical} title="Ajouter">
-        <DownloadAction menuItem filename="{data.person.name || 'memoirevive'}.zip" />
+      <AssetSelectContextMenu icon={mdiDotsVertical} title={$t('add')}>
+        <DownloadAction menuItem filename="{data.person.name || 'immich'}.zip" />
         <MenuOption
           icon={mdiAccountMultipleCheckOutline}
-          text="Corriger la correspondance incorrecte"
+          text={$t('fix_incorrect_match')}
           on:click={handleReassignAssets}
         />
         <ChangeDate menuItem />
@@ -401,24 +402,24 @@
     {#if viewMode === ViewMode.VIEW_ASSETS || viewMode === ViewMode.SUGGEST_MERGE || viewMode === ViewMode.BIRTH_DATE}
       <ControlAppBar showBackButton backIcon={mdiArrowLeft} on:close={() => goto(previousRoute)}>
         <svelte:fragment slot="trailing">
-          <AssetSelectContextMenu icon={mdiDotsVertical} title="Menu">
+          <AssetSelectContextMenu icon={mdiDotsVertical} title={$t('menu')}>
             <MenuOption
-              text="Sélectionnez la photo en vedette"
+              text={$t('select_featured_photo')}
               icon={mdiAccountBoxOutline}
               on:click={() => (viewMode = ViewMode.SELECT_PERSON)}
             />
             <MenuOption
-              text={data.person.isHidden ? 'Afficher la personne' : 'Masquer la personne'}
+              text={data.person.isHidden ? $t('unhide_person') : $t('hide_person')}
               icon={data.person.isHidden ? mdiEyeOutline : mdiEyeOffOutline}
               on:click={() => toggleHidePerson()}
             />
             <MenuOption
-              text="Définir la date de naissance"
+              text={$t('set_date_of_birth')}
               icon={mdiCalendarEditOutline}
               on:click={() => (viewMode = ViewMode.BIRTH_DATE)}
             />
             <MenuOption
-              text="Fusionner des personnes"
+              text={$t('merge_people')}
               icon={mdiAccountMultipleCheckOutline}
               on:click={() => (viewMode = ViewMode.MERGE_PEOPLE)}
             />
@@ -429,7 +430,7 @@
 
     {#if viewMode === ViewMode.SELECT_PERSON}
       <ControlAppBar on:close={() => (viewMode = ViewMode.VIEW_ASSETS)}>
-        <svelte:fragment slot="leading">Sélectionner la photo à jour</svelte:fragment>
+        <svelte:fragment slot="leading">{$t('select_featured_photo')}</svelte:fragment>
       </ControlAppBar>
     {/if}
   {/if}
@@ -470,7 +471,7 @@
                 <button
                   type="button"
                   class="flex items-center justify-center"
-                  title="Editer le nom"
+                  title={$t('edit_name')}
                   on:click={() => (isEditingName = true)}
                 >
                   <ImageThumbnail
@@ -490,9 +491,9 @@
                         {`${numberOfAssets} asset${s(numberOfAssets)}`}
                       </p>
                     {:else}
-                      <p class="font-medium">Ajouter un nom</p>
+                      <p class="font-medium">{$t('add_a_name')}</p>
                       <p class="text-sm text-gray-500 dark:text-immich-gray">
-                        Retrouver les par leur nom lors de la recherche
+                        {$t('find_them_fast')}
                       </p>
                     {/if}
                   </div>

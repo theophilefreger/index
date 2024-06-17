@@ -10,6 +10,7 @@
   import { fade } from 'svelte/transition';
   import Button from '../elements/buttons/button.svelte';
   import PasswordField from '../shared-components/password-field.svelte';
+  import { t } from 'svelte-i18n';
 
   export let onSuccess: () => unknown | Promise<unknown>;
   export let onFirstLogin: () => unknown | Promise<unknown>;
@@ -35,7 +36,7 @@
         return;
       } catch (error) {
         console.error('Error [login-form] [oauth.callback]', error);
-        oauthError = getServerErrorMessage(error) || 'Impossible de terminer la connexion OAuth';
+        oauthError = getServerErrorMessage(error) || 'Unable to complete OAuth login';
         oauthLoading = false;
       }
     }
@@ -47,7 +48,7 @@
         return;
       }
     } catch (error) {
-      handleError(error, 'Impossible de se connecter !');
+      handleError(error, 'Unable to connect!');
     }
 
     oauthLoading = false;
@@ -73,7 +74,7 @@
       await onSuccess();
       return;
     } catch (error) {
-      errorMessage = getServerErrorMessage(error) || 'Email ou mot de passe incorrect';
+      errorMessage = getServerErrorMessage(error) || 'Incorrect email or password';
       loading = false;
       return;
     }
@@ -99,7 +100,7 @@
     {/if}
 
     <div class="flex flex-col gap-2">
-      <label class="immich-form-label" for="email">Email</label>
+      <label class="immich-form-label" for="email">{$t('email')}</label>
       <input
         class="immich-form-input"
         id="email"
@@ -112,7 +113,7 @@
     </div>
 
     <div class="flex flex-col gap-2">
-      <label class="immich-form-label" for="password">Mot de passe</label>
+      <label class="immich-form-label" for="password">{$t('password')}</label>
       <PasswordField id="password" bind:password autocomplete="current-password" />
     </div>
 
@@ -123,7 +124,7 @@
             <LoadingSpinner />
           </span>
         {:else}
-          Identifiant
+          Login
         {/if}
       </Button>
     </div>
@@ -137,7 +138,7 @@
       <span
         class="absolute left-1/2 -translate-x-1/2 bg-white px-3 font-medium text-gray-900 dark:bg-immich-dark-gray dark:text-white"
       >
-        ou
+        or
       </span>
     </div>
   {/if}
@@ -165,5 +166,5 @@
 {/if}
 
 {#if !$featureFlags.passwordLogin && !$featureFlags.oauth}
-  <p class="p-4 text-center dark:text-immich-dark-fg"> La connexion a été désactivée.</p>
+  <p class="p-4 text-center dark:text-immich-dark-fg">{$t('login_has_been_disabled')}</p>
 {/if}

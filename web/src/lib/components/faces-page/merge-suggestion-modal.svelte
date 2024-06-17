@@ -8,6 +8,7 @@
   import ImageThumbnail from '../assets/thumbnail/image-thumbnail.svelte';
   import Button from '../elements/buttons/button.svelte';
   import CircleIconButton from '../elements/buttons/circle-icon-button.svelte';
+  import { t } from 'svelte-i18n';
 
   export let personMerge1: PersonResponseDto;
   export let personMerge2: PersonResponseDto;
@@ -30,7 +31,7 @@
   };
 </script>
 
-<FullScreenModal id="merge-people-modal" title="Merge people - {title}" onClose={() => dispatch('close')}>
+<FullScreenModal title="{$t('merge_people')} - {title}" onClose={() => dispatch('close')}>
   <div class="flex items-center justify-center py-4 md:h-36 md:py-4">
     {#if !choosePersonToMerge}
       <div class="flex h-20 w-20 items-center px-1 md:h-24 md:w-24 md:px-2">
@@ -44,7 +45,7 @@
       </div>
       <div class="mx-0.5 flex md:mx-2">
         <CircleIconButton
-          title="Inverser la direction de la fusion"
+          title={$t('swap_merge_direction')}
           icon={mdiMerge}
           on:click={() => ([personMerge1, personMerge2] = [personMerge2, personMerge1])}
         />
@@ -98,13 +99,13 @@
   </div>
 
   <div class="flex px-4 md:pt-4">
-    <h1 class="text-xl text-gray-500 dark:text-gray-300">Est-ce la même personne ?</h1>
+    <h1 class="text-xl text-gray-500 dark:text-gray-300">Are these the same person?</h1>
   </div>
   <div class="flex px-4 pt-2">
-    <p class="text-sm text-gray-500 dark:text-gray-300">Ils seront fusionnés</p>
+    <p class="text-sm text-gray-500 dark:text-gray-300">They will be merged together</p>
   </div>
   <svelte:fragment slot="sticky-bottom">
-    <Button fullwidth color="gray" on:click={() => dispatch('reject')}>Non</Button>
-    <Button fullwidth on:click={() => dispatch('confirm', [personMerge1, personMerge2])}>Oui</Button>
+    <Button fullwidth color="gray" on:click={() => dispatch('reject')}>{$t('no')}</Button>
+    <Button fullwidth on:click={() => dispatch('confirm', [personMerge1, personMerge2])}>{$t('yes')}</Button>
   </svelte:fragment>
 </FullScreenModal>
