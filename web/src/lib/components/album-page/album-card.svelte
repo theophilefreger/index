@@ -3,7 +3,7 @@
   import { user } from '$lib/stores/user.store';
   import type { AlbumResponseDto } from '@immich/sdk';
   import { mdiDotsVertical } from '@mdi/js';
-  import { getContextMenuPosition, type ContextMenuPosition } from '$lib/utils/context-menu';
+  import { getContextMenuPositionFromEvent, type ContextMenuPosition } from '$lib/utils/context-menu';
   import { getShortDateRange } from '$lib/utils/date-time';
   import AlbumCover from '$lib/components/album-page/album-cover.svelte';
   import CircleIconButton from '$lib/components/elements/buttons/circle-icon-button.svelte';
@@ -20,7 +20,7 @@
   const showAlbumContextMenu = (e: MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    onShowContextMenu?.(getContextMenuPosition(e));
+    onShowContextMenu?.(getContextMenuPositionFromEvent(e));
   };
 </script>
 
@@ -46,7 +46,7 @@
     </div>
   {/if}
 
-  <AlbumCover {album} {preload} css="h-full w-full transition-all duration-300 hover:shadow-lg" />
+  <AlbumCover {album} {preload} class="h-full w-full transition-all duration-300 hover:shadow-lg" />
 
   <div class="mt-4">
     <p

@@ -15,9 +15,11 @@ import {
   linkOAuthAccount,
   startOAuth,
   unlinkOAuthAccount,
+  type AssetResponseDto,
   type SharedLinkResponseDto,
 } from '@immich/sdk';
 import { mdiCogRefreshOutline, mdiDatabaseRefreshOutline, mdiImageRefreshOutline } from '@mdi/js';
+import { sortBy } from 'lodash-es';
 import { t } from 'svelte-i18n';
 import { derived, get } from 'svelte/store';
 
@@ -301,3 +303,16 @@ export const handlePromiseError = <T>(promise: Promise<T>): void => {
 export const s = (count: number) => (count === 1 ? '' : 's');
 
 export const memoryLaneTitle = (yearsAgo: number) => `${yearsAgo} year${s(yearsAgo)} ago`;
+
+export const withError = async <T>(fn: () => Promise<T>): Promise<[undefined, T] | [unknown, undefined]> => {
+  try {
+    const result = await fn();
+    return [undefined, result];
+  } catch (error) {
+    return [error, undefined];
+  }
+};
+
+export const suggestDuplicateByFileSize = (assets: AssetResponseDto[]): AssetResponseDto | undefined => {
+  return sortBy(assets, (asset) => asset.exifInfo?.fileSizeInByte).pop();
+};

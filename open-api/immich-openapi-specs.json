@@ -8125,6 +8125,17 @@
         },
         "type": "object"
       },
+      "DownloadResponse": {
+        "properties": {
+          "archiveSize": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "archiveSize"
+        ],
+        "type": "object"
+      },
       "DownloadResponseDto": {
         "properties": {
           "archives": {
@@ -8141,6 +8152,15 @@
           "archives",
           "totalSize"
         ],
+        "type": "object"
+      },
+      "DownloadUpdate": {
+        "properties": {
+          "archiveSize": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
         "type": "object"
       },
       "DuplicateDetectionConfig": {
@@ -9006,6 +9026,7 @@
           },
           "libraryId": {
             "format": "uuid",
+            "nullable": true,
             "type": "string"
           },
           "make": {
@@ -10120,6 +10141,7 @@
           },
           "libraryId": {
             "format": "uuid",
+            "nullable": true,
             "type": "string"
           },
           "make": {
@@ -11255,6 +11277,9 @@
           "avatar": {
             "$ref": "#/components/schemas/AvatarResponse"
           },
+          "download": {
+            "$ref": "#/components/schemas/DownloadResponse"
+          },
           "emailNotifications": {
             "$ref": "#/components/schemas/EmailNotificationsResponse"
           },
@@ -11264,6 +11289,7 @@
         },
         "required": [
           "avatar",
+          "download",
           "emailNotifications",
           "memories"
         ],
@@ -11273,6 +11299,9 @@
         "properties": {
           "avatar": {
             "$ref": "#/components/schemas/AvatarUpdate"
+          },
+          "download": {
+            "$ref": "#/components/schemas/DownloadUpdate"
           },
           "emailNotifications": {
             "$ref": "#/components/schemas/EmailNotificationsUpdate"
