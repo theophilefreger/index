@@ -4,6 +4,7 @@
   import Button from '../elements/buttons/button.svelte';
   import FullScreenModal from './full-screen-modal.svelte';
   import { t } from 'svelte-i18n';
+  import FormatMessage from '$lib/components/i18n/format-message.svelte';
 
   let showModal = false;
 
@@ -34,25 +35,27 @@
 </script>
 
 {#if showModal}
-  <FullScreenModal title="🎉 Nouvelle version disponible" onClose={() => (showModal = false)}>
+  <FullScreenModal title="🎉 {$t('new_version_available')}" onClose={() => (showModal = false)}>
     <div>
-      Une nouvelle mise à jour de l'application est en cours de déploiement
-      <span class="font-medium underline"
-        ><a href="https://github.com/theophilefreger" target="_blank" rel="noopener noreferrer"
-          >Notes de mises à jour</a
-        ></span
-      >
-      et assurez-vous que votre configuration <code>docker-compose</code> et <code>.env</code> est à jour pour éviter toute
-      mauvaise configuration, en particulier si vous utilisez WatchTower ou un mécanisme qui gère la mise à jour de votre
-      application automatiquement. Pour admnistrateurs uniquement
+      <FormatMessage key="version_announcement_message" let:tag let:message>
+        {#if tag === 'link'}
+          <span class="font-medium underline">
+            <a href="https://github.com/theophilefreger" target="_blank" rel="noopener noreferrer">
+              {message}
+            </a>
+          </span>
+        {:else if tag === 'code'}
+          <code>{message}</code>
+        {/if}
+      </FormatMessage>
     </div>
 
     <div class="mt-4 font-medium">Théophile</div>
 
     <div class="font-sm mt-8">
-      <code>Version du serveur: {serverVersion}</code>
+      <code>{$t('server_version')}: {serverVersion}</code>
       <br />
-      <code>Version en déploiement: {releaseVersion}</code>
+      <code>{$t('latest_version')}: {releaseVersion}</code>
     </div>
 
     <svelte:fragment slot="sticky-bottom">

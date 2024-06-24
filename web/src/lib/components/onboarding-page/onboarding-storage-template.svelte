@@ -10,6 +10,7 @@
   import Icon from '../elements/icon.svelte';
   import OnboardingCard from './onboarding-card.svelte';
   import { t } from 'svelte-i18n';
+  import FormatMessage from '$lib/components/i18n/format-message.svelte';
 
   const dispatch = createEventDispatcher<{
     done: void;
@@ -29,9 +30,9 @@
   </p>
 
   <p>
-    Le modèle de stockage est utilisé pour déterminer la structure des dossiers et le nom des fichiers de vos fichiers multimédias.
-    Vous pouvez utiliser des variables pour personnaliser le modèle selon vos préférences.
-    <a class="underline" href="https://rfstudio.fr/documentation">documentation</a>.
+    <FormatMessage key="admin.storage_template_onboarding_description" let:message>
+      <a class="underline" href="https://rfstudio.fr/documentation">{message}</a>
+    </FormatMessage>
   </p>
 
   {#if config && $user}
@@ -60,7 +61,7 @@
               }}
             >
               <span class="flex place-content-center place-items-center gap-2">
-                Done
+                {$t('done')}
                 <Icon path={mdiCheck} size="18" />
               </span>
             </Button>

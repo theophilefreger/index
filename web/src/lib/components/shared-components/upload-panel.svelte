@@ -8,7 +8,6 @@
   import { uploadExecutionQueue } from '$lib/utils/file-uploader';
   import CircleIconButton from '../elements/buttons/circle-icon-button.svelte';
   import { mdiCog, mdiWindowMinimize, mdiCancel, mdiCloudUploadOutline } from '@mdi/js';
-  import { s } from '$lib/utils';
   import { t } from 'svelte-i18n';
 
   let showDetail = false;
@@ -38,18 +37,18 @@
     on:outroend={() => {
       if ($errorCounter > 0) {
         notificationController.show({
-          message: `Téléchargement terminé avec ${$errorCounter} erreur${s($errorCounter)}, rafraîchissez la page pour voir les nouvelles ressources téléchargées.`,
+          message: $t('upload_errors', { values: { count: $errorCounter } }),
           type: NotificationType.Warning,
         });
       } else if ($successCounter > 0) {
         notificationController.show({
-          message: 'Téléchargement réussi, rafraîchissez la page pour voir les nouvelles ressources téléchargées.',
+          message: $t('upload_success'),
           type: NotificationType.Info,
         });
       }
       if ($duplicateCounter > 0) {
         notificationController.show({
-          message: `Éléments en double ${$duplicateCounter} ignoré${s($duplicateCounter)}`,
+          message: $t('upload_skipped_duplicates', { values: { count: $duplicateCounter } }),
           type: NotificationType.Warning,
         });
       }
@@ -65,12 +64,18 @@
         <div class="place-item-center mb-4 flex justify-between">
           <div class="flex flex-col gap-1">
             <p class="immich-form-label text-xm">
-              En attente {$remainingUploads} - Traité {$successCounter + $errorCounter}/{$totalUploadCounter}
+              {$t('upload_progress', {
+                values: {
+                  remaining: $remainingUploads,
+                  processed: $successCounter + $errorCounter,
+                  total: $totalUploadCounter,
+                },
+              })}
             </p>
             <p class="immich-form-label text-xs">
-              Sauvegardé <span class="text-immich-success">{$successCounter}</span> - Erreur
-              <span class="text-immich-error">{$errorCounter}</span>
-              - Doublons <span class="text-immich-warning">{$duplicateCounter}</span>
+              {$t('upload_status_uploaded')} <span class="text-immich-success">{$successCounter}</span> -
+              {$t('upload_status_errors')} <span class="text-immich-error">{$errorCounter}</span> -
+              {$t('upload_status_duplicates')} <span class="text-immich-warning">{$duplicateCounter}</span>
             </p>
           </div>
           <div class="flex flex-col items-end">

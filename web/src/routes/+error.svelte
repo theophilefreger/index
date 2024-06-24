@@ -35,7 +35,7 @@
         <div>
           <div class="flex items-center justify-between gap-4 px-4 py-4">
             <h1 class="font-medium text-immich-primary dark:text-immich-dark-primary">
-              🚨 Erreur - Quelque chose s'est mal passé
+              🚨 {$t('error_title')}
             </h1>
             <div class="flex justify-end">
               <CircleIconButton

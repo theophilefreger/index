@@ -37,8 +37,7 @@
   const handleEmptyTrash = async () => {
     const isConfirmed = await dialogController.show({
       id: 'empty-trash',
-      prompt:
-        "Êtes-vous sûr de vouloir vider la poubelle ? Cela supprimera définitivement tous les actifs dans la corbeille de la Mémoire Vive. \nVous ne pouvez pas annuler cette action !",
+      prompt: $t('empty_trash_confirmation'),
     });
 
     if (!isConfirmed) {
@@ -53,7 +52,7 @@
       assetStore.removeAssets(deletedAssetIds);
 
       notificationController.show({
-        message: `Suppression définitive de ${numberOfAssets} ${numberOfAssets == 1 ? 'élément' : 'éléments'}`,
+        message: $t('assets_permanently_deleted_count', { values: { count: numberOfAssets } }),
         type: NotificationType.Info,
       });
     } catch (error) {
@@ -64,7 +63,7 @@
   const handleRestoreTrash = async () => {
     const isConfirmed = await dialogController.show({
       id: 'restore-trash',
-      prompt: 'Voulez-vous restaurer les éléments de la corbeille?',
+      prompt: $t('assets_restore_confirmation'),
     });
 
     if (!isConfirmed) {
@@ -78,7 +77,7 @@
       assetStore.removeAssets(restoredAssetIds);
 
       notificationController.show({
-        message: `Restauration de ${numberOfAssets} ${numberOfAssets == 1 ? 'élément' : 'éléments'}`,
+        message: $t('assets_restored_count', { values: { count: numberOfAssets } }),
         type: NotificationType.Info,
       });
     } catch (error) {

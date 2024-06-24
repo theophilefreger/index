@@ -6,6 +6,7 @@
   import { resetSavedUser, user } from '$lib/stores/user.store';
   import { logout } from '@immich/sdk';
   import type { PageData } from './$types';
+  import { t } from 'svelte-i18n';
 
   export let data: PageData;
 
@@ -18,11 +19,10 @@
 
 <FullscreenContainer title={data.meta.title}>
   <p slot="message">
-    Salut {$user.name} ({$user.email}),
+    {$t('hi_user', { values: { name: $user.name, email: $user.email } })}
     <br />
     <br />
-    Soit c'est la première fois que vous vous connectez au système, soit une demande de changement de mot de passe a été faite. 
-    Veuillez entrer le nouveau mot de passe ci-dessous.
+    {$t('change_password_description')}
   </p>
 
   <ChangePasswordForm on:success={onSuccess} />
