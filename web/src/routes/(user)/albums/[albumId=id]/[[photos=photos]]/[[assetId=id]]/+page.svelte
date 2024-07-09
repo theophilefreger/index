@@ -340,7 +340,6 @@
 
   const handleRemoveAlbum = async () => {
     const isConfirmed = await dialogController.show({
-      id: 'remove-album',
       prompt: $t('album_delete_confirmation', { values: { album: album.albumName } }),
     });
 
@@ -635,7 +634,6 @@
               disabled={!album.isActivityEnabled}
               {isLiked}
               numberOfComments={$numberOfComments}
-              {isShowActivity}
               on:favorite={handleFavorite}
               on:openActivityTab={handleOpenAndCloseActivityTab}
             />

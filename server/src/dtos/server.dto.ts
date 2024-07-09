@@ -7,6 +7,31 @@ export class ServerPingResponse {
   res!: string;
 }
 
+export class ServerAboutResponseDto {
+  version!: string;
+  versionUrl!: string;
+
+  repository?: string;
+  repositoryUrl?: string;
+
+  sourceRef?: string;
+  sourceCommit?: string;
+  sourceUrl?: string;
+
+  build?: string;
+  buildUrl?: string;
+  buildImage?: string;
+  buildImageUrl?: string;
+
+  nodejs?: string;
+  ffmpeg?: string;
+  imagemagick?: string;
+  libvips?: string;
+  exiftool?: string;
+
+  licensed!: boolean;
+}
+
 export class ServerStorageResponseDto {
   diskSize!: string;
   diskUse!: string;

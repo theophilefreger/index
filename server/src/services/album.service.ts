@@ -21,7 +21,7 @@ import { IAccessRepository } from 'src/interfaces/access.interface';
 import { IAlbumUserRepository } from 'src/interfaces/album-user.interface';
 import { AlbumAssetCount, AlbumInfoOptions, IAlbumRepository } from 'src/interfaces/album.interface';
 import { IAssetRepository } from 'src/interfaces/asset.interface';
-import { IJobRepository, JobName } from 'src/interfaces/job.interface';
+import { IEventRepository } from 'src/interfaces/event.interface';
 import { IUserRepository } from 'src/interfaces/user.interface';
 import { addAssets, removeAssets } from 'src/utils/asset.util';
 
@@ -32,9 +32,9 @@ export class AlbumService {
     @Inject(IAccessRepository) private accessRepository: IAccessRepository,
     @Inject(IAlbumRepository) private albumRepository: IAlbumRepository,
     @Inject(IAssetRepository) private assetRepository: IAssetRepository,
+    @Inject(IEventRepository) private eventRepository: IEventRepository,
     @Inject(IUserRepository) private userRepository: IUserRepository,
     @Inject(IAlbumUserRepository) private albumUserRepository: IAlbumUserRepository,
-    @Inject(IJobRepository) private jobRepository: IJobRepository,
   ) {
     this.access = AccessCore.create(accessRepository);
   }
@@ -146,8 +146,8 @@ export class AlbumService {
     const album = await this.findOrFail(id, { withAssets: true });
 
     if (dto.albumThumbnailAssetId) {
-      const valid = await this.albumRepository.hasAsset({ albumId: id, assetId: dto.albumThumbnailAssetId });
-      if (!valid) {
+      const results = await this.albumRepository.getAssetIds(id, [dto.albumThumbnailAssetId]);
+      if (results.size === 0) {
         throw new BadRequestException('Invalid album thumbnail');
       }
     }
@@ -178,7 +178,7 @@ export class AlbumService {
     const results = await addAssets(
       auth,
       { accessRepository: this.accessRepository, repository: this.albumRepository },
-      { id, assetIds: dto.ids },
+      { parentId: id, assetIds: dto.ids },
     );
 
     const { id: firstNewAssetId } = results.find(({ success }) => success) || {};
@@ -188,25 +188,21 @@ export class AlbumService {
         updatedAt: new Date(),
         albumThumbnailAssetId: album.albumThumbnailAssetId ?? firstNewAssetId,
       });
-    }
 
-    await this.jobRepository.queue({
-      name: JobName.NOTIFY_ALBUM_UPDATE,
-      data: { id, senderId: auth.user.id },
-    });
+      await this.eventRepository.emit('onAlbumUpdateEvent', { id, updatedBy: auth.user.id });
+    }
 
     return results;
   }
 
   async removeAssets(auth: AuthDto, id: string, dto: BulkIdsDto): Promise<BulkIdResponseDto[]> {
-    const album = await this.findOrFail(id, { withAssets: false });
-
     await this.access.requirePermission(auth, Permission.ALBUM_REMOVE_ASSET, id);
 
+    const album = await this.findOrFail(id, { withAssets: false });
     const results = await removeAssets(
       auth,
       { accessRepository: this.accessRepository, repository: this.albumRepository },
-      { id, assetIds: dto.ids, permissions: [Permission.ASSET_SHARE, Permission.ALBUM_REMOVE_ASSET] },
+      { parentId: id, assetIds: dto.ids, canAlwaysRemove: Permission.ALBUM_DELETE },
     );
 
     const removedIds = results.filter(({ success }) => success).map(({ id }) => id);
@@ -241,11 +237,7 @@ export class AlbumService {
       }
 
       await this.albumUserRepository.create({ userId: userId, albumId: id, role });
-
-      await this.jobRepository.queue({
-        name: JobName.NOTIFY_ALBUM_INVITE,
-        data: { id: album.id, recipientId: user.id },
-      });
+      await this.eventRepository.emit('onAlbumInviteEvent', { id, userId });
     }
 
     return this.findOrFail(id, { withAssets: true }).then(mapAlbumWithoutAssets);

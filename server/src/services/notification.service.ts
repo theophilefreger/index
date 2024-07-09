@@ -1,12 +1,17 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { DEFAULT_EXTERNAL_DOMAIN } from 'src/constants';
 import { SystemConfigCore } from 'src/cores/system-config.core';
-import { OnServerEvent } from 'src/decorators';
 import { SystemConfigSmtpDto } from 'src/dtos/system-config.dto';
 import { AlbumEntity } from 'src/entities/album.entity';
 import { IAlbumRepository } from 'src/interfaces/album.interface';
 import { IAssetRepository } from 'src/interfaces/asset.interface';
-import { ServerAsyncEvent, ServerAsyncEventMap } from 'src/interfaces/event.interface';
+import {
+  AlbumInviteEvent,
+  AlbumUpdateEvent,
+  OnEvents,
+  SystemConfigUpdateEvent,
+  UserSignupEvent,
+} from 'src/interfaces/event.interface';
 import {
   IEmailJob,
   IJobRepository,
@@ -23,7 +28,7 @@ import { IUserRepository } from 'src/interfaces/user.interface';
 import { getPreferences } from 'src/utils/preferences';
 
 @Injectable()
-export class NotificationService {
+export class NotificationService implements OnEvents {
   private configCore: SystemConfigCore;
 
   constructor(
@@ -39,13 +44,7 @@ export class NotificationService {
     this.configCore = SystemConfigCore.create(systemMetadataRepository, logger);
   }
 
-  init() {
-    // TODO
-    return Promise.resolve();
-  }
-
-  @OnServerEvent(ServerAsyncEvent.CONFIG_VALIDATE)
-  async onValidateConfig({ newConfig }: ServerAsyncEventMap[ServerAsyncEvent.CONFIG_VALIDATE]) {
+  async onConfigValidateEvent({ newConfig }: SystemConfigUpdateEvent) {
     try {
       if (newConfig.notifications.smtp.enabled) {
         await this.notificationRepository.verifySmtp(newConfig.notifications.smtp.transport);
@@ -54,6 +53,20 @@ export class NotificationService {
       this.logger.error(`Failed to validate SMTP configuration: ${error}`, error?.stack);
       throw new Error(`Invalid SMTP configuration: ${error}`);
     }
+  }
+
+  async onUserSignupEvent({ notify, id, tempPassword }: UserSignupEvent) {
+    if (notify) {
+      await this.jobRepository.queue({ name: JobName.NOTIFY_SIGNUP, data: { id, tempPassword } });
+    }
+  }
+
+  async onAlbumUpdateEvent({ id, updatedBy }: AlbumUpdateEvent) {
+    await this.jobRepository.queue({ name: JobName.NOTIFY_ALBUM_UPDATE, data: { id, senderId: updatedBy } });
+  }
+
+  async onAlbumInviteEvent({ id, userId }: AlbumInviteEvent) {
+    await this.jobRepository.queue({ name: JobName.NOTIFY_ALBUM_INVITE, data: { id, recipientId: userId } });
   }
 
   async sendTestEmail(id: string, dto: SystemConfigSmtpDto) {

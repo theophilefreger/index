@@ -1,7 +1,11 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { getBuildMetadata, getServerLicensePublicKey } from 'src/config';
+import { serverVersion } from 'src/constants';
 import { StorageCore, StorageFolder } from 'src/cores/storage.core';
 import { SystemConfigCore } from 'src/cores/system-config.core';
+import { LicenseKeyDto, LicenseResponseDto } from 'src/dtos/license.dto';
 import {
+  ServerAboutResponseDto,
   ServerConfigDto,
   ServerFeaturesDto,
   ServerMediaTypesResponseDto,
@@ -9,9 +13,12 @@ import {
   ServerStatsResponseDto,
   ServerStorageResponseDto,
   UsageByUserDto,
-} from 'src/dtos/server-info.dto';
+} from 'src/dtos/server.dto';
 import { SystemMetadataKey } from 'src/entities/system-metadata.entity';
+import { ICryptoRepository } from 'src/interfaces/crypto.interface';
+import { OnEvents } from 'src/interfaces/event.interface';
 import { ILoggerRepository } from 'src/interfaces/logger.interface';
+import { IServerInfoRepository } from 'src/interfaces/server-info.interface';
 import { IStorageRepository } from 'src/interfaces/storage.interface';
 import { ISystemMetadataRepository } from 'src/interfaces/system-metadata.interface';
 import { IUserRepository, UserStatsQueryResponse } from 'src/interfaces/user.interface';
@@ -20,26 +27,44 @@ import { mimeTypes } from 'src/utils/mime-types';
 import { isDuplicateDetectionEnabled, isFacialRecognitionEnabled, isSmartSearchEnabled } from 'src/utils/misc';
 
 @Injectable()
-export class ServerInfoService {
+export class ServerService implements OnEvents {
   private configCore: SystemConfigCore;
 
   constructor(
     @Inject(IUserRepository) private userRepository: IUserRepository,
     @Inject(IStorageRepository) private storageRepository: IStorageRepository,
     @Inject(ISystemMetadataRepository) private systemMetadataRepository: ISystemMetadataRepository,
+    @Inject(IServerInfoRepository) private serverInfoRepository: IServerInfoRepository,
     @Inject(ILoggerRepository) private logger: ILoggerRepository,
+    @Inject(ICryptoRepository) private cryptoRepository: ICryptoRepository,
   ) {
-    this.logger.setContext(ServerInfoService.name);
+    this.logger.setContext(ServerService.name);
     this.configCore = SystemConfigCore.create(systemMetadataRepository, this.logger);
   }
 
-  async init(): Promise<void> {
+  async onBootstrapEvent(): Promise<void> {
     const featureFlags = await this.getFeatures();
     if (featureFlags.configFile) {
       await this.systemMetadataRepository.set(SystemMetadataKey.ADMIN_ONBOARDING, {
         isOnboarded: true,
       });
     }
+    this.logger.log(`Feature Flags: ${JSON.stringify(await this.getFeatures(), null, 2)}`);
+  }
+
+  async getAboutInfo(): Promise<ServerAboutResponseDto> {
+    const version = `v${serverVersion.toString()}`;
+    const buildMetadata = getBuildMetadata();
+    const buildVersions = await this.serverInfoRepository.getBuildVersions();
+    const licensed = await this.systemMetadataRepository.get(SystemMetadataKey.LICENSE);
+
+    return {
+      version,
+      versionUrl: `https://github.com/immich-app/immich/releases/tag/${version}`,
+      licensed: !!licensed,
+      ...buildMetadata,
+      ...buildVersions,
+    };
   }
 
   async getStorage(): Promise<ServerStorageResponseDto> {
@@ -133,5 +158,37 @@ export class ServerInfoService {
       image: Object.keys(mimeTypes.image),
       sidecar: Object.keys(mimeTypes.sidecar),
     };
+  }
+
+  async deleteLicense(): Promise<void> {
+    await this.systemMetadataRepository.delete(SystemMetadataKey.LICENSE);
+  }
+
+  async getLicense(): Promise<LicenseKeyDto | null> {
+    return this.systemMetadataRepository.get(SystemMetadataKey.LICENSE);
+  }
+
+  async setLicense(dto: LicenseKeyDto): Promise<LicenseResponseDto> {
+    if (!dto.licenseKey.startsWith('IMSV-')) {
+      throw new BadRequestException('Invalid license key');
+    }
+    const licenseValid = this.cryptoRepository.verifySha256(
+      dto.licenseKey,
+      dto.activationKey,
+      getServerLicensePublicKey(),
+    );
+
+    if (!licenseValid) {
+      throw new BadRequestException('Invalid license key');
+    }
+
+    const licenseData = {
+      ...dto,
+      activatedAt: new Date(),
+    };
+
+    await this.systemMetadataRepository.set(SystemMetadataKey.LICENSE, licenseData);
+
+    return licenseData;
   }
 }

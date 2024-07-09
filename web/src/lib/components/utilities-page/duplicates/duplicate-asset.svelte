@@ -4,7 +4,7 @@
   import { getAssetResolution, getFileSize } from '$lib/utils/asset-utils';
   import { getAltText } from '$lib/utils/thumbnail-util';
   import { getAllAlbums, type AssetResponseDto } from '@immich/sdk';
-  import { mdiMagnifyPlus } from '@mdi/js';
+  import { mdiHeart, mdiMagnifyPlus } from '@mdi/js';
   import { t } from 'svelte-i18n';
 
   export let asset: AssetResponseDto;
@@ -21,22 +21,29 @@
     ? 'bg-immich-primary dark:bg-immich-dark-primary border-immich-primary dark:border-immich-dark-primary'
     : 'bg-gray-200 dark:bg-gray-800 border-gray-200 dark:border-gray-800'}"
 >
-  <div class="relative">
+  <div class="relative w-full">
     <button
       type="button"
       on:click={() => onSelectAsset(asset)}
-      class="block relative"
+      class="block relative w-full"
       aria-pressed={isSelected}
       aria-label={$t('keep')}
     >
       <!-- THUMBNAIL-->
       <img
         src={getAssetThumbnailUrl(asset.id)}
-        alt={getAltText(asset)}
+        alt={$getAltText(asset)}
         title={assetData}
-        class="h-60 object-cover rounded-t-xl"
+        class="h-60 object-cover rounded-t-xl w-full"
         draggable="false"
       />
+
+      <!-- FAVORITE ICON -->
+      {#if asset.isFavorite}
+        <div class="absolute bottom-2 left-2">
+          <Icon path={mdiHeart} size="24" class="text-white" />
+        </div>
+      {/if}
 
       <!-- OVERLAY CHIP -->
       <div
@@ -58,7 +65,7 @@
     <button
       type="button"
       on:click={() => onViewAsset(asset)}
-      class="absolute rounded-full bottom-1 left-1 text-gray-200 p-2 hover:text-white bg-black/35 hover:bg-black/50"
+      class="absolute rounded-full top-1 left-1 text-gray-200 p-2 hover:text-white bg-black/35 hover:bg-black/50"
       title={$t('view')}
     >
       <Icon ariaLabel={$t('view')} path={mdiMagnifyPlus} flipped size="18" />

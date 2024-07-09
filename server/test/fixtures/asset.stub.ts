@@ -1,15 +1,17 @@
-import { AssetStackEntity } from 'src/entities/asset-stack.entity';
 import { AssetEntity, AssetType } from 'src/entities/asset.entity';
 import { ExifEntity } from 'src/entities/exif.entity';
+import { StackEntity } from 'src/entities/stack.entity';
 import { authStub } from 'test/fixtures/auth.stub';
 import { fileStub } from 'test/fixtures/file.stub';
 import { libraryStub } from 'test/fixtures/library.stub';
 import { userStub } from 'test/fixtures/user.stub';
 
-export const assetStackStub = (stackId: string, assets: AssetEntity[]): AssetStackEntity => {
+export const stackStub = (stackId: string, assets: AssetEntity[]): StackEntity => {
   return {
     id: stackId,
     assets: assets,
+    owner: assets[0].owner,
+    ownerId: assets[0].ownerId,
     primaryAsset: assets[0],
     primaryAssetId: assets[0].id,
   };
@@ -161,7 +163,7 @@ export const assetStub = {
       exifImageHeight: 1000,
       exifImageWidth: 1000,
     } as ExifEntity,
-    stack: assetStackStub('stack-1', [
+    stack: stackStub('stack-1', [
       { id: 'primary-asset-id' } as AssetEntity,
       { id: 'stack-child-asset-1' } as AssetEntity,
       { id: 'stack-child-asset-2' } as AssetEntity,
@@ -555,6 +557,21 @@ export const assetStub = {
 
   livePhotoStillAsset: Object.freeze({
     id: 'live-photo-still-asset',
+    originalPath: fileStub.livePhotoStill.originalPath,
+    ownerId: authStub.user1.user.id,
+    type: AssetType.IMAGE,
+    livePhotoVideoId: 'live-photo-motion-asset',
+    isVisible: true,
+    fileModifiedAt: new Date('2022-06-19T23:41:36.910Z'),
+    fileCreatedAt: new Date('2022-06-19T23:41:36.910Z'),
+    exifInfo: {
+      fileSizeInByte: 25_000,
+      timeZone: `America/New_York`,
+    },
+  } as AssetEntity),
+
+  livePhotoStillAssetWithTheSameLivePhotoMotionAsset: Object.freeze({
+    id: 'live-photo-still-asset-1',
     originalPath: fileStub.livePhotoStill.originalPath,
     ownerId: authStub.user1.user.id,
     type: AssetType.IMAGE,

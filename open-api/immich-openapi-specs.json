@@ -3660,11 +3660,7 @@
             "required": true,
             "in": "query",
             "schema": {
-              "enum": [
-                "shared-by",
-                "shared-with"
-              ],
-              "type": "string"
+              "$ref": "#/components/schemas/PartnerDirection"
             }
           }
         ],
@@ -4718,8 +4714,48 @@
         ]
       }
     },
+    "/server-info/about": {
+      "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
+        "operationId": "getAboutInfo",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerAboutResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "tags": [
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
+      }
+    },
     "/server-info/config": {
       "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
         "operationId": "getServerConfig",
         "parameters": [],
         "responses": {
@@ -4735,12 +4771,18 @@
           }
         },
         "tags": [
-          "Server Info"
-        ]
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
       }
     },
     "/server-info/features": {
       "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
         "operationId": "getServerFeatures",
         "parameters": [],
         "responses": {
@@ -4756,12 +4798,18 @@
           }
         },
         "tags": [
-          "Server Info"
-        ]
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
       }
     },
     "/server-info/media-types": {
       "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
         "operationId": "getSupportedMediaTypes",
         "parameters": [],
         "responses": {
@@ -4777,12 +4825,18 @@
           }
         },
         "tags": [
-          "Server Info"
-        ]
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
       }
     },
     "/server-info/ping": {
       "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
         "operationId": "pingServer",
         "parameters": [],
         "responses": {
@@ -4798,12 +4852,18 @@
           }
         },
         "tags": [
-          "Server Info"
-        ]
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
       }
     },
     "/server-info/statistics": {
       "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
         "operationId": "getServerStatistics",
         "parameters": [],
         "responses": {
@@ -4830,12 +4890,18 @@
           }
         ],
         "tags": [
-          "Server Info"
-        ]
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
       }
     },
     "/server-info/storage": {
       "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
         "operationId": "getStorage",
         "parameters": [],
         "responses": {
@@ -4862,12 +4928,18 @@
           }
         ],
         "tags": [
-          "Server Info"
-        ]
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
       }
     },
     "/server-info/theme": {
       "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
         "operationId": "getTheme",
         "parameters": [],
         "responses": {
@@ -4883,12 +4955,18 @@
           }
         },
         "tags": [
-          "Server Info"
-        ]
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
       }
     },
     "/server-info/version": {
       "get": {
+        "deprecated": true,
+        "description": "This property was deprecated in v1.107.0",
         "operationId": "getServerVersion",
         "parameters": [],
         "responses": {
@@ -4904,7 +4982,106 @@
           }
         },
         "tags": [
-          "Server Info"
+          "Server Info",
+          "Deprecated"
+        ],
+        "x-immich-lifecycle": {
+          "deprecatedAt": "v1.107.0"
+        }
+      }
+    },
+    "/server/license": {
+      "delete": {
+        "operationId": "deleteServerLicense",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "tags": [
+          "Server"
+        ]
+      },
+      "get": {
+        "operationId": "getServerLicense",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "tags": [
+          "Server"
+        ]
+      },
+      "put": {
+        "operationId": "setServerLicense",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LicenseKeyDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "tags": [
+          "Server"
         ]
       }
     },
@@ -6508,6 +6685,101 @@
         ]
       }
     },
+    "/users/me/license": {
+      "delete": {
+        "operationId": "deleteUserLicense",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "get": {
+        "operationId": "getUserLicense",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      },
+      "put": {
+        "operationId": "setUserLicense",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LicenseKeyDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicenseResponseDto"
+                }
+              }
+            },
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ]
+      }
+    },
     "/users/me/preferences": {
       "get": {
         "operationId": "getMyPreferences",
@@ -6735,7 +7007,7 @@
   "info": {
     "title": "Immich",
     "description": "Immich API",
-    "version": "1.106.4",
+    "version": "1.107.2",
     "contact": {}
   },
   "tags": [],
@@ -8679,6 +8951,43 @@
         ],
         "type": "object"
       },
+      "LicenseKeyDto": {
+        "properties": {
+          "activationKey": {
+            "type": "string"
+          },
+          "licenseKey": {
+            "pattern": "/IM(SV|CL)(-[\\dA-Za-z]{4}){8}/",
+            "type": "string"
+          }
+        },
+        "required": [
+          "activationKey",
+          "licenseKey"
+        ],
+        "type": "object"
+      },
+      "LicenseResponseDto": {
+        "properties": {
+          "activatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "activationKey": {
+            "type": "string"
+          },
+          "licenseKey": {
+            "pattern": "/IM(SV|CL)(-[\\dA-Za-z]{4}){8}/",
+            "type": "string"
+          }
+        },
+        "required": [
+          "activatedAt",
+          "activationKey",
+          "licenseKey"
+        ],
+        "type": "object"
+      },
       "LogLevel": {
         "enum": [
           "verbose",
@@ -9160,6 +9469,13 @@
         ],
         "type": "object"
       },
+      "PartnerDirection": {
+        "enum": [
+          "shared-by",
+          "shared-with"
+        ],
+        "type": "string"
+      },
       "PartnerResponseDto": {
         "properties": {
           "avatarColor": {
@@ -9313,6 +9629,11 @@
           },
           "thumbnailPath": {
             "type": "string"
+          },
+          "updatedAt": {
+            "description": "This property was added in v1.107.0",
+            "format": "date-time",
+            "type": "string"
           }
         },
         "required": [
@@ -9381,6 +9702,11 @@
             "type": "string"
           },
           "thumbnailPath": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "description": "This property was added in v1.107.0",
+            "format": "date-time",
             "type": "string"
           }
         },
@@ -9629,6 +9955,67 @@
           "camera-model"
         ],
         "type": "string"
+      },
+      "ServerAboutResponseDto": {
+        "properties": {
+          "build": {
+            "type": "string"
+          },
+          "buildImage": {
+            "type": "string"
+          },
+          "buildImageUrl": {
+            "type": "string"
+          },
+          "buildUrl": {
+            "type": "string"
+          },
+          "exiftool": {
+            "type": "string"
+          },
+          "ffmpeg": {
+            "type": "string"
+          },
+          "imagemagick": {
+            "type": "string"
+          },
+          "libvips": {
+            "type": "string"
+          },
+          "licensed": {
+            "type": "boolean"
+          },
+          "nodejs": {
+            "type": "string"
+          },
+          "repository": {
+            "type": "string"
+          },
+          "repositoryUrl": {
+            "type": "string"
+          },
+          "sourceCommit": {
+            "type": "string"
+          },
+          "sourceRef": {
+            "type": "string"
+          },
+          "sourceUrl": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          },
+          "versionUrl": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "licensed",
+          "version",
+          "versionUrl"
+        ],
+        "type": "object"
       },
       "ServerConfigDto": {
         "properties": {
@@ -11177,6 +11564,14 @@
           "isAdmin": {
             "type": "boolean"
           },
+          "license": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserLicense"
+              }
+            ],
+            "nullable": true
+          },
           "name": {
             "type": "string"
           },
@@ -11218,6 +11613,7 @@
           "email",
           "id",
           "isAdmin",
+          "license",
           "name",
           "oauthId",
           "profileImagePath",
@@ -11271,6 +11667,26 @@
           "amber"
         ],
         "type": "string"
+      },
+      "UserLicense": {
+        "properties": {
+          "activatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "activationKey": {
+            "type": "string"
+          },
+          "licenseKey": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "activatedAt",
+          "activationKey",
+          "licenseKey"
+        ],
+        "type": "object"
       },
       "UserPreferencesResponseDto": {
         "properties": {

@@ -67,7 +67,7 @@
         {:else if uploadAsset.state === UploadState.DUPLICATED}
           <div class="h-[15px] rounded-md bg-immich-warning transition-all" style="width: 100%" />
           <p class="absolute top-0 h-full w-full text-center text-[10px]">
-            Ignoré
+            {$t('asset_skipped')}
             {#if uploadAsset.message}
               ({uploadAsset.message})
             {/if}
@@ -75,7 +75,7 @@
         {:else if uploadAsset.state === UploadState.DONE}
           <div class="h-[15px] rounded-md bg-immich-success transition-all" style="width: 100%" />
           <p class="absolute top-0 h-full w-full text-center text-[10px]">
-            Sauvegardé
+            {$t('asset_uploaded')}
             {#if uploadAsset.message}
               ({uploadAsset.message})
             {/if}

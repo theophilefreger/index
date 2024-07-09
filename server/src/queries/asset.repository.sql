@@ -205,6 +205,7 @@ SELECT
   "8258e303a73a72cf6abb13d73fb592dde0d68280"."faceAssetId" AS "8258e303a73a72cf6abb13d73fb592dde0d68280_faceAssetId",
   "8258e303a73a72cf6abb13d73fb592dde0d68280"."isHidden" AS "8258e303a73a72cf6abb13d73fb592dde0d68280_isHidden",
   "AssetEntity__AssetEntity_stack"."id" AS "AssetEntity__AssetEntity_stack_id",
+  "AssetEntity__AssetEntity_stack"."ownerId" AS "AssetEntity__AssetEntity_stack_ownerId",
   "AssetEntity__AssetEntity_stack"."primaryAssetId" AS "AssetEntity__AssetEntity_stack_primaryAssetId",
   "bd93d5747511a4dad4923546c51365bf1a803774"."id" AS "bd93d5747511a4dad4923546c51365bf1a803774_id",
   "bd93d5747511a4dad4923546c51365bf1a803774"."deviceAssetId" AS "bd93d5747511a4dad4923546c51365bf1a803774_deviceAssetId",
@@ -376,6 +377,14 @@ WHERE
     AND ("AssetEntity"."deviceId" = $2)
     AND ("AssetEntity"."isVisible" = $3)
   )
+
+-- AssetRepository.getLivePhotoCount
+SELECT
+  COUNT(1) AS "cnt"
+FROM
+  "assets" "AssetEntity"
+WHERE
+  (("AssetEntity"."livePhotoVideoId" = $1))
 
 -- AssetRepository.getById
 SELECT
@@ -621,6 +630,7 @@ SELECT
   "exifInfo"."bitsPerSample" AS "exifInfo_bitsPerSample",
   "exifInfo"."fps" AS "exifInfo_fps",
   "stack"."id" AS "stack_id",
+  "stack"."ownerId" AS "stack_ownerId",
   "stack"."primaryAssetId" AS "stack_primaryAssetId",
   "stackedAssets"."id" AS "stackedAssets_id",
   "stackedAssets"."deviceAssetId" AS "stackedAssets_deviceAssetId",
@@ -761,6 +771,7 @@ SELECT
   "exifInfo"."bitsPerSample" AS "exifInfo_bitsPerSample",
   "exifInfo"."fps" AS "exifInfo_fps",
   "stack"."id" AS "stack_id",
+  "stack"."ownerId" AS "stack_ownerId",
   "stack"."primaryAssetId" AS "stack_primaryAssetId",
   "stackedAssets"."id" AS "stackedAssets_id",
   "stackedAssets"."deviceAssetId" AS "stackedAssets_deviceAssetId",
@@ -877,6 +888,7 @@ SELECT
   "exifInfo"."bitsPerSample" AS "exifInfo_bitsPerSample",
   "exifInfo"."fps" AS "exifInfo_fps",
   "stack"."id" AS "stack_id",
+  "stack"."ownerId" AS "stack_ownerId",
   "stack"."primaryAssetId" AS "stack_primaryAssetId",
   "stackedAssets"."id" AS "stackedAssets_id",
   "stackedAssets"."deviceAssetId" AS "stackedAssets_deviceAssetId",
@@ -1043,6 +1055,7 @@ SELECT
   "exifInfo"."bitsPerSample" AS "exifInfo_bitsPerSample",
   "exifInfo"."fps" AS "exifInfo_fps",
   "stack"."id" AS "stack_id",
+  "stack"."ownerId" AS "stack_ownerId",
   "stack"."primaryAssetId" AS "stack_primaryAssetId"
 FROM
   "assets" "asset"
@@ -1118,6 +1131,7 @@ SELECT
   "exifInfo"."bitsPerSample" AS "exifInfo_bitsPerSample",
   "exifInfo"."fps" AS "exifInfo_fps",
   "stack"."id" AS "stack_id",
+  "stack"."ownerId" AS "stack_ownerId",
   "stack"."primaryAssetId" AS "stack_primaryAssetId"
 FROM
   "assets" "asset"
