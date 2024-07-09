@@ -37,7 +37,7 @@
     "cleared_jobs": "Activități eliminate pentru: {job}",
     "config_set_by_file": "Configurația este setată în prezent de un fișier de configurare",
     "confirm_delete_library": "Sigur doriți să ștergeți biblioteca {library}?",
-    "confirm_delete_library_assets": "Sigur doriți să ștergeți această bibliotecă? Aceasta va șterge {count, plural, one {# contained asset} alte {all # contained asset}} din Immich și nu poate fi anulată. Fișierele vor rămâne pe disc.",
+    "confirm_delete_library_assets": "Sigur doriți să ștergeți această bibliotecă? Aceasta va șterge {count, plural, one {# contained asset} alte {all # contained asset}} din Mémoire Vive și nu poate fi anulată. Fișierele vor rămâne pe disc.",
     "confirm_email_below": "Pentru a confirma, tastați „{email}” mai jos",
     "confirm_reprocess_all_faces": "Sigur doriți să reprocesați toate fețele? Acest lucru va șterge și persoanele cu nume.",
     "confirm_user_password_reset": "Sigur doriți să resetați parola utilizatorului {user}?",

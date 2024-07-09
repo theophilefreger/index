@@ -37,7 +37,7 @@
     "cleared_jobs": "已清除 {job} 的任務",
     "config_set_by_file": "目前的設定已透過設定檔案設置",
     "confirm_delete_library": "您確定要刪除 {library} 嗎？",
-    "confirm_delete_library_assets": "您確定要刪除此圖庫嗎？這將從 Immich 中刪除{count, plural, one {個項目} other {個項目}}，且無法復原。檔案仍會保留在硬碟中。",
+    "confirm_delete_library_assets": "您確定要刪除此圖庫嗎？這將從 Mémoire Vive 中刪除{count, plural, one {個項目} other {個項目}}，且無法復原。檔案仍會保留在硬碟中。",
     "confirm_email_below": "請在底下輸入 {email} 來確認",
     "confirm_reprocess_all_faces": "您確定要重新處理所有面孔嗎？這將清除已命名的面孔。",
     "confirm_user_password_reset": "您確定要重設 {user} 的密碼嗎？",
